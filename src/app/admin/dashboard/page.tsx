@@ -4,7 +4,7 @@ export default function AdminDashboard() {
       <h1 className="text-3xl font-bold">Admin Dashboard</h1>
       <p className="text-gray-600 mt-2">Welcome back, Administrator</p>
       
-      <div className="mt-8">
+      <div className="mt-8 grid grid-cols-4 gap-6">
         {/* Stats will go here */}
       </div>
     </div>
