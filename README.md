@@ -203,4 +203,4 @@ For questions or support, please contact the development team.
 
 ---
 
-Built with ❤️ for better education management
+Built with Edux Team for better education management
