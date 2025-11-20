@@ -111,6 +111,13 @@
 display: none !important;
 }
 
+.error {
+    color: red;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+    text-align: left;
+}
+
 .label{
     display: flex;
     align-items: center;
@@ -244,15 +251,20 @@ display: none !important;
 
 .rightSide {
     width: 50%;
-    background-color: #f9fafb;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    align-items: flex-end;
-    padding: 2rem;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
     position: relative;
-    background-color : black;
     border-radius: 100px 0 0 100px ;
+    transition: all 0.5s ease;
+}
+
+
+.hidden {
+    display: none;
 }
 
 .form{
@@ -364,4 +376,36 @@ display: none !important;
         margin-top: 0.75rem;
         font-size: 0.8rem;
     }
+}
+
+.black{
+    position: absolute;
+    top:0;
+    right: 0;
+    width: 50%;
+    height: 100%;
+    border-radius: 150px 0 0 150px;
+    background-color: black;
+    z-index: 9999;
+    transition: all 0.5s ease;
+}
+
+.black.moveLeft {
+    transform: translateX(-100%);
+    border-radius: 0 150px 150px 0 ;
+}
+
+.newleft{
+    position: absolute;
+    display: none;
+    width: 50%;
+    background-color: white;
+    min-height: 100vh;
+    justify-content: center;
+    align-items: center;
+}
+
+.newleft.none{
+    display: flex;
+
 }
