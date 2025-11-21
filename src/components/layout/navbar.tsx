@@ -35,8 +35,8 @@ export default function Navbar() {
         </ul>
 
         <div className={styles.actions}>
-          <Link href="/login" className={styles.loginLink}>تسجيل الدخول</Link>
-          <Link href="/register" className={styles.signUpButton}>Sign up</Link>
+          <Link href="/login" className={styles.signUpButton}>Sign Up</Link>
+          <Link href="/register" className={styles.loginLink}>Login</Link>
         </div>
       </div>
     </nav>

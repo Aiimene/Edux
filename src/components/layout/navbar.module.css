@@ -3,31 +3,27 @@
   top: 0;
   left: 0;
   right: 0;
-  background-color: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
+  z-index: 99999;
   padding: 1rem 0;
+
 }
 
 .container {
-  max-width: 1200px;
+
+  max-width: 1500px;
   margin: 0 auto;
   padding: 0 2rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 2rem;
+  gap: 10rem;
 }
 
 .logo {
   flex-shrink: 0;
 }
 
-.logo a {
-  display: flex;
-  align-items: center;
-}
+
 
 .navLinks {
   display: flex;
@@ -36,16 +32,18 @@
   padding: 0;
   gap: 2rem;
   flex: 1;
-  justify-content: center;
+  justify-content: space-around;
+
 }
 
 .navLink {
   color: #333;
   text-decoration: none;
   font-weight: 500;
-  font-size: 1rem;
+  font-size: 1.2rem;
   transition: color 0.3s ease;
   position: relative;
+  font-weight: 600;
 }
 
 .navLink:hover {
@@ -72,36 +70,48 @@
   align-items: center;
   gap: 1rem;
   flex-shrink: 0;
+
 }
 
 .loginLink {
   color: #333;
   text-decoration: none;
   font-weight: 500;
-  font-size: 0.95rem;
-  transition: color 0.3s ease;
+  font-size: 1.4rem;
+  transition: all 0.3s ease;
+  background-color: rgba(0, 184, 255, 1);
+  border: 2px solid rgba(3, 161, 222, 1);
+  border-radius: 999Px;
+  padding:  0.2rem 1rem ;
 }
 
 .loginLink:hover {
-  color: #00B8FF;
-}
-
-.signUpButton {
-  background: linear-gradient(to right, #00B8FF, #990073);
-  color: white;
-  padding: 0.6rem 1.5rem;
-  border-radius: 25px;
-  text-decoration: none;
-  font-weight: 600;
-  font-size: 0.95rem;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  display: inline-block;
-}
-
-.signUpButton:hover {
+  background-color: rgba(3, 161, 222, 1);
+  border-color: rgba(0, 184, 255, 1);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 184, 255, 0.3);
 }
+
+.signUpButton {
+  color: #333;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 1.4rem;
+  transition: all 0.3s ease;
+  border: 2px solid rgba(0, 0, 0, 0.48);
+  border-radius: 999Px;
+  padding:  0.2rem 1rem ;
+}
+
+.signUpButton:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.7);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+
+
 
 /* Mobile Menu */
 .mobileMenuButton {
