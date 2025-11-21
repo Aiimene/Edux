@@ -72,3 +72,24 @@
         width: 40%;
     }
 }
+
+@media (max-width: 480px) {
+    .hero {
+        height: 50vh;
+        padding: 1.5rem 1rem;
+        background-size: calc(50vh / 13) calc(50vh / 13);
+    }
+
+    .hero h1 {
+        font-size: 8vw;
+    }
+
+    .titleSecondary {
+        font-size: 9vw;
+    }
+
+    .description {
+        font-size: 3.5vw;
+        width: 90%;
+    }
+}
