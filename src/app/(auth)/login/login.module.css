@@ -309,6 +309,12 @@ display: none !important;
         overflow: hidden;
     }
 
+    /* Add more margin-top for sign-up form on mobile */
+    .leftSide .loginForm {
+        margin-top: 2rem;
+        padding-top: 2rem;
+    }
+
     .title {
         font-size: 1.5rem;
         margin-top: 0;
@@ -329,12 +335,38 @@ display: none !important;
         margin-bottom: 0.75rem;
     }
 
+    /* Hide back button and logo for login page, but show for register page */
     .backButton {
         display: none;
     }
 
     .logo {
         display: none;
+    }
+
+    /* Show back button and logo for sign-up page (leftSide) on mobile */
+    .leftSide .backButton {
+        display: block !important;
+        position: absolute;
+        top: 1rem;
+        left: 1rem;
+        z-index: 10002;
+    }
+
+    .leftSide .logo {
+        display: block !important;
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        z-index: 10002;
+    }
+
+    .leftSide .backButton img {
+        width: 1.5rem;
+    }
+
+    .leftSide .logo img {
+        width: 4rem;
     }
 
     .fieldHolder {
@@ -352,6 +384,11 @@ display: none !important;
         font-size: 1.1rem;
         padding: 0.3rem 0.75rem;
         margin-top: 0.25rem;
+    }
+
+    /* Add more margin-top for sign-up button on mobile */
+    .leftSide .loginForm button[type="submit"] {
+        margin-top: 1.5rem !important;
     }
 
     .googleButton {
@@ -408,4 +445,115 @@ display: none !important;
 .newleft.none{
     display: flex;
 
+}
+
+/* Responsive styles for register page - mobile */
+@media (max-width: 768px) {
+    /* Step 1: leftSide is visible by default (existing CSS handles this) */
+    /* Hide leftSide when showPersonalInfo is true OR hideNewLeft is true */
+    .leftSide.hideOnMobile {
+        display: none !important;
+    }
+
+    /* Step 2: Show rightSide (Personal Information) on mobile when showPersonalInfo is true and hideNewLeft is false */
+    .rightSide.showOnMobile:not(.hideOnMobile) {
+        display: flex !important;
+        width: 100%;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 10000;
+        background-color: white;
+        border-radius: 0;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+    }
+
+    /* Hide rightSide when newleft is shown (hideNewLeft is true) */
+    .rightSide.hideOnMobile {
+        display: none !important;
+    }
+
+    /* Step 3: Show newleft (Location Information) on mobile when it has none class (hideNewLeft is true) */
+    .newleft.none {
+        display: flex !important;
+        width: 100%;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 10001;
+        background-color: white;
+        border-radius: 0;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+    }
+
+    /* Hide black block on mobile */
+    .black {
+        display: none;
+    }
+
+    /* Show back button and logo on mobile for rightSide and newleft */
+    .rightSide .backButton,
+    .newleft .backButton {
+        display: block !important;
+        position: absolute;
+        top: 1rem;
+        left: 1rem;
+        z-index: 10002;
+    }
+
+    .rightSide .logo,
+    .newleft .logo {
+        display: block !important;
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        z-index: 10002;
+    }
+
+    .rightSide .backButton img,
+    .newleft .backButton img {
+        width: 1.5rem;
+    }
+
+    .rightSide .logo img,
+    .newleft .logo img {
+        width: 4rem;
+    }
+
+    /* Keep first name and last name in same row on mobile for rightSide */
+    .rightSide .loginForm form > div[style*="display: flex"] {
+        flex-direction: row !important;
+        gap: 0.5rem !important;
+    }
+
+    .rightSide .loginForm form > div[style*="display: flex"] > div {
+        flex: 1 !important;
+    }
+
+    /* Keep wilaya and commune in same row on mobile for newleft */
+    .newleft .loginForm form > div[style*="display: flex"] {
+        flex-direction: row !important;
+        gap: 0.5rem !important;
+    }
+
+    .newleft .loginForm form > div[style*="display: flex"] > div {
+        flex: 1 !important;
+    }
+
+    /* Adjust form width for rightSide and newleft on mobile */
+    .rightSide .loginForm,
+    .newleft .loginForm {
+        width: 90%;
+        padding: 1rem 0.5rem;
+    }
+
+    /* Add margin-top to continue buttons on mobile */
+    .rightSide .loginForm button[type="submit"],
+    .newleft .loginForm button[type="submit"] {
+        margin-top: 1.5rem !important;
+    }
 }

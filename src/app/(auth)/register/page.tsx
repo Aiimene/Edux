@@ -17,7 +17,7 @@ export default function RegisterPage() {
   }
 
   function handleBackToPersonalInfo(){
-    setHideNewLeft(true);
+    setHideNewLeft(false);
     setShowPersonalInfo(true);
   }
   const handleSubmit = (e: React.FormEvent) => {
@@ -63,7 +63,7 @@ export default function RegisterPage() {
 
   return (
     <div className={styles.loginContainer}>
-      <div className={styles.leftSide}>
+      <div className={`${styles.leftSide} ${showPersonalInfo ? styles.hideOnMobile : ""} ${hideNewLeft ? styles.hideOnMobile : ""}`}>
         <div className={styles.backButton}>
           <Link href="/">
             <img src="/icons/arrow-left.svg" alt="arrow-left" />
@@ -146,7 +146,7 @@ export default function RegisterPage() {
           </form>
         </div>
       </div>
-      <div className={styles.rightSide}>
+      <div className={`${styles.rightSide} ${showPersonalInfo ? styles.showOnMobile : ""} ${hideNewLeft ? styles.hideOnMobile : ""}`}>
         <div className={styles.backButton} onClick={() => { setShowPersonalInfo(false); setHideNewLeft(false); }}>
           <img src="/icons/arrow-left.svg" alt="arrow-left" />
         </div>
