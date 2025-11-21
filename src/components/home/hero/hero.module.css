@@ -11,6 +11,7 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    text-align: center;
 }
 
 .hero *{
@@ -32,4 +33,42 @@
     font-size: 1.7vw;
     width: 40%;
     text-align: center;
+}
+
+/* Responsive Styles */
+@media (max-width: 1024px) {
+    .hero {
+        height: 70vh;
+        background-size: calc(70vh / 13) calc(70vh / 13);
+    }
+
+    .hero h1 {
+        font-size: 5vw;
+    }
+
+    .description {
+        font-size: 2vw;
+        width: 60%;
+    }
+}
+
+@media (max-width: 768px) {
+    .hero {
+        height: 60vh;
+        padding: 2rem 1.5rem;
+        background-size: calc(60vh / 13) calc(60vh / 13);
+    }
+
+    .hero h1 {
+        font-size: 6.5vw;
+    }
+
+    .titleSecondary {
+        font-size: 7vw;
+    }
+
+    .description {
+        font-size: 2vw;
+        width: 40%;
+    }
 }
