@@ -112,51 +112,77 @@
 
 
 
-
-/* Mobile Menu */
 .mobileMenuButton {
   display: none;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0.5rem;
-  flex-direction: column;
-  gap: 4px;
+  z-index: 100000;
+  position: relative;
 }
 
-.mobileMenuButton span {
-  width: 25px;
-  height: 3px;
-  background-color: #333;
-  border-radius: 2px;
-  transition: all 0.3s ease;
-}
 
 /* Responsive Styles */
 @media (max-width: 768px) {
   .container {
     padding: 0 1rem;
-  }
-
-  .navLinks {
-    display: none;
-  }
-
-  .actions {
-    gap: 0.5rem;
-  }
-
-  .loginLink {
-    font-size: 0.85rem;
-  }
-
-  .signUpButton {
-    padding: 0.5rem 1rem;
-    font-size: 0.85rem;
+    gap: 1rem;
   }
 
   .mobileMenuButton {
-    display: flex;
+    display: block;
+  }
+
+  .navLinks {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background-color: white;
+    flex-direction: column;
+    padding: 7rem 2rem 2rem !important;
+    gap: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    z-index: 99998;
+    height: 100vh;
+    justify-content: flex-start;
+    align-items: center;
+  }
+
+  .navLinks .navLink {
+    text-align: center;
+    width: 100%;
+  }
+
+  .navLinks.mobileMenuOpen {
+    transform: translateX(0);
+  }
+
+  .actions {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    flex-direction: column;
+    gap: 1rem;
+    width: calc(100% - 4rem);
+    max-width: 300px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 99999;
+  }
+
+  .actions.mobileMenuOpen {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .loginLink,
+  .signUpButton {
+    width: 100%;
+    text-align: center;
+    font-size: 1rem;
+    padding: 0.75rem 1rem;
   }
 }
 
@@ -165,14 +191,11 @@
     flex: 1;
   }
 
-  .actions {
-    flex-direction: column;
-    gap: 0.5rem;
+  .navLinks {
+    padding: 4rem 1.5rem 2rem;
   }
 
-  .signUpButton {
-    width: 100%;
-    text-align: center;
+  .actions {
+    width: calc(100% - 2rem);
   }
 }
-
