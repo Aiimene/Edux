@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import styles from './hero.module.css';
 
 export default function Hero() {

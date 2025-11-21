@@ -1,0 +1,51 @@
+.container{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #ffffff;
+    position: relative;
+}
+.image{
+    position: relative;
+    margin-top: -5%;
+    max-width: 90%;
+}
+.imageContainer{
+    overflow: hidden;
+    border: 4px solid #000000;
+    border-radius: 40px 40px 0 0 ;
+    position: relative;
+    z-index: 2;
+}
+.imageContainer img{
+    position: relative;
+    z-index: 999;
+}
+.blueShadow{
+    position: absolute;
+    top: 0;
+    left: 20%;
+    width: 30%;
+    height: 100px;
+    box-shadow: 0 0 100px 60px #258CDD;
+    z-index: 1;
+}
+.purpleShadow{
+    position: absolute;
+    top: 0;
+    right: 20%;
+    width: 30%;
+    height: 100px;
+    box-shadow: 0 0 100px 60px #722F96;
+    z-index: 1;
+}
+.whiteShadow{
+    background: linear-gradient(to top, #ffffff 0% , transparent 100%);
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 20%;
+    z-index: 10;
+}
