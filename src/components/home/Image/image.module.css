@@ -10,6 +10,7 @@
     position: relative;
     margin-top: -5%;
     max-width: 90%;
+    min-width: 70%
 }
 .imageContainer{
     overflow: hidden;
