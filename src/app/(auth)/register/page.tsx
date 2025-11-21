@@ -41,24 +41,20 @@ export default function RegisterPage() {
       return;
     }
 
-    // Check minimum password length
     if (password.length < 6) {
       setError("Password must be at least 6 characters");
       return;
     }
 
-    // Check if passwords match
     if (password !== verifyPassword) {
       setError("Passwords do not match");
       return;
     }
 
-    // If validation passes, clear error and move black block
     setError("");
     setEmailError("");
     setShowPersonalInfo(true);
     console.log("Registration successful:", { email, password });
-    // Add your registration logic here
   };
 
   return (
