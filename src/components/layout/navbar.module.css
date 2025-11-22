@@ -27,9 +27,14 @@
 
 .logo {
   flex-shrink: 0;
+  height: 70px;
 }
 
-
+.logo img {
+  height: 100%;
+  width: 100%;
+  object-fit: contain;
+}
 
 .navLinks {
   display: flex;
@@ -46,7 +51,7 @@
   color: #333;
   text-decoration: none;
   font-weight: 500;
-  font-size: 1.2rem;
+  font-size: 1.5rem;
   transition: color 0.3s ease;
   position: relative;
   font-weight: 600;
