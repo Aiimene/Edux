@@ -18,6 +18,30 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    setIsMenuOpen(false);
+    
+    if (href.startsWith('/#')) {
+      const targetId = href.substring(2);
+      
+      // If we're on the home page, scroll smoothly
+      if (window.location.pathname === '/') {
+        e.preventDefault();
+        const targetElement = document.getElementById(targetId);
+        
+        if (targetElement) {
+          const offsetTop = targetElement.offsetTop - 80; // Account for navbar height
+          window.scrollTo({
+            top: offsetTop,
+            behavior: 'smooth'
+          });
+        }
+      }
+      // If we're on another page, let Next.js handle navigation
+      // The smooth scroll will work after navigation due to globals.css
+    }
+  };
+
   return (
     <nav className={`${styles.navbar} ${isScrolled ? styles.scrolled : ''}`}>
       <div className={styles.container}>
@@ -39,13 +63,13 @@ export default function Navbar() {
         
         <ul className={`${styles.navLinks} ${isMenuOpen ? styles.mobileMenuOpen : ''}`}>
           <li>
-            <Link href="/#hero" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>الرئيسية</Link>
+            <Link href="/#hero" className={styles.navLink} onClick={(e) => handleLinkClick(e, '/#hero')}>الرئيسية</Link>
           </li>
           <li>
-            <Link href="/#services" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>الخدمات</Link>
+            <Link href="/#services" className={styles.navLink} onClick={(e) => handleLinkClick(e, '/#services')}>الخدمات</Link>
           </li>
           <li>
-            <Link href="/#pricing" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>الأسعار</Link>
+            <Link href="/#pricing" className={styles.navLink} onClick={(e) => handleLinkClick(e, '/#pricing')}>الأسعار</Link>
           </li>
           <li>
             <Link href="/contact" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>تواصل معنا</Link>
