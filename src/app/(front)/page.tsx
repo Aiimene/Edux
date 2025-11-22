@@ -4,6 +4,7 @@ import Image from '@/components/home/Image/image';
 import Service from '@/components/home/service/service';
 import Steps from '@/components/home/steps/steps';
 import Billing from '@/components/home/billing/billing';
+import Testimonial from '@/components/home/testimonial/testimonial';
 
 export default function Home() {
   return (
@@ -13,6 +14,7 @@ export default function Home() {
       <Service />
       <Steps />
       <Billing />
+      <Testimonial />
     </div>
   );
 }
