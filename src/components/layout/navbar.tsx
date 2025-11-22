@@ -39,13 +39,13 @@ export default function Navbar() {
         
         <ul className={`${styles.navLinks} ${isMenuOpen ? styles.mobileMenuOpen : ''}`}>
           <li>
-            <Link href="#hero" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>الرئيسية</Link>
+            <Link href="/#hero" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>الرئيسية</Link>
           </li>
           <li>
-            <Link href="#services" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>الخدمات</Link>
+            <Link href="/#services" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>الخدمات</Link>
           </li>
           <li>
-            <Link href="#pricing" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>الأسعار</Link>
+            <Link href="/#pricing" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>الأسعار</Link>
           </li>
           <li>
             <Link href="/contact" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>تواصل معنا</Link>
