@@ -1,0 +1,111 @@
+.container {
+  width: 100%;
+  padding: 10rem 0;
+  background-color: rgba(116, 181, 233, 0.08);
+}
+.content{
+  max-width: 70%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 200px;
+  clip-path: inset(0 0 0 0);
+  text-align: center;
+}
+
+.header {
+  max-width: 70%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin:0 auto !important;
+}
+.ceil{
+  margin: auto 0 ;
+  width: 70%;
+  margin: 0 auto;
+
+}
+.ceilHeader{
+  height:10px;
+  border-radius: 19999px;
+  box-shadow: 
+    0 10px 40px 10px rgb(60, 171, 215),
+    0 40px 80px 20px rgba(60, 171, 215, 0.836),
+    0 60px 120px 30px rgba(60, 171, 215, 0.4),
+    0 80px 160px 40px rgba(60, 171, 215, 0.3);
+  margin: auto 0 ;
+  background-color: rgba(60, 170, 215, 1);
+}
+.button{
+  margin: 20px auto;
+  background-color : rgba(72, 177, 220, 1);
+  color: white;
+  padding: 15px 25px;
+  border-radius: 19999px;
+  font-size: 1.7rem;
+  box-shadow: 0 4px 10px 0 rgba(72, 177, 220, 1);
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.button:hover {
+  background-color: rgba(65, 165, 210, 1);
+  box-shadow: 0 6px 15px 3px rgba(72, 177, 220, 0.7);
+}
+
+.button:active {
+  box-shadow: 0 4px 10px 0 rgba(72, 177, 220, 0.5);
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+  .container {
+    padding: 6rem 0;
+  }
+  .content {
+    max-width: 85%;
+    gap: 100px;
+  }
+  .header {
+    max-width: 85%;
+  }
+  .ceil {
+    width: 85%;
+  }
+  .button {
+    font-size: 1.4rem;
+    padding: 12px 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 4rem 0;
+  }
+  .content {
+    max-width: 95%;
+    gap: 60px;
+  }
+  .header {
+    max-width: 95%;
+  }
+  .ceil {
+    width: 95%;
+  }
+  .button {
+    font-size: 1.2rem;
+    padding: 12px 20px;
+    margin: 15px auto;
+  }
+  .ceilHeader {
+    height: 8px;
+    box-shadow: 
+      0 5px 20px 5px rgba(60, 171, 215, 0.6),
+      0 20px 40px 10px rgba(60, 171, 215, 0.4),
+      0 35px 70px 15px rgba(60, 171, 215, 0.3),
+      0 50px 100px 20px rgba(60, 171, 215, 0.2);
+  }
+}
