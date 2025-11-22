@@ -31,7 +31,7 @@
   align-self: flex-start ;
 }
 .stepBox{
-  border: 2px solid black;
+  border: 2px solid rgba(0, 0, 0, 0.479);
   position : relative;
   padding: 50px 10px;
   border-radius: 10px;
@@ -45,7 +45,7 @@
   background-color: white;
 }
 .stepNumber{
-  border: 2px solid black;
+  border: 2px solid rgba(0, 0, 0, 0.497);
   border-radius: 50%;
   height: 70px;
   width: 70px;
