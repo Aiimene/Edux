@@ -4,7 +4,7 @@ export default function Hero() {
   return (
     <section className={styles.hero}>
         <h1 className={styles.title}>
-        منصّة ذكية لإدارة الحضور والأداء في
+        منصّة ذكية لإدارة الحضور في
         </h1>
             <h1 className={styles.titleSecondary}>
             مؤسستك التعليمية
