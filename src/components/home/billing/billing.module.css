@@ -1,6 +1,182 @@
 .container {
   width: 100%;
-  height: 100vh;
-  background-color: black; 
+  padding: 3rem 0;
+  background-color: rgba(116, 181, 233, 0.08);
+}
+.cardContainer{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: stretch;
+  max-width: 70%;
+  margin: 0 auto;
+}
+
+.header {
+  max-width: 70%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 0 auto;
+  margin-bottom: 3rem;
+}
+
+.card {
+  position: relative;
+  width: 30%;
+  max-width: 400px;
+  margin: 0 auto;
+  background-color: rgba(73, 177, 221, 0.15);
+  border: 2px solid rgba(73, 177, 221, 0.5);
+  border-radius: 20px;
+  padding: 1rem;
+  box-shadow: 0 0  10px 5px rgba(114, 181, 233, 0.7);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-height: auto;
+  height: auto;
+}
+.card:nth-child(2){
+  background-color: rgba(106, 7, 145, 0.15);
+  border: 2px solid rgba(58, 0, 129, 0.27);
+  box-shadow: 0 0  10px 5px rgba(106, 7, 145, 0.5);
+
+}
+.cardHeaderContainer{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-direction: row;
+
+}
+.discountTag {
+  background-color: #22c55e;
+  color: white;
+  padding: 0.3rem .5rem;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.planTitle {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #000;
+  margin: 0;
+}
+
+.audience {
+  text-align: end;
+  margin-bottom: 0.25rem;
+}
+
+.audienceText {
+  font-size: 0.9rem;
+  color: #6b7280;
+  margin: 0.25rem 0;
+}
+
+.audienceSubtext {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+.divider {
+  width: 100%;
+  height: 1px;
+  background-color: black;
+  margin: 0.25rem 0;
+}
+
+.pricing {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: end;
+  margin-top: -0.5rem;
+}
+
+.priceContainer {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: baseline;
+  justify-content: center;
+}
+
+.price {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #000;
+
+}
+
+.currency {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #000;
+}
+
+.billingPeriod {
+  font-size: 1.2rem;
+  color: #6b7280;
+}
+
+.features {
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+  gap: 0.75rem;
+}
+
+.feature {
+  display: flex;
+  align-items: center;
+  flex-direction: row-reverse;
+  gap: 0.75rem;
+  color: #000;
+  font-size: 1rem;
+}
+
+.checkmark {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: #000;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.checkmark::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+
+.ctaButton {
+  width: 100%;
+  padding: .5rem;
+  background-color: white;
+  border: 1px solid #d1d5db;
+  border-radius: 15px;
+  color: #000;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: auto;
+}
+
+.ctaButton:hover {
+  background-color: #f9fafb;
+  border-color: #9ca3af;
 }
 
