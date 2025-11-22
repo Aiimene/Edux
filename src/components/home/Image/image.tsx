@@ -5,7 +5,7 @@ export default function Image() {
     <section className={styles.container}>
         <div className={styles.image}>
         <div className={styles.imageContainer}>
-            <img src="/images/Dashboard.png" alt="Hero" width={1000} height={1000} />
+            <img src="/images/Dashboard.png" alt="Hero"  />
         </div>
             <div className={styles.blueShadow}></div>
             <div className={styles.purpleShadow}></div>

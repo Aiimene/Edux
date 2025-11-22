@@ -1,0 +1,151 @@
+.container{
+  width: 100%;
+  padding: 3rem 0;
+
+}
+.header{
+  max-width: 70%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 0 auto;
+}
+.stepsContainer{
+  display: flex;
+  flex-direction: row-reverse;
+  margin: 0 auto;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 70%;
+  margin-top: 100px;
+  height: 350px;
+
+}
+.stepBox:nth-child(2){
+  align-self: flex-end ;
+}
+
+.stepBox:nth-child(3){
+  align-self: flex-start ;
+}
+.stepBox{
+  border: 2px solid black;
+  position : relative;
+  padding: 50px 10px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 30%;
+  max-width: 300px;
+  box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.388);
+  background-color: white;
+}
+.stepNumber{
+  border: 2px solid black;
+  border-radius: 50%;
+  height: 70px;
+  width: 70px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 2.5rem;
+  position: absolute;
+  left:50%;
+  top: 0;
+  transform: translate(-50%, -50%);
+  background-color:white;
+}
+.stepTitle{
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-align: center;
+
+}
+.stepDescription{
+  font-size: 1rem;
+  text-align: center;
+}
+.connector{
+  position: absolute;
+  height: 2px;
+  background-color: #000;
+  z-index: -1;
+  right: 100%;
+  top: 50%;
+  transform-origin: right center;
+}
+.stepBox:nth-child(1) .connector{
+  width: 200px;
+  transform: translateY(-50%) rotate(-30deg);
+}
+.stepBox:nth-child(2) .connector{
+  width: 250px;
+  transform: translateY(-50%) rotate(50deg);
+}
+.stepBox:nth-child(1) .connector::after{
+  content: '';
+  position: absolute;
+  left: -8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-right: 8px solid #000;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+}
+.stepBox:nth-child(2) .connector::after{
+  content: '';
+  position: absolute;
+  left: -8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-right: 8px solid #000;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+  .stepBox{
+    padding: 40px 8px;
+  }
+  .stepNumber{
+    font-size: 2rem;
+    height: 60px;
+    width: 60px;
+  }
+  .stepTitle{
+    font-size: 1.25rem;
+  }
+  .stepDescription{
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .stepsContainer{
+    flex-direction: column;
+    height: auto;
+    gap: 3rem;
+    margin-top: 50px;
+  }
+  .stepBox{
+    width: 100%;
+    max-width: 100%;
+  }
+  .stepBox:nth-child(2){
+    align-self: center;
+  }
+  .stepBox:nth-child(3){
+    align-self: center;
+  }
+  .connector{
+    display: none;
+  }
+}
