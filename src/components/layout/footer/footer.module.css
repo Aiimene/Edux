@@ -1,0 +1,162 @@
+.container{
+  width: 100%;
+  padding: 6rem 0;
+}
+.divider{
+  width: 100%;
+  height: 2px;
+  background-color: rgba(60, 170, 215, 1);
+  margin-bottom: 2rem;
+}
+.content{
+  max-width: 70%;
+  margin: 0 auto;
+}
+.contentContainer{
+  display: flex;
+  align-items: center;
+}
+.logoSection{
+  width: 250px;
+  text-align: center;
+}
+.logoContainer{
+  width: 250px;
+
+}
+.logoContainer *{
+  height: 100%;
+  width: 100%;
+}
+.logoSection>p{
+  font-size: 1.5rem;
+  font-family: 'Poppins', serif;
+}
+.linksSection{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+  width: 100%;
+}
+.linksTitle{
+  font-size: 2rem;
+  text-align: right;
+}
+.linksList{
+  text-align: right;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.linksList li {
+  position: relative;
+  padding-right: 1.5rem;
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.linksList li::before {
+  content: '•';
+  position: absolute;
+  right: 0;
+  color: #000;
+  font-size: 3rem;
+  font-weight: bold;
+}
+.linksColumn{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+  .container {
+    padding: 4rem 0;
+  }
+  .content {
+    max-width: 85%;
+  }
+  .logoSection {
+    width: 200px;
+  }
+  .logoContainer {
+    width: 200px;
+  }
+  .logoSection > p {
+    font-size: 1.2rem;
+  }
+  .linksTitle {
+    font-size: 1.6rem;
+  }
+  .linksList li {
+    font-size: 1.2rem;
+  }
+  .linksList li::before {
+    font-size: 2.5rem;
+  }
+  .linksSection {
+    gap: 2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 3rem 0;
+  }
+  .content {
+    max-width: 95%;
+  }
+  .contentContainer {
+    flex-direction: column;
+    gap: 3rem;
+    align-items: center;
+  }
+  .logoSection {
+    width: 100%;
+    max-width: 300px;
+  }
+  .logoContainer {
+    width: 100%;
+    max-width: 200px;
+    margin: 0 auto;
+  }
+  .logoSection > p {
+    font-size: 1rem;
+  }
+  .linksSection {
+    flex-direction: column;
+    width: 100%;
+    gap: 2rem;
+  }
+  .linksColumn {
+    width: 100%;
+    align-items: center;
+  }
+  .linksTitle {
+    font-size: 1.5rem;
+    text-align: center;
+  }
+  .linksList {
+    text-align: center;
+    width: 100%;
+  }
+  .linksList li {
+    font-size: 1.1rem;
+    justify-content: center;
+    padding-right: 0;
+    padding-left: 1.5rem;
+  }
+  .linksList li::before {
+    display: none;
+  }
+  .linksList li {
+    padding-left: 0;
+  }
+  .divider {
+    margin-bottom: 1.5rem;
+  }
+}

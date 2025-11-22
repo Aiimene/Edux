@@ -6,6 +6,7 @@ import Steps from '@/components/home/steps/steps';
 import Billing from '@/components/home/billing/billing';
 import Testimonial from '@/components/home/testimonial/testimonial';
 import Action from '@/components/home/action/action';
+import Footer from '@/components/layout/footer/footer';
 
 export default function Home() {
   return (
@@ -17,6 +18,7 @@ export default function Home() {
       <Billing />
       <Testimonial />
       <Action />
+      <Footer />
     </div>
   );
 }
