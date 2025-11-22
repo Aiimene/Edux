@@ -39,7 +39,7 @@ export default function Footer() {
               <li><Link href="/#services">الخدمات</Link></li>
               <li><Link href="/#how-it-works">كيف تعمل المنصة</Link></li>
               <li><Link href="/#pricing">الأسعار</Link></li>
-              <li><Link href="/#experience">تجربة المنصة</Link></li>
+              <li><Link href="/confidentiality">سياسة الخصوصية</Link></li>
             </ul>
           </div>
           
