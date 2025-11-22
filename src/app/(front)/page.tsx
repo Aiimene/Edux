@@ -11,11 +11,17 @@ import Footer from '@/components/layout/footer/footer';
 export default function Home() {
   return (
     <div >
-      <Hero />
+      <section id="hero">
+        <Hero />
+      </section>
       <Image />
-      <Service />
+      <section id="services">
+        <Service />
+      </section>
       <Steps />
-      <Billing />
+      <section id="pricing">
+        <Billing />
+      </section>
       <Testimonial />
       <Action />
       <Footer />
