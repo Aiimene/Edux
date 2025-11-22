@@ -26,14 +26,40 @@
   text-align: right;
 }
 
+.inputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex-direction: row-reverse;
+}
+
+.inputIcon {
+  position: absolute;
+  right: 1rem;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.textareaIcon {
+  top: 1rem;
+  align-self: flex-start;
+}
+
 .input {
-  padding: 0.75rem 1rem;
+  padding-right: 3.5rem;
+  padding-left: 1rem;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
   border: 1px solid rgba(0, 0, 0, 0.2);
   border-radius: 10px;
   font-size: 1rem;
   background-color: #ffffff;
   transition: all 0.3s ease;
   text-align: right;
+  width: 100%;
 }
 
 .input:focus {
@@ -46,6 +72,8 @@
   resize: vertical;
   min-height: 120px;
   font-family: inherit;
+  padding-top: 2.5rem;
+  padding-right: 3.5rem;
 }
 
 .submitButton {
@@ -72,8 +100,29 @@
   transform: translateY(0);
 }
 
+@media (min-width: 768px) and (max-width: 1024px) {
+  .formContainer {
+    max-width: 100%;
+    padding: 1.75rem;
+  }
+  .label {
+    font-size: 1.05rem;
+  }
+  .input {
+    font-size: 0.95rem;
+    padding: 0.7rem 0.9rem;
+  }
+  .submitButton {
+    font-size: 1.1rem;
+    padding: 0.9rem 1.75rem;
+  }
+}
+
 @media (max-width: 768px) {
   .formContainer {
+    flex: 1;
+    max-width: 100%;
+    width: 100%;
     padding: 1.5rem;
   }
   .label {
@@ -82,10 +131,12 @@
   .input {
     font-size: 0.9rem;
     padding: 0.6rem 0.8rem;
+    width: 100%;
   }
   .submitButton {
     font-size: 1rem;
     padding: 0.8rem 1.5rem;
+    width: 100%;
   }
 }
 
