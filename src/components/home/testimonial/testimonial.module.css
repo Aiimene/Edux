@@ -136,3 +136,70 @@
   background-image: linear-gradient(to right, rgb(255, 255, 255) 20%, transparent);
 }
 
+@media (min-width: 768px) and (max-width: 1024px) {
+  .header {
+    margin-bottom: 30px;
+  }
+  .card {
+    padding: 15px;
+    min-width: 250px;
+  }
+  .name {
+    font-size: 1.2rem;
+  }
+  .job {
+    font-size: 0.65rem;
+  }
+  .testimonial {
+    font-size: 0.9rem;
+  }
+  .cardsRowWrapper {
+    padding: 15px;
+  }
+  .content {
+    max-width: 90%;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 2rem 0;
+  }
+  .header {
+    max-width: 90%;
+    margin-bottom: 30px;
+  }
+  .content {
+    max-width: 95%;
+  }
+  .card {
+    padding: 15px;
+    min-width: 280px;
+  }
+  .name {
+    font-size: 1.1rem;
+  }
+  .job {
+    font-size: 0.6rem;
+  }
+  .testimonial {
+    font-size: 0.85rem;
+    max-height: 80px;
+  }
+  .avatar {
+    width: 40px;
+  }
+  .cardsRowWrapper {
+    padding: 10px;
+    gap: 15px;
+  }
+  .cardsTrack {
+    gap: 15px;
+  }
+  .shadowBox {
+    width: 15%;
+  }
+  .quoteContainer {
+    height: 40px;
+  }
+}
