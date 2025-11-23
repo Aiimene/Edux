@@ -1,0 +1,101 @@
+.statsContainer {
+  display: flex;
+  gap: 22px;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+}
+
+.chartsContainer {
+  display: flex;
+  gap: 22px;
+  width: 100%;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+}
+
+.chartsContainer > * {
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.bottomSection {
+  display: flex;
+  gap: 22px;
+  width: 100%;
+  margin-top: 24px;
+  align-items: stretch;
+  flex-wrap: wrap;
+}
+
+.bottomSection > div {
+  flex: 1;
+  display: flex;
+  min-width: 0;
+}
+
+@media (max-width: 1024px) {
+  .statsContainer {
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .chartsContainer {
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .bottomSection {
+    gap: 16px;
+    margin-top: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .statsContainer {
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .chartsContainer {
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .chartsContainer > * {
+    width: 100%;
+    min-width: 100%;
+    max-width: 100%;
+  }
+
+  .bottomSection {
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  .bottomSection > div {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .statsContainer {
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .chartsContainer {
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .bottomSection {
+    gap: 10px;
+    margin-top: 12px;
+  }
+}
+
