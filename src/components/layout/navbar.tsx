@@ -77,8 +77,8 @@ export default function Navbar() {
         </ul>
 
         <div className={`${styles.actions} ${isMenuOpen ? styles.mobileMenuOpen : ''}`}>
-          <Link href="/login" className={styles.signUpButton} onClick={() => setIsMenuOpen(false)}>Sign Up</Link>
-          <Link href="/register" className={styles.loginLink} onClick={() => setIsMenuOpen(false)}>Login</Link>
+          <Link href="/register" className={styles.signUpButton} onClick={() => setIsMenuOpen(false)}>Sign Up</Link>
+          <Link href="/login" className={styles.loginLink} onClick={() => setIsMenuOpen(false)}>Login</Link>
         </div>
       </div>
     </nav>
