@@ -1,3 +1,4 @@
+// lib/api.ts
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
 
 interface RegisterData {
@@ -24,12 +25,60 @@ interface LoginData {
 interface ApiResponse<T> {
   data?: T;
   error?: string;
+  fieldErrors?: Record<string, string[]>;  // New! For field-specific errors
   status: number;
 }
 
+/**
+ * Format Django validation errors into user-friendly messages
+ */
+const formatDjangoErrors = (errorData: any): { message: string; fieldErrors: Record<string, string[]> } => {
+  const fieldErrors: Record<string, string[]> = {};
+  let generalMessage = '';
+
+  if (typeof errorData === 'string') {
+    generalMessage = errorData;
+  } else if (typeof errorData === 'object' && errorData !== null) {
+    // Django returns errors like: { "password1": ["This password is too common."], "email": ["This field is required."] }
+    
+    for (const [field, messages] of Object.entries(errorData)) {
+      if (Array.isArray(messages)) {
+        // Clean up field names for display
+        const friendlyFieldName = field
+          .replace('password1', 'password')
+          .replace('password2', 'password confirmation')
+          .replace('_', ' ')
+          .replace(/^([a-z])/, (match) => match.toUpperCase());
+        
+        fieldErrors[field] = messages.map(msg => 
+          typeof msg === 'string' ? msg : msg.toString()
+        );
+      } else if (field === 'detail' || field === 'error' || field === 'message') {
+        generalMessage = messages as string;
+      }
+    }
+
+    // If we have field errors, create a summary message
+    if (Object.keys(fieldErrors).length > 0) {
+      const errorCount = Object.keys(fieldErrors).length;
+      generalMessage = `Please fix ${errorCount} error${errorCount > 1 ? 's' : ''} in the form.`;
+    }
+  }
+
+  return {
+    message: generalMessage || 'An error occurred',
+    fieldErrors
+  };
+};
+
 export const authAPI = {
+  /**
+   * Register a new admin account
+   */
   register: async (data: RegisterData): Promise<ApiResponse<any>> => {
     try {
+      console.log('🔍 Sending registration data:', data);
+
       const response = await fetch(`${API_BASE_URL}/auth/register/`, {
         method: 'POST',
         headers: {
@@ -39,10 +88,14 @@ export const authAPI = {
       });
 
       const result = await response.json();
+      console.log('📦 Received response:', result);
 
       if (!response.ok) {
+        const { message, fieldErrors } = formatDjangoErrors(result);
+        
         return {
-          error: result.error || 'Registration failed',
+          error: message,
+          fieldErrors: fieldErrors,
           status: response.status,
         };
       }
@@ -52,13 +105,17 @@ export const authAPI = {
         status: response.status,
       };
     } catch (error) {
+      console.error('💥 Network error:', error);
       return {
-        error: 'Network error. Please try again.',
+        error: 'Network error. Please check your connection and try again.',
         status: 500,
       };
     }
   },
 
+  /**
+   * Login with school name, username/email, and password
+   */
   login: async (data: LoginData): Promise<ApiResponse<any>> => {
     try {
       const response = await fetch(`${API_BASE_URL}/auth/login/`, {
@@ -72,12 +129,16 @@ export const authAPI = {
       const result = await response.json();
 
       if (!response.ok) {
+        const { message, fieldErrors } = formatDjangoErrors(result);
+        
         return {
-          error: result.error || 'Login failed',
+          error: message,
+          fieldErrors: fieldErrors,
           status: response.status,
         };
       }
 
+      // Store tokens and user info
       if (result.tokens) {
         localStorage.setItem('access_token', result.tokens.access);
         localStorage.setItem('refresh_token', result.tokens.refresh);
@@ -92,16 +153,26 @@ export const authAPI = {
       };
     } catch (error) {
       return {
-        error: 'Network error. Please try again.',
+        error: 'Network error. Please check your connection and try again.',
         status: 500,
       };
     }
   },
 
+  /**
+   * Get current user profile
+   */
   getProfile: async (): Promise<ApiResponse<any>> => {
     try {
       const token = localStorage.getItem('access_token');
       
+      if (!token) {
+        return {
+          error: 'Not authenticated',
+          status: 401,
+        };
+      }
+
       const response = await fetch(`${API_BASE_URL}/auth/me/`, {
         method: 'GET',
         headers: {
@@ -114,7 +185,7 @@ export const authAPI = {
 
       if (!response.ok) {
         return {
-          error: result.error || 'Failed to fetch profile',
+          error: result.error || result.detail || 'Failed to fetch profile',
           status: response.status,
         };
       }
@@ -125,12 +196,15 @@ export const authAPI = {
       };
     } catch (error) {
       return {
-        error: 'Network error. Please try again.',
+        error: 'Network error. Please check your connection and try again.',
         status: 500,
       };
     }
   },
 
+  /**
+   * Logout and clear stored data
+   */
   logout: () => {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
