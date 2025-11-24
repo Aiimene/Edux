@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import styles from "../login/login.module.css";
+import { authAPI } from "@/lib/api";
 
 export default function RegisterPage() {
   const [email, setEmail] = useState("");
