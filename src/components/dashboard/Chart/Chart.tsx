@@ -18,7 +18,7 @@ ChartJS.register(
 
 type BarChartData = {
   labels: string[];
-  datasets: { label: string; data: number[]; backgroundColor?: string; borderColor?: string; type?: string; fill?: boolean; borderDash?: number[]; }[];
+  datasets: { label: string; data: number[]; borderDash?: number[]; }[];
 };
 
 type ChartType = 'bar' | 'line' | 'mixed';
@@ -31,20 +31,43 @@ type ChartProps = {
 };
 
 const Chart: React.FC<ChartProps> = ({ type, data, title, seeDetailsUrl }) => {
-  // Transform data to remove 'type' property from datasets for Chart.js compatibility
+  // Static colors for bar chart
+  const barChartBackgroundColor = '#D3EAFF';
+  
+  // Static colors for line chart
+  const lineChartColors = [
+    {
+      borderColor: '#7AB2F9',
+      backgroundColor: '#7AB2F980',
+    },
+    {
+      borderColor: '#222',
+      backgroundColor: '#222',
+    },
+  ];
+
+  // Transform data to add static colors and properties
   const chartData = {
     labels: data.labels,
-    datasets: data.datasets.map(({ type: _, ...dataset }) => {
+    datasets: data.datasets.map((dataset, index) => {
       if (type === 'bar') {
         return {
-          ...dataset,
+          label: dataset.label,
+          data: dataset.data,
+          backgroundColor: barChartBackgroundColor,
           borderRadius: 11,
         };
       }
       if (type === 'line') {
+        const colors = lineChartColors[index] || lineChartColors[0];
         return {
-          ...dataset,
+          label: dataset.label,
+          data: dataset.data,
+          borderColor: colors.borderColor,
+          backgroundColor: colors.backgroundColor,
+          fill: false,
           tension: 0.1, // Creates smooth curves (0 = straight lines, 1 = very curved)
+          ...(dataset.borderDash && { borderDash: dataset.borderDash }),
         };
       }
       return dataset;

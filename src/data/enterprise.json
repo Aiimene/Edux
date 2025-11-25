@@ -10,14 +10,15 @@
     "number of modules": 100,
     "number of sessions": 100,
     "number of announcements": 100,
+    "Monthly Profit": 10000,
+    "monthly profit percentage": 15.50,
   
     "classesRanking": {
       "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
       "datasets": [
         {
           "label": "Students",
-          "data": [12, 16, 14, 8, 11, 15],
-          "backgroundColor": "#D3EAFF"
+          "data": [12, 16, 14, 8, 11, 15]
         }
       ]
     },
@@ -26,91 +27,72 @@
       "datasets": [
         {
           "label": "Evolvement 1",
-          "data": [7, 8, 12, 9, 14, 11],
-          "borderColor": "#7AB2F9",
-          "backgroundColor": "#7AB2F980",
-          "type": "line",
-          "fill": false
+          "data": [7, 8, 12, 9, 14, 11]
         },
         {
           "label": "Evolvement 2",
           "data": [10, 9, 7, 11, 13, 12],
-          "borderColor": "#222",
-          "backgroundColor": "#222",
-          "type": "line",
-          "borderDash": [8, 4],
-          "fill": false
+          "borderDash": [8, 4]
         }
       ]
     },
   
     "teachersRanking": [
       {
-        "id": 1,
         "name": "Mohamed Mohamed",
         "sessions": 100,
-        "percentage": 85,
-        "avatar": "/icons/profile.svg",
-        "medal": "/icons/medal.svg"
+        "percentage": 85
       },
       {
-        "id": 2,
         "name": "Amir Amir",
         "sessions": 90,
-        "percentage": 80,
-        "avatar": "/icons/profile.svg",
-        "medal": "/icons/medal.svg"
+        "percentage": 80
       },
       {
-        "id": 3,
         "name": "Ahmed Ahmed",
         "sessions": 85,
-        "percentage": 78,
-        "avatar": "/icons/profile.svg",
-        "medal": "/icons/medal.svg"
+        "percentage": 78
       },
       {
-        "id": 4,
         "name": "Mourad Mourad",
         "sessions": 80,
-        "percentage": 70,
-        "avatar": "/icons/profile.svg",
-        "medal": "/icons/medal.svg"
+        "percentage": 70
       },
       {
-        "id": 5,
         "name": "Sara Sara",
         "sessions": 70,
-        "percentage": 67,
-        "avatar": "/icons/profile.svg",
-        "medal": "/icons/medal.svg"
+        "percentage": 67
       }
     ],
   
     "weeklySessions": [
       {
-        "rank": "#1",
+        "Module": "Arabic",
         "teacher": "Lounis ",
         "students": 30,
-        "date": "2024-12-12"
+        "date": "2024-12-12",
+        "time": "11:00 AM"
       },
       {
-        "rank": "#2",
+        "Module": "Mathematics",
         "teacher": "Sahraoui ",
         "students": 30,
-        "date": "2024-12-12"
+        "date": "2024-12-12",
+        "time": "02:00 PM"
       },
       {
-        "rank": "#3",
+        "Module": "English",
         "teacher": "Ines ",
         "students": 30,
-        "date": "2024-12-12"
+        "date": "2024-12-12",
+        "time": "09:00 AM"
       },
       {
-        "rank": "#4",
+        "Module": "Science",
         "teacher": "Remita",
         "students": 30,
-        "date": "2024-12-12"
+        "date": "2024-12-12",
+        "time": "03:00 PM"
       }
     ],
     "remainingSessionsCount": 15,

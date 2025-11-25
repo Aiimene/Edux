@@ -8,6 +8,13 @@ import styles from './page.module.css';
 export default function DashboardPage() {
   const stats = [
     { 
+      icon: 'monthly-profit', 
+      label: 'Monthly Profit', 
+      value: `${enterpriseData["Monthly Profit"]}DZD`, 
+      percentage: `${enterpriseData["monthly profit percentage"]}%`,
+      iconSize: 40 // Adjust this value to make the icon bigger or smaller
+    },
+    { 
       icon: 'students', 
       label: 'Total Students', 
       value: enterpriseData["number of students"], 
@@ -25,6 +32,7 @@ export default function DashboardPage() {
       value: enterpriseData["number of parents"], 
       percentage: `${enterpriseData["parents percentage"]}%` 
     },
+  
   ];
 
   return (

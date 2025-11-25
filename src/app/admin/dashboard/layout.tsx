@@ -13,7 +13,7 @@ export default function DashboardLayout({
       {/* Greeting Section */}
       <div className={styles.greetingSection}>
         <p className={styles.greetingText}>Hello</p>
-        <Image src="/icons/hello.svg" alt="hello" width={40} height={40} className={styles.greetingIcon} />
+        <Image src="/icons/hello.svg" alt="hello" width={30} height={30} className={styles.greetingIcon} />
         <p className={styles.enterpriseName}>{enterpriseData.name}</p>
       </div>
       <p className={styles.subtitle}>Track everything from one place</p>
