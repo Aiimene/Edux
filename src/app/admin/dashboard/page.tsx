@@ -1,7 +1,7 @@
-import DashboardCard from '../../../components/dashboard/DashboardCard';
-import Chart from '../../../components/dashboard/Chart';
-import RankingList from '../../../components/dashboard/RankingList';
-import RemainingWeeklySessions from '../../../components/dashboard/RemainingWeeklySessions';
+import DashboardCard from '../../../components/dashboard/DashboardCard/DashboardCard';
+import Chart from '../../../components/dashboard/Chart/Chart';
+import RankingList from '../../../components/dashboard/RankingList/RankingList';
+import RemainingWeeklySessions from '../../../components/dashboard/RemainingWeeklySessions/RemainingWeeklySession';
 import enterpriseData from '../../../data/enterprise.json';
 import styles from './page.module.css';
 

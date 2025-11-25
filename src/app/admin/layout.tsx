@@ -3,7 +3,7 @@
 import React from "react";
 import { usePathname } from "next/navigation";
 import Sidebar from "../../components/UI/Sidebar";
-import DashboardTop from "../../components/dashboard/DashboardTop";
+import DashboardTop from "../../components/dashboard/DashboardTop/DashboardTop";
 import { useSidebar } from "../../hooks/useSidebar";
 import styles from "./layout.module.css";
 
