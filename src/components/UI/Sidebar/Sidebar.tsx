@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import styles from "./Sidebar.module.css";
+import enterpriseData from '../../../data/enterprise.json';
 
 type SidebarProps = {
   isOpen?: boolean;
@@ -14,6 +15,9 @@ type SidebarProps = {
 export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
   const pathname = usePathname();
   const isDashboardActive = pathname === '/admin/dashboard';
+  const isStudentsActive = pathname?.startsWith('/admin/members/students');
+  const isTeachersActive = pathname?.startsWith('/admin/members/teachers');
+  const isParentsActive = pathname?.startsWith('/admin/members/parents');
 
   return (
     <>
@@ -47,17 +51,17 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
         {/* Members Section */}
 <div className={`${styles.sectionTitle} ${styles.Mindented}`}>Members</div>
 
-<Link href="#" className={`${styles.link} ${styles.indented}`}>
+<Link href="/admin/members/students/studentList" className={`${styles.link} ${styles.indented} ${isStudentsActive ? styles.active : ''}`}>
   <Image src="/icons/students.svg" alt="students" width={20} height={20} />
   <span>Students</span>
 </Link>
 
-<Link href="#" className={`${styles.link} ${styles.indented}`}>
+<Link href="/admin/members/teachers/teacherList" className={`${styles.link} ${styles.indented} ${isTeachersActive ? styles.active : ''}`}>
   <Image src="/icons/teachers.svg" alt="teachers" width={20} height={20} />
   <span>Teachers</span>
 </Link>
 
-<Link href="#" className={`${styles.link} ${styles.indented}`}>
+<Link href="/admin/members/parents/parentList" className={`${styles.link} ${styles.indented} ${isParentsActive ? styles.active : ''}`}>
   <Image src="/icons/parents.svg" alt="parents" width={20} height={20} />
   <span>Parents</span>
 </Link>
@@ -70,12 +74,18 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
   <span>Modules</span>
 </Link>
 
+        {/* Single Level link under Modules */}
+        <Link href="/admin/academic/levels" className={`${styles.link} ${styles.indented}`}>
+          <Image src="/icons/levels.svg" alt="level" width={26} height={24} />
+          <span>Levels</span>
+        </Link>
+
 <Link href="#" className={`${styles.link} ${styles.indented}`}>
   <Image src="/icons/timetables.svg" alt="timetables" width={20} height={20} />
   <span>Timetables</span>
 </Link>
 
-<Link href="#" className={`${styles.link} ${styles.indented}`}>
+<Link href="/admin/academic/sessions" className={`${styles.link} ${styles.indented}`}>
   <Image src="/icons/sessions.svg" alt="sessions" width={20} height={20} />
   <span>Sessions</span>
 </Link>

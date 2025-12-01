@@ -1,0 +1,7 @@
+/* Deprecated module CSS for app-level AddTeacherModal
+   The app-level modal now re-exports the canonical component
+   in `src/components/teachers/AddTeacherModal`. This file is
+   intentionally left minimal to avoid unused styles. */
+
+/* No styles here by design. */
+

@@ -1,0 +1,88 @@
+.container {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.headerSection {
+  margin-bottom: 24px;
+}
+
+.titleSection {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: 25px;
+  margin-top: -10px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.icon {
+  flex-shrink: 0;
+  margin-top: 20px;
+  margin-right: -4px;
+}
+
+.title {
+  margin: 0;
+  color: #1B2B4D;
+  font-size: 24px;
+  font-weight: 600;
+  margin-top: 20px;
+}
+
+.subtitle {
+  margin: 0;
+  margin-left: 35px;
+  margin-top: -12px;
+  margin-bottom: 20px;
+  color: #6b7280;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+@media (max-width: 768px) {
+  .titleSection {
+    margin-left: 15px;
+    margin-top: -5px;
+    margin-bottom: 6px;
+    gap: 10px;
+  }
+
+  .title {
+    font-size: 20px;
+  }
+
+  .subtitle {
+    margin-left: 15px;
+    margin-top: -3px;
+    margin-bottom: 15px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .titleSection {
+    margin-left: 10px;
+    margin-top: 0;
+    margin-bottom: 4px;
+    gap: 8px;
+  }
+
+  .title {
+    font-size: 18px;
+  }
+
+  .subtitle {
+    margin-left: 10px;
+    margin-top: 0;
+    margin-bottom: 12px;
+    font-size: 11px;
+  }
+
+  .icon {
+    width: 24px;
+    height: 24px;
+  }
+}
+

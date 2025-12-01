@@ -4,6 +4,7 @@
     "number of students": 1000,
     "number of teachers": 100,
     "number of parents": 800,
+
     "students percentage": 50,
     "teachers percentage": 20,
     "parents percentage": 10,
@@ -12,6 +13,8 @@
     "number of announcements": 100,
     "Monthly Profit": 10000,
     "monthly profit percentage": 15.50,
+    "absent students": 10,
+    "attendance rate": 90,
   
     "classesRanking": {
       "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
@@ -68,14 +71,14 @@
     "weeklySessions": [
       {
         "Module": "Arabic",
-        "teacher": "Lounis ",
+        "teacher": "Amina ",
         "students": 30,
         "date": "2024-12-12",
         "time": "11:00 AM"
       },
       {
         "Module": "Mathematics",
-        "teacher": "Sahraoui ",
+        "teacher": "Sana ",
         "students": 30,
         "date": "2024-12-12",
         "time": "02:00 PM"
@@ -89,13 +92,644 @@
       },
       {
         "Module": "Science",
-        "teacher": "Remita",
+        "teacher": "Morad",
         "students": 30,
         "date": "2024-12-12",
         "time": "03:00 PM"
       }
+      ,
+      {
+        "Module": "History",
+        "teacher": "Samir",
+        "students": 25,
+        "date": "2024-12-13",
+        "time": "10:00 AM"
+      },
+      {
+        "Module": "Geography",
+        "teacher": "Rania",
+        "students": 22,
+        "date": "2024-12-13",
+        "time": "01:00 PM"
+      },
+      {
+        "Module": "Computer Science",
+        "teacher": "Omar",
+        "students": 28,
+        "date": "2024-12-14",
+        "time": "09:30 AM"
+      },
+      {
+        "Module": "Art",
+        "teacher": "Lina",
+        "students": 18,
+        "date": "2024-12-14",
+        "time": "11:30 AM"
+      },
+      {
+        "Module": "Physical Education",
+        "teacher": "Hatem",
+        "students": 32,
+        "date": "2024-12-14",
+        "time": "02:30 PM"
+      },
+      {
+        "Module": "Music",
+        "teacher": "Sara",
+        "students": 20,
+        "date": "2024-12-15",
+        "time": "10:30 AM"
+      },
+      {
+        "Module": "Philosophy",
+        "teacher": "Mourad",
+        "students": 15,
+        "date": "2024-12-15",
+        "time": "01:30 PM"
+      },
+      {
+        "Module": "French",
+        "teacher": "Nadia",
+        "students": 27,
+        "date": "2024-12-16",
+        "time": "09:00 AM"
+      },
+      {
+        "Module": "Biology",
+        "teacher": "Yasmine",
+        "students": 24,
+        "date": "2024-12-16",
+        "time": "11:00 AM"
+      },
+      {
+        "Module": "Chemistry",
+        "teacher": "Adem",
+        "students": 26,
+        "date": "2024-12-16",
+        "time": "02:00 PM"
+      }
     ],
     "remainingSessionsCount": 15,
     "remainingSessionsHours": 32,
-    "remainingSessionsDays": 4
+    "remainingSessionsDays": 4,
+    "studentsOfThisMonth": [
+      {
+        "student": "Aya Hamdi",
+        "level": "3 eme",
+        "module": "Science",
+        "sessions": 20,
+        "email": "aya.hamdi@example.com",
+        "parent": "Samir Hamdi",
+        "feesPayment": 400
+      },
+      {
+        "student": "Omar Khaled",
+        "level": "2 eme",
+        "module": "Math",
+        "sessions": 15,
+        "email": "omar.khaled@example.com",
+        "parent": "Mona Khaled",
+        "feesPayment": 250
+      },
+      {
+        "student": "Lina Bensaid",
+        "level": "1 ere",
+        "module": "Physics",
+        "sessions": 18,
+        "email": "lina.bensaid@example.com",
+        "parent": "Nadia Bensaid",
+        "feesPayment": 0
+      },
+      {
+        "student": "Youssef Amari",
+        "level": "3 eme",
+        "module": "Chemistry",
+        "sessions": 22,
+        "email": "youssef.amari@example.com",
+        "parent": "Hatem Amari",
+        "feesPayment": 120
+      },
+      {
+        "student": "Sara Chihi",
+        "level": "2 eme",
+        "module": "Biology",
+        "sessions": 16,
+        "email": "sara.chihi@example.com",
+        "parent": "Rania Chihi",
+        "feesPayment": 400
+      },
+      {
+        "student": "Mehdi Trabelsi",
+        "level": "1 ere",
+        "module": "Science",
+        "sessions": 20,
+        "email": "mehdi.trabelsi@example.com",
+        "parent": "Lotfi Trabelsi",
+        "feesPayment": 300
+      },
+      {
+        "student": "Ines Jabri",
+        "level": "3 eme",
+        "module": "Math",
+        "sessions": 19,
+        "email": "ines.jabri@example.com",
+        "parent": "Houda Jabri",
+        "feesPayment": 150
+      },
+      {
+        "student": "Karim Zouari",
+        "level": "2 eme",
+        "module": "Science",
+        "sessions": 21,
+        "email": "karim.zouari@example.com",
+        "parent": "Nebil Zouari",
+        "feesPayment": 400
+      },
+      
+        {
+          "student": "Nour El Idrissi",
+          "level": "3 eme",
+          "module": "Science",
+          "sessions": 20,
+          "email": "nour.elidrissi@example.com",
+          "parent": "Khaled El Idrissi",
+          "feesPayment": 380
+        },
+        {
+          "student": "Ali Mansour",
+          "level": "2 eme",
+          "module": "Math",
+          "sessions": 18,
+          "email": "ali.mansour@example.com",
+          "parent": "Sami Mansour",
+          "feesPayment": 200
+        },
+        {
+          "student": "Salma Ferjani",
+          "level": "1 ere",
+          "module": "Biology",
+          "sessions": 22,
+          "email": "salma.ferjani@example.com",
+          "parent": "Hager Ferjani",
+          "feesPayment": 420
+        },
+        {
+          "student": "Adem Gharbi",
+          "level": "3 eme",
+          "module": "Physics",
+          "sessions": 19,
+          "email": "adem.gharbi@example.com",
+          "parent": "Mourad Gharbi",
+          "feesPayment": 140
+        },
+        {
+          "student": "Meriem Louati",
+          "level": "2 eme",
+          "module": "Chemistry",
+          "sessions": 17,
+          "email": "meriem.louati@example.com",
+          "parent": "Sonia Louati",
+          "feesPayment": 310
+        },
+        {
+          "student": "Rami Kacem",
+          "level": "1 ere",
+          "module": "Science",
+          "sessions": 16,
+          "email": "rami.kacem@example.com",
+          "parent": "Fathi Kacem",
+          "feesPayment": 0
+        },
+        {
+          "student": "Dhia Ben Amor",
+          "level": "3 eme",
+          "module": "Math",
+          "sessions": 21,
+          "email": "dhia.benamor@example.com",
+          "parent": "Imen Ben Amor",
+          "feesPayment": 450
+        },
+        {
+          "student": "Yasmine Khedhiri",
+          "level": "2 eme",
+          "module": "Physics",
+          "sessions": 20,
+          "email": "yasmine.khedhiri@example.com",
+          "parent": "Lotfi Khedhiri",
+          "feesPayment": 230
+        },
+        {
+          "student": "Houssem Jlassi",
+          "level": "1 ere",
+          "module": "Chemistry",
+          "sessions": 15,
+          "email": "houssem.jlassi@example.com",
+          "parent": "Noura Jlassi",
+          "feesPayment": 190
+        },
+        {
+          "student": "Oumaima Ben Slama",
+          "level": "3 eme",
+          "module": "Biology",
+          "sessions": 23,
+          "email": "oumaima.benslama@example.com",
+          "parent": "Walid Ben Slama",
+          "feesPayment": 400
+        }
+      ]
+    ,
+    "selectOptions": {
+      "levels": ["1 ere", "2 eme", "3 eme"],
+      "modules": ["Math", "Science", "English", "Arabic", "Physics", "Chemistry", "Biology"],
+      "sessions": [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30]
+    },
+    "Edit this students ": 
+      {
+        "student name ": "Aya Hamdi",
+        "gender": "Female",
+        "password": "********",
+         "academic year": "2023-2024",
+
+        "level": "3 eme",
+        "module": "Science", 
+        "sessions": 20,
+        "email": "aya.hamdi@example.com",
+        "parent": "Samir Hamdi",
+        "feesPayment": 400,
+        "phone number": "0549062531"
+
+      },
+       "View this students ": 
+      {
+        "student name ": "Aya Hamdi",
+        "gender": "Female",
+        "password": "********",
+         "academic year": "2023-2024",
+
+        "level": "3 eme",
+        "module": "Science", 
+        "sessions": 20,
+        "email": "aya.hamdi@example.com",
+        "parent": "Samir Hamdi",
+        "feesPayment": 400,
+        "phone number": "0549062531"
+
+      },
+      
+ 
+  "parents": [
+    {
+      "id": 1,
+      "parentName": "Samir Hamdi",
+      "email": "samir.hamdi@example.com",
+      "password": "********",
+      "phoneNumber": "0549123345",
+      "childName": "Aya Hamdi",
+      "academicYear": "2023-2024",
+      "feesPayment": 400
+    },
+    {
+      "id": 2,
+      "parentName": "Mona Khaled",
+      "email": "mona.khaled@example.com",
+      "password": "********",
+      "phoneNumber": "0549342210",
+      "childName": "Omar Khaled",
+      "academicYear": "2023-2024",
+      "feesPayment": 250
+    },
+    {
+      "id": 3,
+      "parentName": "Nadia Bensaid",
+      "email": "nadia.bensaid@example.com",
+      "password": "********",
+      "phoneNumber": "0549981122",
+      "childName": "Lina Bensaid",
+      "academicYear": "2023-2024",
+      "feesPayment": 0
+    },
+    {
+      "id": 4,
+      "parentName": "Hatem Amari",
+      "email": "hatem.amari@example.com",
+      "password": "********",
+      "phoneNumber": "0549128765",
+      "childName": "Youssef Amari",
+      "academicYear": "2023-2024",
+      "feesPayment": 120
+    },
+    {
+      "id": 5,
+      "parentName": "Rania Chihi",
+      "email": "rania.chihi@example.com",
+      "password": "********",
+      "phoneNumber": "0549002211",
+      "childName": "Sara Chihi",
+      "academicYear": "2023-2024",
+      "feesPayment": 400
+    },
+    {
+      "id": 6,
+      "parentName": "Lotfi Trabelsi",
+      "email": "lotfi.trabelsi@example.com",
+      "password": "********",
+      "phoneNumber": "0549033445",
+      "childName": "Mehdi Trabelsi",
+      "academicYear": "2023-2024",
+      "feesPayment": 300
+    },
+    {
+      "id": 7,
+      "parentName": "Houda Jabri",
+      "email": "houda.jabri@example.com",
+      "password": "********",
+      "phoneNumber": "0549457811",
+      "childName": "Ines Jabri",
+      "academicYear": "2023-2024",
+      "feesPayment": 150
+    },
+    {
+      "id": 8,
+      "parentName": "Nebil Zouari",
+      "email": "nebil.zouari@example.com",
+      "password": "********",
+      "phoneNumber": "0549558466",
+      "childName": "Karim Zouari",
+      "academicYear": "2023-2024",
+      "feesPayment": 400
+    },
+    {
+      "id": 9,
+      "parentName": "Khaled El Idrissi",
+      "email": "khaled.elidrissi@example.com",
+      "password": "********",
+      "phoneNumber": "0549017788",
+      "childName": "Nour El Idrissi",
+      "academicYear": "2023-2024",
+      "feesPayment": 380
+    },
+    {
+      "id": 10,
+      "parentName": "Sami Mansour",
+      "email": "sami.mansour@example.com",
+      "password": "********",
+      "phoneNumber": "0549076532",
+      "childName": "Ali Mansour",
+      "academicYear": "2023-2024",
+      "feesPayment": 200
+    },
+    {
+      "id": 11,
+      "parentName": "Hager Ferjani",
+      "email": "hager.ferjani@example.com",
+      "password": "********",
+      "phoneNumber": "0549332209",
+      "childName": "Salma Ferjani",
+      "academicYear": "2023-2024",
+      "feesPayment": 420
+    },
+    {
+      "id": 12,
+      "parentName": "Mourad Gharbi",
+      "email": "mourad.gharbi@example.com",
+      "password": "********",
+      "phoneNumber": "0549881100",
+      "childName": "Adem Gharbi",
+      "academicYear": "2023-2024",
+      "feesPayment": 140
+    },
+    {
+      "id": 13,
+      "parentName": "Sonia Louati",
+      "email": "sonia.louati@example.com",
+      "password": "********",
+      "phoneNumber": "0549221134",
+      "childName": "Meriem Louati",
+      "academicYear": "2023-2024",
+      "feesPayment": 310
+    },
+    {
+      "id": 14,
+      "parentName": "Fathi Kacem",
+      "email": "fathi.kacem@example.com",
+      "password": "********",
+      "phoneNumber": "0549007654",
+      "childName": "Rami Kacem",
+      "academicYear": "2023-2024",
+      "feesPayment": 0
+    },
+    {
+      "id": 15,
+      "parentName": "Imen Ben Amor",
+      "email": "imen.benamor@example.com",
+      "password": "********",
+      "phoneNumber": "0549342221",
+      "childName": "Dhia Ben Amor",
+      "academicYear": "2023-2024",
+      "feesPayment": 450
+    },
+    {
+      "id": 16,
+      "parentName": "Lotfi Khedhiri",
+      "email": "lotfi.khedhiri@example.com",
+      "password": "********",
+      "phoneNumber": "0549654432",
+      "childName": "Yasmine Khedhiri",
+      "academicYear": "2023-2024",
+      "feesPayment": 230
+    },
+    {
+      "id": 17,
+      "parentName": "Noura Jlassi",
+      "email": "noura.jlassi@example.com",
+      "password": "********",
+      "phoneNumber": "0549123321",
+      "childName": "Houssem Jlassi",
+      "academicYear": "2023-2024",
+      "feesPayment": 190
+    },
+    {
+      "id": 18,
+      "parentName": "Walid Ben Slama",
+      "email": "walid.benslama@example.com",
+      "password": "********",
+      "phoneNumber": "0549231188",
+      "childName": "Oumaima Ben Slama",
+      "academicYear": "2023-2024",
+      "feesPayment": 400
+    }
+  ],
+  
+  "teachers": [
+    {
+      "id": 1,
+      "teacherName": "Mohamed Mohamed",
+      "email": "mohamed.mohamed@gmail.com",
+      "password": "MOHAMED123456",
+      "gender": "Male",
+      "dateOfBirth": "01/01/2000",
+      "phoneNumber": "0500000000",
+      "enrollmentDate": "01/01/2020",
+      "level": "1st Year High School",
+      "modules": ["Math", "Science"],
+      "sessions": ["Monday 10H", "Saturday 12H"],
+      "academicYear": "2025/2026",
+      "paymentMethod": "Monthly",
+      "paymentStatus": "Overdue"
+    },
+    {
+      "id": 2,
+      "teacherName": "Amira Ben Salem",
+      "email": "amira.bensalem@example.com",
+      "password": "AMIRA2024",
+      "gender": "Female",
+      "dateOfBirth": "10/05/1995",
+      "phoneNumber": "0551122334",
+      "enrollmentDate": "15/09/2019",
+      "level": "2nd Year High School",
+      "modules": ["English", "Arabic"],
+      "sessions": ["Tuesday 14H", "Friday 09H"],
+      "academicYear": "2025/2026",
+      "paymentMethod": "Per Session",
+      "paymentStatus": "Paid"
+    },
+    {
+      "id": 3,
+      "teacherName": "Yassine Jlassi",
+      "email": "yassine.jlassi@example.com",
+      "password": "YASSINE789",
+      "gender": "Male",
+      "dateOfBirth": "22/03/1992",
+      "phoneNumber": "0567891230",
+      "enrollmentDate": "01/03/2018",
+      "level": "3rd Year High School",
+      "modules": ["Physics", "Chemistry"],
+      "sessions": ["Wednesday 11H", "Sunday 10H"],
+      "academicYear": "2025/2026",
+      "paymentMethod": "Monthly",
+      "paymentStatus": "Pending"
+    },
+    {
+      "id": 4,
+      "teacherName": "Nadia Trabelsi",
+      "email": "nadia.trabelsi@example.com",
+      "password": "NADIA456",
+      "gender": "Female",
+      "dateOfBirth": "05/02/1988",
+      "phoneNumber": "0559098877",
+      "enrollmentDate": "10/09/2017",
+      "level": "Middle School",
+      "modules": ["Biology"],
+      "sessions": ["Thursday 13H"],
+      "academicYear": "2025/2026",
+      "paymentMethod": "Per Session",
+      "paymentStatus": "Overdue"
+    },
+    {
+      "id": 5,
+      "teacherName": "Khaled Ben Amor",
+      "email": "khaled.benamor@example.com",
+      "password": "KHALED555",
+      "gender": "Male",
+      "dateOfBirth": "14/07/1985",
+      "phoneNumber": "0544332211",
+      "enrollmentDate": "01/02/2021",
+      "level": "Elementary",
+      "modules": ["Math"],
+      "sessions": ["Monday 08H", "Wednesday 08H"],
+      "academicYear": "2025/2026",
+      "paymentMethod": "Monthly",
+      "paymentStatus": "Paid"
+    },
+     {
+    "id": 6,
+    "teacherName": "Sana Kacem",
+    "email": "sana.kacem@example.com",
+    "password": "SANA2025",
+    "gender": "Female",
+    "dateOfBirth": "11/04/1990",
+    "phoneNumber": "0554412233",
+    "enrollmentDate": "12/09/2018",
+    "level": "1st Year High School",
+    "modules": ["Science"],
+    "sessions": ["Tuesday 09H", "Friday 10H"],
+    "academicYear": "2025/2026",
+    "paymentMethod": "Monthly",
+    "paymentStatus": "Paid"
+  },
+  {
+    "id": 7,
+    "teacherName": "Rached Gharbi",
+    "email": "rached.gharbi@example.com",
+    "password": "RACHED2025",
+    "gender": "Male",
+    "dateOfBirth": "29/09/1987",
+    "phoneNumber": "0567789001",
+    "enrollmentDate": "01/01/2020",
+    "level": "2nd Year High School",
+    "modules": ["Math", "Physics"],
+    "sessions": ["Monday 16H", "Thursday 08H"],
+    "academicYear": "2025/2026",
+    "paymentMethod": "Per Session",
+    "paymentStatus": "Pending"
+  },
+  {
+    "id": 8,
+    "teacherName": "Imen Ben Salah",
+    "email": "imen.bensalah@example.com",
+    "password": "IMEN4567",
+    "gender": "Female",
+    "dateOfBirth": "03/06/1993",
+    "phoneNumber": "0549001122",
+    "enrollmentDate": "10/10/2021",
+    "level": "Middle School",
+    "modules": ["Arabic", "English"],
+    "sessions": ["Saturday 14H", "Wednesday 15H"],
+    "academicYear": "2025/2026",
+    "paymentMethod": "Monthly",
+    "paymentStatus": "Overdue"
+  },
+  {
+    "id": 9,
+    "teacherName": "Walid Othmani",
+    "email": "walid.othmani@example.com",
+    "password": "WALID999",
+    "gender": "Male",
+    "dateOfBirth": "08/12/1982",
+    "phoneNumber": "0523004567",
+    "enrollmentDate": "05/04/2016",
+    "level": "Elementary",
+    "modules": ["Science"],
+    "sessions": ["Monday 11H"],
+    "academicYear": "2025/2026",
+    "paymentMethod": "Monthly",
+    "paymentStatus": "Paid"
+  },
+  {
+    "id": 10,
+    "teacherName": "Hana Ferjani",
+    "email": "hana.ferjani@example.com",
+    "password": "HANA2024",
+    "gender": "Female",
+    "dateOfBirth": "19/02/1997",
+    "phoneNumber": "0582009987",
+    "enrollmentDate": "07/01/2022",
+    "level": "3rd Year High School",
+    "modules": ["Chemistry", "Biology"],
+    "sessions": ["Tuesday 16H", "Friday 08H"],
+    "academicYear": "2025/2026",
+    "paymentMethod": "Per Session",
+    "paymentStatus": "Pending"
   }
+  ]
+
+
+
+}
+
+
+
+
+
+    
+  

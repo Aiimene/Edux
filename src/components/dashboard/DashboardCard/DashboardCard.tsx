@@ -5,8 +5,9 @@ type DashboardCardProps = {
   icon: string; // Expected SVG file name without .svg (e.g., 'attendance_rate')
   label: string;
   value: string | number;
-  percentage: string;
+  percentage?: string;
   iconAlt?: string;
+  iconSize?: number;
 };
 
 const DashboardCard: React.FC<DashboardCardProps> = ({
@@ -15,22 +16,26 @@ const DashboardCard: React.FC<DashboardCardProps> = ({
   value,
   percentage,
   iconAlt = '',
+  iconSize,
 }) => (
   <div className={styles.card}>
-    <div className={styles.header}>
+    <div className={styles.topRow}>
       <img
         src={`/icons/${icon}.svg`}
         alt={iconAlt || label}
-        width={32}
-        height={32}
+        width={iconSize ?? 24}
+        height={iconSize ?? 24}
+        className={styles.icon}
       />
-      <span className={styles.label}>{label}</span>
+      <div className={styles.labelTop}>{label}</div>
     </div>
     <div className={styles.value}>{value}</div>
-    <div className={styles.percentWrapper}>
-      {percentage}
-      <img src="/icons/up.svg" alt="Arrow Up" width={18} height={18} />
-    </div>
+    {percentage !== undefined && (
+      <div className={styles.percentWrapper}>
+        {percentage}
+        <img src="/icons/up.svg" alt="Arrow Up" width={18} height={18} />
+      </div>
+    )}
   </div>
 );
 

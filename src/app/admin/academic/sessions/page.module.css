@@ -1,0 +1,172 @@
+.pageWrap {
+  padding: 12px 18px 40px 18px; /* match other pages' padding so TopBar lines up */
+}
+
+/* Reuse Dashboard greeting styles for Sessions page */
+.greetingSection {
+  display: flex;
+  align-items: center;
+  gap: -4px;
+  margin-left: 25px;
+  margin-top: -10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.greetingText {
+  margin: 0;
+}
+
+.greetingIcon {
+  flex-shrink: 0;
+}
+
+.enterpriseName {
+  margin: 0;
+  color: #1B2B4D;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.subtitle {
+  margin: 0;
+  margin-left: 30px;
+  margin-top: -30px;
+  margin-bottom: 20px;
+  color: #6b7280;
+  font-size: 10px;
+  font-weight: 60;
+}
+.statsContainer {
+  display: flex;
+  gap: 22px;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+}
+.controlsRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin: 12px 8px;
+}
+.leftControls {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+}
+.select {
+  padding: 12px 22px;
+  border-radius: 12px;
+  border: 1px solid #dbeafe;
+  background: #e6f3fb;
+  min-width: 200px;
+  height: 48px;
+  font-size: 15px;
+  display: inline-flex;
+  align-items: center;
+}
+.rightControls {
+  display: flex;
+  gap: 8px;
+}
+.primaryBtn {
+  background: #12223b; /* dark navy to match design */
+  color: #ffffff;
+  padding: 10px 18px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  min-width: 140px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(18,34,59,0.08);
+}
+
+.primaryBtn:hover {
+  filter: brightness(0.95);
+}
+.ghostBtn {
+  background: transparent;
+  border: 1px solid #c7d2fe;
+  color: #334155;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.dateControls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.monthControl, .dayControl {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+  border: 1px solid #e6eefb;
+  padding: 8px 12px;
+  border-radius: 10px;
+}
+
+.monthControl {
+  position: relative;
+}
+
+.monthControl, .monthControl * {
+  cursor: pointer;
+}
+
+.monthInput, .dateInput {
+  border: none;
+  background: transparent;
+  font-size: 0.95rem;
+  outline: none;
+}
+
+.monthInput::-webkit-calendar-picker-indicator, .dateInput::-webkit-calendar-picker-indicator {
+  display: none;
+}
+
+.monthInput::-ms-expand, .dateInput::-ms-expand {
+  display: none;
+}
+
+/* Hidden native month input that still triggers the browser picker */
+.monthPlaceholder {
+  color: #6b7280; /* gray placeholder */
+}
+
+.monthValue {
+  color: #111827;
+}
+
+.monthDropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  background: #fff;
+  border: 1px solid #eef2ff;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(11, 19, 40, 0.08);
+  max-height: 220px;
+  overflow: auto;
+  z-index: 2000;
+  min-width: 180px;
+}
+
+.monthItem {
+  padding: 12px 16px;
+  cursor: pointer;
+  color: #0f172a;
+}
+
+.monthItem:hover, .monthItem:focus {
+  background: #f8fafc;
+}

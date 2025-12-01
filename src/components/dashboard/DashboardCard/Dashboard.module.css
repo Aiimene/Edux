@@ -3,7 +3,8 @@
     border-radius: 14px;
     padding: 12px;
     flex: 1;
-    min-width: 0;
+    /* Ensure cards have a consistent minimum width so they match across pages */
+    min-width: 240px;
     box-shadow: 0 4px 16px rgba(0,0,0,0.1), 0 2px 8px rgba(0,0,0,0.06);
     display: flex;
     flex-direction: column;
@@ -11,18 +12,31 @@
     margin-left: 10px;
   }
   
-  .header {
+  .topRow {
     display: flex;
     align-items: center;
-    gap: 8px;
+    justify-content: flex-start;
+    gap: 10px;
   }
 
-  .header img {
+  .labelTop {
+    font-weight: 500;
+    font-size: 0.95rem;
+    color: #222;
+    margin-bottom: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .icon {
     border-radius: 6px;
     padding: 6px;
     flex-shrink: 0;
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
+    background: transparent;
+    display: inline-block;
   }
   
   .label {
@@ -60,6 +74,7 @@
     .card {
       margin-left: 0;
       padding: 10px;
+      min-width: 200px;
     }
 
     .value {
@@ -74,6 +89,7 @@
   @media (max-width: 480px) {
     .card {
       padding: 8px;
+      min-width: 100%;
     }
 
     .value {
