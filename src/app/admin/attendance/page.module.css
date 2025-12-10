@@ -1,0 +1,33 @@
+.summaryCards {
+  display: flex;
+  gap: 22px;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+}
+
+.summaryCards > * {
+  flex: 0 0 calc(25% - 11px);
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  .summaryCards {
+    gap: 16px;
+    margin-bottom: 24px;
+    flex-direction: column;
+  }
+
+  .summaryCards > * {
+    flex: 0 0 100%;
+    min-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .summaryCards {
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+}
+

@@ -20,11 +20,13 @@
     width: 80%;
     padding: 2rem;
     position: relative;
+    min-height: 100vh;
     height: 100vh;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
+    overflow-y: auto;
 }
 
 .logo{
@@ -269,7 +271,10 @@ display: none !important;
 
 .form{
     width: 100%;
-    height: 60%;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 /* Responsive Styles for Mobile */
@@ -302,11 +307,17 @@ display: none !important;
         background-color: transparent;
         border-radius: 1rem;
         box-shadow: none;
+        min-height: 100vh;
         height: 100vh;
         max-height: 100vh;
-        justify-content: center;
+        justify-content: flex-start;
         align-items: center;
-        overflow: hidden;
+        overflow-y: auto;
+    }
+    
+    .loginForm .form {
+        flex: 1;
+        justify-content: center;
     }
 
     /* Add more margin-top for sign-up form on mobile */
@@ -420,7 +431,8 @@ display: none !important;
     top:0;
     right: 0;
     width: 50%;
-    height: 100%;
+    height: 100vh;
+    min-height: 100vh;
     border-radius: 150px 0 0 150px;
     background-color: black;
     z-index: 9999;
@@ -549,6 +561,19 @@ display: none !important;
     .newleft .loginForm {
         width: 90%;
         padding: 1rem 0.5rem;
+        min-height: 100vh;
+        height: 100vh;
+    }
+    
+    .rightSide .loginForm,
+    .newleft .loginForm {
+        justify-content: flex-start;
+    }
+    
+    .rightSide .loginForm .form,
+    .newleft .loginForm .form {
+        flex: 1;
+        justify-content: center;
     }
 
     /* Add margin-top to continue buttons on mobile */

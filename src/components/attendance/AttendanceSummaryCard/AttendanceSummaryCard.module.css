@@ -1,0 +1,88 @@
+.card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1), 0 2px 8px rgba(0,0,0,0.06);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+  min-width: 0;
+}
+
+.iconContainer {
+  width: 56px;
+  height: 56px;
+  background: #f0f7ff;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #23B6E7;
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+}
+
+.title {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: #6b7280;
+}
+
+.percentage {
+  font-size: 32px;
+  font-weight: 600;
+  color: #1B2B4D;
+  margin-bottom: 8px;
+}
+
+.trend {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 6px;
+  width: fit-content;
+}
+
+.trend.up {
+  color: #23B6E7;
+  background: #e3f2fd;
+}
+
+.trend.down {
+  color: #ef4444;
+  background: #fee2e2;
+}
+
+.trend svg {
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .card {
+    padding: 20px;
+    gap: 12px;
+  }
+
+  .iconContainer {
+    width: 48px;
+    height: 48px;
+  }
+
+  .percentage {
+    font-size: 28px;
+  }
+
+  .title {
+    font-size: 13px;
+  }
+}
+

@@ -1,0 +1,125 @@
+.card {
+  background: #F1F5F9;
+  border-radius: 18px;
+  padding: 18px;
+  width: 100%;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1), 0 2px 8px rgba(0,0,0,0.06);
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.header img {
+  flex-shrink: 0;
+}
+
+.title {
+  color: #222;
+  font-size: 1.18rem;
+  font-weight: 500;
+  margin: 0;
+}
+
+.tableWrapper {
+  overflow-x: auto;
+  width: 100%;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.th {
+  text-align: left;
+  padding: 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #6b7280;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.td {
+  padding: 12px;
+  font-size: 0.9rem;
+  color: #222;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.tr:last-child .td {
+  border-bottom: none;
+}
+
+.teacherCell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.avatar {
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.seeMore {
+  color: #1B2B4D;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  margin-top: 16px;
+  margin-left: auto;
+  gap: 4px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.seeMore:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .card {
+    padding: 14px;
+    border-radius: 14px;
+  }
+
+  .title {
+    font-size: 1rem;
+  }
+
+  .th,
+  .td {
+    padding: 8px;
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .card {
+    padding: 12px;
+  }
+
+  .title {
+    font-size: 0.95rem;
+  }
+
+  .th,
+  .td {
+    padding: 6px;
+    font-size: 0.8rem;
+  }
+
+  .avatar {
+    width: 20px;
+    height: 20px;
+  }
+}
+

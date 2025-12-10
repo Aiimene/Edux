@@ -1,0 +1,151 @@
+.card {
+    background: #F1F5F9;
+    border-radius: 18px;
+    padding: 16px;
+    flex: 1;
+    min-width: 0;
+    min-height: 320px;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1), 0 2px 8px rgba(0,0,0,0.06);
+    gap: 8px;
+  }
+  
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.1rem;
+    color: #222;
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+
+  .header img {
+    flex-shrink: 0;
+  }
+  
+  .title {
+    margin-left: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .chart {
+    flex: 1;
+    width: 100%;
+    min-height: 200px;
+    max-width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .chart > div {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100%;
+    position: relative;
+  }
+
+  .chart canvas {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+  
+  .details {
+    color: #1B2B4D;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+    gap: 4px;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  @media (max-width: 768px) {
+    .card {
+      min-height: 300px;
+      padding: 12px;
+      width: 100%;
+      max-width: 100%;
+    }
+
+    .header {
+      font-size: 1rem;
+    }
+
+    .title {
+      font-size: 0.95rem;
+    }
+
+    .chart {
+      min-height: 220px;
+      width: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+    }
+
+    .chart > div {
+      min-width: 100%;
+    }
+
+    .details {
+      font-size: 12px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .card {
+      min-height: 280px;
+      padding: 10px;
+      border-radius: 14px;
+      width: 100%;
+      max-width: 100%;
+    }
+
+    .header {
+      font-size: 0.9rem;
+    }
+
+    .chart {
+      min-height: 200px;
+      width: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .chart > div {
+      min-width: 100%;
+      min-height: 200px;
+    }
+
+    .details {
+      font-size: 11px;
+    }
+  }
+
+  @media (max-width: 360px) {
+    .card {
+      min-height: 260px;
+      padding: 8px;
+    }
+
+    .chart {
+      min-height: 180px;
+    }
+
+    .chart > div {
+      min-height: 180px;
+    }
+  }
+

@@ -1,0 +1,183 @@
+.wrapper {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.container {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  flex-wrap: wrap;
+  flex: 1;
+  min-width: 0;
+}
+
+.tab {
+  background: #fff;
+  border: 1px solid rgba(100, 116, 139, 0.59);
+  border-radius: 20px;
+  padding: 12px 24px;
+  font-size: 24px;
+  font-weight: 400;
+  color: #000;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  height: 53px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+.tab:hover {
+  background: #f8f9fa;
+}
+
+.tab.active {
+  background: #f2f5f9;
+  border-color: rgba(100, 116, 139, 0.59);
+  box-shadow: 0px 4px 4px 0px #a6e4fb;
+  position: relative;
+}
+
+.tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 2px;
+  right: 2px;
+  height: 5px;
+  background: #a6e4fb;
+  border-radius: 0 0 20px 20px;
+}
+
+.saveSection {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-shrink: 0;
+}
+
+.saveButton {
+  padding: 14px 32px;
+  background: #23B6E7;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  min-width: 180px;
+  white-space: nowrap;
+  height: 53px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.saveButton:hover:not(:disabled) {
+  background: #1a9bc7;
+}
+
+.saveButton:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+.message {
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 500;
+  animation: slideIn 0.3s ease-out;
+  white-space: nowrap;
+}
+
+.message.success {
+  background: rgba(34, 197, 94, 0.13);
+  color: #16a34a;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.message.error {
+  background: rgba(220, 38, 38, 0.13);
+  color: #dc2626;
+  border: 1px solid rgba(220, 38, 38, 0.3);
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .wrapper {
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .container {
+    flex-direction: row;
+    flex-wrap: wrap;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .tab {
+    flex: 0 1 auto;
+    min-width: 0;
+    font-size: 18px;
+    padding: 10px 16px;
+    height: 48px;
+  }
+
+  .saveSection {
+    flex-shrink: 0;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .saveButton {
+    font-size: 16px;
+    height: 48px;
+    padding: 12px 24px;
+  }
+
+  .message {
+    font-size: 14px;
+    padding: 10px 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .tab {
+    font-size: 16px;
+    padding: 8px 12px;
+    height: 44px;
+  }
+
+  .saveButton {
+    font-size: 14px;
+    height: 44px;
+    padding: 10px 20px;
+  }
+}
+

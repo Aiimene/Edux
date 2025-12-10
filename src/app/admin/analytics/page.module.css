@@ -1,0 +1,121 @@
+.filtersSection {
+  display: none;
+}
+
+.revenueAndSummaryContainer {
+  display: flex;
+  gap: 22px;
+  margin-bottom: 32px;
+  width: 100%;
+  align-items: stretch;
+  flex-wrap: wrap;
+}
+
+.revenueContainer {
+  flex: 1;
+  min-width: 0;
+  flex-basis: 65%;
+  display: flex;
+  height: 100%;
+}
+
+.summaryContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  flex: 0 0 auto;
+  min-width: 0;
+  max-width: 300px;
+  width: 100%;
+}
+
+.chartsContainer {
+  display: flex;
+  gap: 22px;
+  width: 100%;
+  margin-bottom: 32px;
+  margin-left: 0;
+  margin-right: 0;
+  flex-wrap: wrap;
+}
+
+.tableContainer {
+  width: 100%;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+@media (max-width: 1024px) {
+  .revenueAndSummaryContainer {
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .revenueContainer {
+    flex-basis: 60%;
+  }
+
+  .summaryContainer {
+    gap: 16px;
+    max-width: 280px;
+  }
+
+  .chartsContainer {
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+}
+
+@media (max-width: 768px) {
+  .revenueAndSummaryContainer {
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .revenueContainer {
+    width: 100%;
+    flex-basis: 100%;
+  }
+
+  .summaryContainer {
+    width: 100%;
+    max-width: 100%;
+    gap: 12px;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .summaryContainer > * {
+    flex: 1;
+    min-width: 200px;
+  }
+
+  .chartsContainer {
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .revenueAndSummaryContainer {
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .summaryContainer {
+    gap: 10px;
+    flex-direction: column;
+  }
+
+  .summaryContainer > * {
+    min-width: 100%;
+  }
+
+  .chartsContainer {
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+}
+

@@ -1,0 +1,163 @@
+.card {
+    background: #F1F5F9;
+    border-radius: 18px;
+    padding: 18px;
+    width: 100%;
+    height: 100%;
+    min-height: 300px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1), 0 2px 8px rgba(0,0,0,0.06);
+    display: flex;
+    flex-direction: column;
+  }
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .header img {
+    flex-shrink: 0;
+  }
+  .title {
+    color: #222;
+    font-size: 1.18rem;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .gridAndStats {
+    display: flex;
+    align-items: stretch;
+    gap: 20px;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    min-height: 0;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-auto-rows: 1fr;
+    gap: 15px;
+    flex: 1;
+    min-width: 0;
+    align-content: stretch;
+  }
+  .sessionCard {
+    background: #fff;
+    border-radius: 13px;
+    padding: 11px 16px;
+    margin-bottom: 0;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.04);
+    font-size: 1rem;
+    min-width: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .rank {
+    font-size: 1.28rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .label {
+    color: #6b7280;
+    font-size: 0.9rem;
+  }
+  .stats {
+    min-width: 130px;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    color: #222;
+    font-weight: 500;
+    font-size: 1rem;
+    justify-content: center;
+    padding-left: 16px;
+    border-left: 1.5px solid #e3e7ee;
+    flex-shrink: 0;
+  }
+  .stats b {
+    font-size: 1.1rem;
+    color: #1B2B4D;
+  }
+
+  @media (max-width: 768px) {
+    .card {
+      padding: 14px;
+      border-radius: 14px;
+    }
+
+    .title {
+      font-size: 1rem;
+    }
+
+    .gridAndStats {
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .grid {
+      grid-template-columns: 1fr;
+      grid-auto-rows: 1fr;
+      gap: 12px;
+    }
+
+    .stats {
+      min-width: 100%;
+      border-left: none;
+      border-top: 1.5px solid #e3e7ee;
+      padding-left: 0;
+      padding-top: 16px;
+      gap: 15px;
+      flex-direction: row;
+      flex-wrap: wrap;
+    }
+
+    .stats > div {
+      flex: 1;
+      min-width: 120px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .card {
+      padding: 12px;
+      min-height: 250px;
+    }
+
+    .title {
+      font-size: 0.95rem;
+    }
+
+    .sessionCard {
+      padding: 10px 12px;
+      font-size: 0.9rem;
+    }
+
+    .rank {
+      font-size: 1.1rem;
+    }
+
+    .label {
+      font-size: 0.85rem;
+    }
+
+    .stats {
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .stats > div {
+      min-width: 100%;
+    }
+
+    .stats b {
+      font-size: 1rem;
+    }
+  }
+

@@ -1,0 +1,88 @@
+.card {
+    background: #F1F5F9;
+    border-radius: 14px;
+    padding: 12px;
+    flex: 1;
+    min-width: 0;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1), 0 2px 8px rgba(0,0,0,0.06);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-left: 0;
+  }
+  
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .header img {
+    border-radius: 6px;
+    padding: 6px;
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+  }
+  
+  .label {
+    font-weight: 500;
+    font-size: 0.9rem;
+    color: #222;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #222;
+    margin-bottom: 4px;
+    word-break: break-word;
+  }
+  
+  .percentWrapper {
+    display: flex;
+    align-items: center;
+    align-self: flex-start;
+    background: #B7E5FF;
+    border-radius: 10px;
+    padding: 3px 10px;
+    font-weight: 500;
+    font-size: 0.85rem;
+    color: #222;
+    gap: 4px;
+    white-space: nowrap;
+  }
+
+  @media (max-width: 768px) {
+    .card {
+      margin-left: 0;
+      padding: 10px;
+    }
+
+    .value {
+      font-size: 1.3rem;
+    }
+
+    .label {
+      font-size: 0.85rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .card {
+      padding: 8px;
+    }
+
+    .value {
+      font-size: 1.2rem;
+    }
+
+    .header img {
+      width: 28px;
+      height: 28px;
+    }
+  }
+

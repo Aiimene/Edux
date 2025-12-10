@@ -1,0 +1,160 @@
+.card {
+    background: #F1F5F9;
+    border-radius: 18px;
+    padding: 18px;
+    width: 100%;
+    height: 100%;
+    min-height: 300px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1), 0 2px 8px rgba(0,0,0,0.06);
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .header img {
+    flex-shrink: 0;
+  }
+  
+  .title {
+    color: #222;
+    font-size: 1.18rem;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    overflow-y: auto;
+    flex: 1;
+  }
+  
+  .item {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border-radius: 16px;
+    margin-bottom: 12px;
+    padding: 8px 14px;
+    gap: 8px;
+    min-width: 0;
+  }
+  
+  .medal {
+    margin-right: 6px;
+    flex-shrink: 0;
+  }
+  
+  .avatar {
+    border-radius: 50%;
+    margin-right: 8px;
+    flex-shrink: 0;
+  }
+  
+  .info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+  
+  .name {
+    font-weight: 600;
+    font-size: 1.08rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .sessions {
+    color: #6b7280;
+    font-size: 0.90rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .percentage {
+    background: #9ae6ff;
+    padding: 6px 15px;
+    border-radius: 10px;
+    font-weight: 600;
+    color: #222;
+    font-size: 1rem;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 768px) {
+    .card {
+      padding: 14px;
+      border-radius: 14px;
+    }
+
+    .title {
+      font-size: 1rem;
+    }
+
+    .item {
+      padding: 8px 10px;
+      gap: 6px;
+    }
+
+    .name {
+      font-size: 0.95rem;
+    }
+
+    .sessions {
+      font-size: 0.85rem;
+    }
+
+    .percentage {
+      padding: 5px 12px;
+      font-size: 0.9rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .card {
+      padding: 12px;
+      min-height: 250px;
+    }
+
+    .title {
+      font-size: 0.95rem;
+    }
+
+    .item {
+      padding: 6px 8px;
+      flex-wrap: wrap;
+    }
+
+    .avatar {
+      width: 30px;
+      height: 30px;
+    }
+
+    .medal {
+      width: 18px;
+      height: 18px;
+    }
+
+    .name {
+      font-size: 0.9rem;
+    }
+
+    .percentage {
+      padding: 4px 10px;
+      font-size: 0.85rem;
+    }
+  }
+

@@ -1,0 +1,99 @@
+.container {
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 20px;
+  padding: 0;
+}
+
+.greetingSection {
+  display: flex;
+  align-items: center;
+  gap: -4px;
+  margin-left: 0;
+  margin-top: 30px;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+}
+
+.greetingText {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 500;
+}
+
+.greetingIcon {
+  flex-shrink: 0;
+}
+
+.enterpriseName {
+  margin: 0;
+  color: #1B2B4D;
+  font-size: 32px;
+  font-weight: 600;
+}
+
+.subtitle {
+  margin: 0;
+  margin-left: 0;
+  margin-top: -30px;
+  margin-bottom: 30px;
+  color: #6b7280;
+  font-size: 18px;
+  font-weight: 400;
+}
+
+@media (max-width: 768px) {
+  .container {
+    margin-top: 15px;
+  }
+
+  .greetingSection {
+    margin-left: 0;
+    margin-top: 25px;
+    margin-bottom: 25px;
+    gap: 4px;
+  }
+
+  .greetingText {
+    font-size: 26px;
+  }
+
+  .enterpriseName {
+    font-size: 26px;
+  }
+
+  .subtitle {
+    margin-left: 0;
+    margin-top: -20px;
+    margin-bottom: 25px;
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    margin-top: 10px;
+  }
+
+  .greetingSection {
+    margin-left: 0;
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
+
+  .greetingText {
+    font-size: 22px;
+  }
+
+  .enterpriseName {
+    font-size: 22px;
+  }
+
+  .subtitle {
+    margin-left: 0;
+    margin-top: -15px;
+    margin-bottom: 20px;
+    font-size: 14px;
+  }
+}
+

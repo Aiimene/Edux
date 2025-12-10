@@ -1,0 +1,292 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.62);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  mix-blend-mode: luminosity;
+}
+
+.modal {
+  background: #f1f5f9;
+  border-radius: 20px;
+  padding: 50px 40px;
+  width: 90%;
+  max-width: 1028px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.25);
+  position: relative;
+}
+
+.title {
+  font-size: 32px;
+  font-weight: 400;
+  color: #000;
+  text-align: center;
+  margin: 0 0 24px 0;
+}
+
+.description {
+  font-size: 16px;
+  font-weight: 400;
+  color: #000;
+  text-align: left;
+  margin-bottom: 32px;
+  line-height: 1.5;
+}
+
+.formField {
+  margin-bottom: 24px;
+}
+
+.label {
+  display: block;
+  font-size: 24px;
+  font-weight: 400;
+  color: #000;
+  margin-bottom: 12px;
+}
+
+.select {
+  width: 100%;
+  height: 49px;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.22);
+  border-radius: 15px;
+  padding: 0 20px;
+  font-size: 24px;
+  font-weight: 400;
+  color: #000;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 20px center;
+  background-size: 12px;
+}
+
+.select:focus {
+  outline: none;
+  border-color: #a6e4fb;
+}
+
+.dateInput {
+  width: 100%;
+  height: 49px;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.22);
+  border-radius: 15px;
+  padding: 0 20px;
+  font-size: 24px;
+  font-weight: 400;
+  color: #000;
+  cursor: pointer;
+}
+
+.dateInput:focus {
+  outline: none;
+  border-color: #a6e4fb;
+}
+
+.uploadSection {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.uploadArea {
+  width: 200px;
+  height: 200px;
+  background: rgba(121, 121, 121, 0.12);
+  border: 2px dashed #a7a7a7;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+
+.uploadArea:hover {
+  border-color: #a6e4fb;
+  background: rgba(166, 228, 251, 0.1);
+}
+
+.uploadPlaceholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.uploadText {
+  font-size: 40px;
+  font-weight: 400;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.preview {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+.previewImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.previewPdf {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #000;
+  font-size: 14px;
+  padding: 16px;
+  text-align: center;
+  word-break: break-word;
+}
+
+.fileInput {
+  display: none;
+}
+
+.requirements {
+  flex: 1;
+  background: rgba(166, 228, 251, 0.12);
+  border: 1px solid #a6e4fb;
+  border-radius: 20px;
+  padding: 28px;
+  min-height: 200px;
+}
+
+.requirementsTitle {
+  font-size: 24px;
+  font-weight: 400;
+  color: #000;
+  margin: 0 0 16px 0;
+}
+
+.requirementsList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.requirementsList li {
+  font-size: 20px;
+  font-weight: 400;
+  color: #000;
+  line-height: 1.5;
+  position: relative;
+  padding-left: 36px;
+}
+
+.requirementsList li::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  font-size: 24px;
+  color: #000;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 32px;
+}
+
+.cancelButton {
+  background: #ffffff;
+  border: 1px solid #cbcbcb;
+  border-radius: 10px;
+  height: 48px;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 24px;
+  font-weight: 400;
+  color: #000;
+  transition: all 0.2s;
+}
+
+.cancelButton:hover {
+  background: #f5f5f5;
+  border-color: #a7a7a7;
+}
+
+.saveButton {
+  background: #a6e4fb;
+  border: 1px solid #00baff;
+  border-radius: 10px;
+  height: 48px;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 24px;
+  font-weight: 400;
+  color: #000;
+  transition: all 0.2s;
+}
+
+.saveButton:hover {
+  background: #8dd4f0;
+  border-color: #0099cc;
+}
+
+@media (max-width: 768px) {
+  .modal {
+    padding: 32px 24px;
+    width: 95%;
+  }
+
+  .uploadSection {
+    flex-direction: column;
+  }
+
+  .uploadArea {
+    width: 100%;
+    min-height: 200px;
+  }
+
+  .requirements {
+    width: 100%;
+  }
+
+  .actions {
+    flex-direction: column-reverse;
+  }
+
+  .cancelButton,
+  .saveButton {
+    width: 100%;
+    justify-content: center;
+  }
+}
+

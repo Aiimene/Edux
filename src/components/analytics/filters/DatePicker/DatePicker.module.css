@@ -1,0 +1,67 @@
+.container {
+  position: relative;
+  display: inline-block;
+}
+
+.button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: #fff;
+  border: 1px solid #e1e7f0;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  padding: 0;
+}
+
+.button:hover {
+  background: #f8f9fa;
+  border-color: #d5d9de;
+}
+
+.button img {
+  flex-shrink: 0;
+}
+
+.picker {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: #fff;
+  border: 1px solid #e1e7f0;
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1), 0 2px 8px rgba(0,0,0,0.06);
+  padding: 12px;
+  z-index: 1000;
+}
+
+.input {
+  padding: 8px 12px;
+  border: 1px solid #e1e7f0;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #222;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.input:focus {
+  border-color: #23B6E7;
+}
+
+@media (max-width: 768px) {
+  .button {
+    width: 40px;
+    height: 40px;
+  }
+
+  .picker {
+    right: auto;
+    left: 0;
+  }
+}
+
