@@ -1,0 +1,112 @@
+.container {
+  position: relative;
+  display: inline-block;
+}
+
+.button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: #fff;
+  border: 1px solid #e1e7f0;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  padding: 0;
+}
+
+.button:hover {
+  background: #f8f9fa;
+  border-color: #d5d9de;
+}
+
+.button svg {
+  flex-shrink: 0;
+}
+
+.picker {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: #fff;
+  border: 1px solid #e1e7f0;
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1), 0 2px 8px rgba(0,0,0,0.06);
+  padding: 16px;
+  z-index: 1000;
+  min-width: 280px;
+}
+
+.dateInputs {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.dateInputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.input {
+  padding: 8px 12px;
+  border: 1px solid #e1e7f0;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #222;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.input:focus {
+  border-color: #23B6E7;
+}
+
+.applyButton {
+  width: 100%;
+  padding: 10px;
+  background: #23B6E7;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.applyButton:hover:not(:disabled) {
+  background: #1a9bc7;
+}
+
+.applyButton:disabled {
+  background: #d5d9de;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .button {
+    width: 40px;
+    height: 40px;
+  }
+
+  .picker {
+    right: auto;
+    left: 0;
+    min-width: 260px;
+  }
+}
+
