@@ -231,7 +231,6 @@ const AttendanceTable: React.FC<AttendanceTableProps> = ({
               <circle cx="9" cy="5" r="0.5" fill="currentColor" />
               <circle cx="11" cy="3" r="0.5" fill="currentColor" />
             </svg>
-            <span>Clean</span>
           </button>
         </div>
         </div>
