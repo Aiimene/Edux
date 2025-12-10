@@ -8,43 +8,51 @@ import ConfirmModal from '../../UI/ConfirmModal/ConfirmModal';
 type Session = {
   Module: string;
   teacher: string;
-  students: number;
+  students?: number;
   date: string;
   time: string;
 };
+type SessionsListProps = {
+  sessions: Session[];
+  onDelete?: (index: number) => void;
+  onEdit?: (index: number) => void;
+};
 
-const SessionsList: React.FC<{ sessions: Session[] }> = ({ sessions = [] }) => {
-  const [localSessions, setLocalSessions] = useState<Session[]>(sessions);
+const SessionsList: React.FC<SessionsListProps> = ({ sessions = [], onDelete, onEdit }) => {
   const [expanded, setExpanded] = useState(false);
-
   const [confirmIndex, setConfirmIndex] = useState<number | null>(null);
 
   const openConfirm = (index: number) => setConfirmIndex(index);
   const closeConfirm = () => setConfirmIndex(null);
 
   const handleDelete = (index: number) => {
-    setLocalSessions((prev) => prev.filter((_, i) => i !== index));
+    if (onDelete) onDelete(index);
     closeConfirm();
   };
 
   const VISIBLE_COUNT = 8;
 
-  const visibleSessions = expanded ? localSessions : localSessions.slice(0, VISIBLE_COUNT);
+  const visibleSessions = expanded ? sessions : sessions.slice(0, VISIBLE_COUNT);
 
   return (
     <div className={styles.listWrap}>
       {visibleSessions.map((s, i) => (
-        <SessionCard key={`${s.Module}-${i}`} session={s} onRequestDelete={() => openConfirm(i)} />
+        <SessionCard
+          key={`${s.Module}-${i}`}
+          session={s}
+          onRequestDelete={() => openConfirm(i)}
+          onRequestEdit={() => onEdit && onEdit(i)}
+        />
       ))}
 
-      {localSessions.length > VISIBLE_COUNT && (
+      {sessions.length > VISIBLE_COUNT && (
         <div className={styles.expandWrap}>
           <button
             className={`${styles.expandBtn} ${expanded ? styles.expandBtnBox : styles.expandBtnLink}`}
             onClick={() => setExpanded((v) => !v)}
             aria-expanded={expanded}
           >
-            {expanded ? 'Show Less' : `See All (${localSessions.length})`}
+            {expanded ? 'Show Less' : `See All (${sessions.length})`}
           </button>
         </div>
       )}

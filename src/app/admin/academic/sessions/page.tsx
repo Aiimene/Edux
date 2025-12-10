@@ -3,15 +3,21 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import SessionsList from '../../../../components/academic/SessionsList/SessionsList';
+import AddSessionModal from '@/components/academic/AddSessionModal/AddSessionModal';
 import DashboardCard from '../../../../components/dashboard/DashboardCard/DashboardCard';
 import styles from './page.module.css';
 import enterpriseData from '../../../../data/enterprise.json';
 
 export default function SessionsPage() {
-  const sessions = enterpriseData.weeklySessions || [];
+  const [sessions, setSessions] = useState<any[]>(enterpriseData.weeklySessions || []);
+  const [isSessionModalOpen, setIsSessionModalOpen] = useState(false);
+  const [sessionModalMode, setSessionModalMode] = useState<'add' | 'edit'>('add');
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [editingInitial, setEditingInitial] = useState<any>(null);
   const [month, setMonth] = useState('');
   const [monthOpen, setMonthOpen] = useState(false);
   const monthRef = useRef<HTMLDivElement | null>(null);
+  const dayInputRef = useRef<HTMLInputElement | null>(null);
   const months = [
     'January','February','March','April','May','June','July','August','September','October','November','December'
   ];
@@ -40,6 +46,67 @@ export default function SessionsPage() {
   const selectMonth = (m: string) => {
     setMonth(m);
     setMonthOpen(false);
+  };
+
+  const handleNewSession = () => {
+    setSessionModalMode('add');
+    setEditingIndex(null);
+    setEditingInitial(null);
+    setIsSessionModalOpen(true);
+  };
+
+  const handleEditSession = (index: number) => {
+    const target = sessions[index];
+    if (!target) return;
+    setSessionModalMode('edit');
+    setEditingIndex(index);
+    setEditingInitial({
+      sessionName: target.sessionName || target.Module || '',
+      module: target.module || target.Module || '',
+      level: target.level || target.Level || '',
+      teacher: target.teacher || '',
+      startDay: target.startDay || target.date?.split(' - ')[0] || '',
+      endDay: target.endDay || target.date?.split(' - ')[1] || '',
+      startTime: target.startTime || target.time?.split(' - ')[0] || '',
+      endTime: target.endTime || target.time?.split(' - ')[1] || '',
+      dayOfWeek: target.dayOfWeek || '',
+    });
+    setIsSessionModalOpen(true);
+  };
+
+  const handleSaveSession = (payload: any) => {
+    const mapped = {
+      ...payload,
+      Module: payload.module,
+      level: payload.level,
+      teacher: payload.teacher,
+      date: payload.startDay && payload.endDay ? `${payload.startDay} - ${payload.endDay}` : payload.startDay,
+      time: payload.startTime && payload.endTime ? `${payload.startTime} - ${payload.endTime}` : payload.startTime,
+    };
+
+    setSessions((prev) => {
+      if (sessionModalMode === 'edit' && editingIndex !== null) {
+        const copy = [...prev];
+        copy[editingIndex] = { ...copy[editingIndex], ...mapped };
+        return copy;
+      }
+      return [...prev, mapped];
+    });
+  };
+
+  const handleDeleteSession = (index: number) => {
+    setSessions((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const openDayPicker = () => {
+    const input = dayInputRef.current;
+    if (!input) return;
+    if (typeof input.showPicker === 'function') {
+      input.showPicker();
+    } else {
+      input.focus();
+      input.click();
+    }
   };
 
   return (
@@ -130,17 +197,31 @@ export default function SessionsPage() {
               )}
             </div>
 
-            <label className={styles.dayControl}>
+            <label
+              className={styles.dayControl}
+              onClick={openDayPicker}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDayPicker(); } }}
+              role="button"
+              tabIndex={0}
+            >
               <Image src="/icons/timetables.svg" alt="Select Day" width={18} height={18} />
-              <input type="date" className={styles.dateInput} aria-label="Select Day" />
+              <input ref={dayInputRef} type="date" className={styles.dateInput} aria-label="Select Day" />
             </label>
           </div>
 
-          <button className={styles.primaryBtn}>New Session</button>
+          <button className={styles.primaryBtn} onClick={handleNewSession}>New Session</button>
         </div>
       </div>
 
-      <SessionsList sessions={sessions} />
+      <SessionsList sessions={sessions} onDelete={handleDeleteSession} onEdit={handleEditSession} />
+
+      <AddSessionModal
+        isOpen={isSessionModalOpen}
+        onClose={() => setIsSessionModalOpen(false)}
+        onSave={handleSaveSession}
+        initialData={editingInitial}
+        mode={sessionModalMode}
+      />
     </div>
   );
 }

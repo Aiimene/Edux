@@ -97,77 +97,9 @@
         "date": "2024-12-12",
         "time": "03:00 PM"
       }
-      ,
-      {
-        "Module": "History",
-        "teacher": "Samir",
-        "students": 25,
-        "date": "2024-12-13",
-        "time": "10:00 AM"
-      },
-      {
-        "Module": "Geography",
-        "teacher": "Rania",
-        "students": 22,
-        "date": "2024-12-13",
-        "time": "01:00 PM"
-      },
-      {
-        "Module": "Computer Science",
-        "teacher": "Omar",
-        "students": 28,
-        "date": "2024-12-14",
-        "time": "09:30 AM"
-      },
-      {
-        "Module": "Art",
-        "teacher": "Lina",
-        "students": 18,
-        "date": "2024-12-14",
-        "time": "11:30 AM"
-      },
-      {
-        "Module": "Physical Education",
-        "teacher": "Hatem",
-        "students": 32,
-        "date": "2024-12-14",
-        "time": "02:30 PM"
-      },
-      {
-        "Module": "Music",
-        "teacher": "Sara",
-        "students": 20,
-        "date": "2024-12-15",
-        "time": "10:30 AM"
-      },
-      {
-        "Module": "Philosophy",
-        "teacher": "Mourad",
-        "students": 15,
-        "date": "2024-12-15",
-        "time": "01:30 PM"
-      },
-      {
-        "Module": "French",
-        "teacher": "Nadia",
-        "students": 27,
-        "date": "2024-12-16",
-        "time": "09:00 AM"
-      },
-      {
-        "Module": "Biology",
-        "teacher": "Yasmine",
-        "students": 24,
-        "date": "2024-12-16",
-        "time": "11:00 AM"
-      },
-      {
-        "Module": "Chemistry",
-        "teacher": "Adem",
-        "students": 26,
-        "date": "2024-12-16",
-        "time": "02:00 PM"
-      }
+     
+    
+   
     ],
     "remainingSessionsCount": 15,
     "remainingSessionsHours": 32,

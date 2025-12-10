@@ -1,6 +1,6 @@
 'use client';
 
-import AddStudentModal from '../AddStudentModal/AddStudentModal';
+import AddForm, { FormData } from '@/components/UI/AddForm/AddForm';
 import enterprise from '@/data/enterprise.json';
 
 type EditStudentModalProps = {
@@ -8,7 +8,7 @@ type EditStudentModalProps = {
   onClose: () => void;
   studentId: string;
   studentData?: any;
-  onSave?: (data: any) => void;
+  onSave?: (data: FormData) => void;
   onDelete?: () => void;
 };
 
@@ -67,7 +67,7 @@ export default function EditStudentModal({ isOpen, onClose, studentId, studentDa
     feePayment: src.feePayment ? String(src.feePayment) : String(placeholder.feePayment),
   };
 
-  const handleSave = (data: any) => {
+  const handleSave = (data: FormData) => {
     if (onSave) onSave(data);
     else console.log('Save student (static):', data);
   };
@@ -78,7 +78,7 @@ export default function EditStudentModal({ isOpen, onClose, studentId, studentDa
   };
 
   return (
-    <AddStudentModal
+    <AddForm
       isOpen={isOpen}
       onClose={onClose}
       initialData={initial}

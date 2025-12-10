@@ -1,16 +1,16 @@
 'use client';
 
-import AddStudentModal from '@/components/students/AddStudentModal/AddStudentModal';
+import AddForm, { FormData } from '@/components/UI/AddForm/AddForm';
 import enterpriseData from '@/data/enterprise.json';
 
 type ParentProfileModalProps = {
   isOpen: boolean;
   onClose: () => void;
   parentId: string;
+  onDelete?: () => void;
 };
 
-// Reuse canonical modal in view mode to show parent profile details.
-export default function ParentProfileModal({ isOpen, onClose, parentId }: ParentProfileModalProps) {
+export default function ParentProfileModal({ isOpen, onClose, parentId, onDelete }: ParentProfileModalProps) {
   if (!isOpen) return null;
 
   const parents = (enterpriseData as any).parents || [];
@@ -29,11 +29,12 @@ export default function ParentProfileModal({ isOpen, onClose, parentId }: Parent
     : undefined;
 
   return (
-    <AddStudentModal
+    <AddForm
       isOpen={isOpen}
       onClose={onClose}
       initialData={mappedInitial}
       mode="view"
+      onDelete={onDelete}
       entityLabel="Parent"
       hideAcademic={true}
     />

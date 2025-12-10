@@ -60,11 +60,41 @@
   border-radius: 12px;
   border: 1px solid #dbeafe;
   background: #e6f3fb;
-  min-width: 200px;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%2311223b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: calc(100% - 14px) 50%;
+  padding-right: 42px; /* room for custom chevron */
+  min-width: 240px; /* reduced width */
   height: 48px;
   font-size: 15px;
   display: inline-flex;
   align-items: center;
+}
+
+/* Match dropdown option look to gender select */
+.select option {
+  background: #ffffff;
+  color: #0f172a;
+}
+
+.select option:checked {
+  background: #e6f3fb;
+  color: #0f172a;
+}
+
+/* Scrollbar coloring for dropdowns (WebKit) */
+.select::-webkit-scrollbar {
+  width: 8px;
+}
+
+.select::-webkit-scrollbar-track {
+  background: #eef5ff;
+}
+
+.select::-webkit-scrollbar-thumb {
+  background-color: #d0e4ff;
+  border-radius: 8px;
 }
 .rightControls {
   display: flex;
@@ -113,6 +143,9 @@
   border: 1px solid #e6eefb;
   padding: 8px 12px;
   border-radius: 10px;
+  min-height: 48px;
+  height: 48px;
+  white-space: nowrap; /* keep label on one line */
 }
 
 .monthControl {

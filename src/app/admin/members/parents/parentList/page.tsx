@@ -1,14 +1,15 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import MembersTable, { Column } from '../../../../../components/members/MembersTable/MembersTable';
-import AddParentModal from '../../../../../components/parents/AddParentModal/AddParentModal';
-import EditParentModal from '../../../../../components/parents/EditParentModal/EditParentModal';
-import ParentProfileModal from '../../../../../components/parents/ParentProfileModal/ParentProfileModal';
-import enterpriseData from '../../../../../data/enterprise.json';
+import MembersTable, { Column } from '@/components/members/MembersTable/MembersTable';
+import AddParentModal from '@/components/parents/AddParentModal/AddParentModal';
+import EditParentModal from '@/components/parents/EditParentModal/EditParentModal';
+import ParentProfileModal from '@/components/parents/ParentProfileModal/ParentProfileModal';
+import ConfirmModal from '@/components/UI/ConfirmModal/ConfirmModal';
+import enterpriseData from '@/data/enterprise.json';
 import styles from './page.module.css';
 import Image from 'next/image';
-import DashboardCard from '../../../../../components/dashboard/DashboardCard/DashboardCard';
+import DashboardCard from '@/components/dashboard/DashboardCard/DashboardCard';
 
 type Parent = {
   id: number | string;
@@ -27,6 +28,8 @@ export default function ParentListPage() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [selectedParentId, setSelectedParentId] = useState<string>('');
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [parentToDelete, setParentToDelete] = useState<string>('');
 
   // parents will be derived and normalized from enterprise.json below
 
@@ -61,6 +64,30 @@ export default function ParentListPage() {
   const handleProfileClick = (parentId: string) => {
     setSelectedParentId(parentId);
     setIsProfileModalOpen(true);
+  };
+
+  const handleDeleteClick = (parentId: string) => {
+    setParentToDelete(parentId);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    console.log('Deleting parent:', parentToDelete);
+    // TODO: Implement actual delete logic here
+    // This would typically call an API to delete the parent
+    setIsDeleteModalOpen(false);
+    setParentToDelete('');
+  };
+
+  const handleDeleteCancel = () => {
+    setIsDeleteModalOpen(false);
+    setParentToDelete('');
+  };
+
+  const handleDeleteFromModal = () => {
+    handleDeleteClick(selectedParentId);
+    setIsEditModalOpen(false);
+    setIsProfileModalOpen(false);
   };
 
   // Define table columns for parents
@@ -252,6 +279,7 @@ export default function ParentListPage() {
             columns={columns}
             onEdit={handleEditClick}
             onViewProfile={handleProfileClick}
+            onDelete={handleDeleteClick}
             getId={(row) => String((row as any).id ?? row.parentName)}
             emptyMessage="No parents found"
           />
@@ -271,11 +299,22 @@ export default function ParentListPage() {
         isOpen={isEditModalOpen} 
         onClose={() => setIsEditModalOpen(false)}
         parentId={selectedParentId}
+        onDelete={handleDeleteFromModal}
       />
       <ParentProfileModal 
         isOpen={isProfileModalOpen} 
         onClose={() => setIsProfileModalOpen(false)}
         parentId={selectedParentId}
+        onDelete={handleDeleteFromModal}
+      />
+      <ConfirmModal
+        open={isDeleteModalOpen}
+        title="Delete Parent"
+        message="Are you sure you want to delete this parent? This action cannot be undone."
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        onConfirm={handleDeleteConfirm}
+        onCancel={handleDeleteCancel}
       />
     </div>
   );

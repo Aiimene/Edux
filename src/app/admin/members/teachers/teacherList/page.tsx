@@ -7,6 +7,7 @@ import DashboardCard from '../../../../../components/dashboard/DashboardCard/Das
 import AddTeacherModal from '../../../../../components/teachers/AddTeacherModal/AddTeacherModal';
 import EditTeacherModal from '../../../../../components/teachers/EditTeacherModal/EditTeacherModal';
 import TeacherProfileModal from '../../../../../components/teachers/TeacherProfileModal/TeacherProfileModal';
+import ConfirmModal from '../../../../../components/UI/ConfirmModal/ConfirmModal';
 import enterpriseData from '../../../../../data/enterprise.json';
 import styles from './page.module.css';
 
@@ -27,6 +28,8 @@ export default function TeacherListPage() {
   const [selectedMonth, setSelectedMonth] = useState<string>('');
   const [selectedFilterFeature, setSelectedFilterFeature] = useState<string>('');
   const [filterValue, setFilterValue] = useState<string>('');
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [teacherToDelete, setTeacherToDelete] = useState<string>('');
   const monthPopupRef = useRef<HTMLDivElement>(null);
   const selectByPopupRef = useRef<HTMLDivElement>(null);
 
@@ -79,6 +82,30 @@ export default function TeacherListPage() {
   const handleProfileClick = (teacherId: string) => {
     setSelectedTeacherId(teacherId);
     setIsProfileModalOpen(true);
+  };
+
+  const handleDeleteClick = (teacherId: string) => {
+    setTeacherToDelete(teacherId);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    console.log('Deleting teacher:', teacherToDelete);
+    // TODO: Implement actual delete logic here
+    // This would typically call an API to delete the teacher
+    setIsDeleteModalOpen(false);
+    setTeacherToDelete('');
+  };
+
+  const handleDeleteCancel = () => {
+    setIsDeleteModalOpen(false);
+    setTeacherToDelete('');
+  };
+
+  const handleDeleteFromModal = () => {
+    handleDeleteClick(selectedTeacherId);
+    setIsEditModalOpen(false);
+    setIsProfileModalOpen(false);
   };
 
   // Define table columns for teachers
@@ -276,6 +303,7 @@ export default function TeacherListPage() {
               setSelectedTeacherRow(initial);
               setIsProfileModalOpen(true);
             }}
+            onDelete={handleDeleteClick}
             getId={(row) => (row as any).id}
             emptyMessage="No teachers found"
           />
@@ -291,11 +319,22 @@ export default function TeacherListPage() {
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
         initialData={selectedTeacherRow}
+        onDelete={handleDeleteFromModal}
       />
       <TeacherProfileModal
         isOpen={isProfileModalOpen}
         onClose={() => setIsProfileModalOpen(false)}
         initialData={selectedTeacherRow}
+        onDelete={handleDeleteFromModal}
+      />
+      <ConfirmModal
+        open={isDeleteModalOpen}
+        title="Delete Teacher"
+        message="Are you sure you want to delete this teacher? This action cannot be undone."
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        onConfirm={handleDeleteConfirm}
+        onCancel={handleDeleteCancel}
       />
     </div>
   );

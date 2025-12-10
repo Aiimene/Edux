@@ -7,6 +7,7 @@ import DashboardCard from '../../../../../components/dashboard/DashboardCard/Das
 import AddStudentModal from '../../../../../components/students/AddStudentModal/AddStudentModal';
 import EditStudentModal from '../../../../../components/students/EditStudentModal/EditStudentModal';
 import StudentProfileModal from '../../../../../components/students/StudentProfileModal/StudentProfileModal';
+import ConfirmModal from '../../../../../components/UI/ConfirmModal/ConfirmModal';
 import enterpriseData from '../../../../../data/enterprise.json';
 import styles from './page.module.css';
 
@@ -32,6 +33,8 @@ export default function StudentListPage() {
   const [selectedMonth, setSelectedMonth] = useState<string>('');
   const [selectedFilterFeature, setSelectedFilterFeature] = useState<string>('');
   const [filterValue, setFilterValue] = useState<string>('');
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [studentToDelete, setStudentToDelete] = useState<string>('');
   const monthPopupRef = useRef<HTMLDivElement>(null);
   const selectByPopupRef = useRef<HTMLDivElement>(null);
 
@@ -84,6 +87,30 @@ export default function StudentListPage() {
     setSelectedStudentId(studentId);
     setSelectedStudentRow(row ?? null);
     setIsProfileModalOpen(true);
+  };
+
+  const handleDeleteClick = (studentId: string) => {
+    setStudentToDelete(studentId);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    console.log('Deleting student:', studentToDelete);
+    // TODO: Implement actual delete logic here
+    // This would typically call an API to delete the student
+    setIsDeleteModalOpen(false);
+    setStudentToDelete('');
+  };
+
+  const handleDeleteCancel = () => {
+    setIsDeleteModalOpen(false);
+    setStudentToDelete('');
+  };
+
+  const handleDeleteFromModal = () => {
+    handleDeleteClick(selectedStudentId);
+    setIsEditModalOpen(false);
+    setIsProfileModalOpen(false);
   };
 
   // Define table columns for students
@@ -280,6 +307,7 @@ export default function StudentListPage() {
             columns={columns}
             onEdit={handleEditClick}
             onViewProfile={handleProfileClick}
+            onDelete={handleDeleteClick}
             getId={(row) => (row as any).id}
             emptyMessage="No students found"
           />
@@ -296,12 +324,23 @@ export default function StudentListPage() {
         onClose={() => setIsEditModalOpen(false)}
         studentId={selectedStudentId}
         studentData={selectedStudentRow}
+        onDelete={handleDeleteFromModal}
       />
       <StudentProfileModal
         isOpen={isProfileModalOpen}
         onClose={() => setIsProfileModalOpen(false)}
         studentId={selectedStudentId}
         studentData={selectedStudentRow}
+        onDelete={handleDeleteFromModal}
+      />
+      <ConfirmModal
+        open={isDeleteModalOpen}
+        title="Delete Student"
+        message="Are you sure you want to delete this student? This action cannot be undone."
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        onConfirm={handleDeleteConfirm}
+        onCancel={handleDeleteCancel}
       />
       {/* Edit and Profile handled via modals */}
      <div className={styles.header}>

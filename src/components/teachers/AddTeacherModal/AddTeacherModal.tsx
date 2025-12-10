@@ -1,23 +1,24 @@
 
 "use client";
-import React from "react";
-import AddStudentModal from "@/components/students/AddStudentModal/AddStudentModal";
+import AddForm, { FormData } from "@/components/UI/AddForm/AddForm";
 
 type AddTeacherModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  initialData?: any;
-  onSave?: (data: any) => void;
+  initialData?: Partial<FormData>;
+  onSave?: (data: FormData) => void;
+  onDelete?: () => void;
 };
 
-export default function AddTeacherModal({ isOpen, onClose, initialData, onSave }: AddTeacherModalProps) {
+export default function AddTeacherModal({ isOpen, onClose, initialData, onSave, onDelete }: AddTeacherModalProps) {
   return (
-    <AddStudentModal
+    <AddForm
       isOpen={isOpen}
       onClose={onClose}
       initialData={initialData}
       mode="add"
       onSave={onSave}
+      onDelete={onDelete}
       entityLabel="Teacher"
     />
   );

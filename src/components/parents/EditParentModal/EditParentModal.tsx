@@ -1,18 +1,17 @@
 'use client';
 
-import AddStudentModal from '@/components/students/AddStudentModal/AddStudentModal';
+import AddForm, { FormData } from '@/components/UI/AddForm/AddForm';
 import enterpriseData from '@/data/enterprise.json';
 
 type EditParentModalProps = {
   isOpen: boolean;
   onClose: () => void;
   parentId: string;
-  onSave?: (data: any) => void;
+  onSave?: (data: FormData) => void;
+  onDelete?: () => void;
 };
 
-// Wrapper that locates the parent in enterprise.json and forwards the
-// mapped data to the canonical modal in edit mode.
-export default function EditParentModal({ isOpen, onClose, parentId, onSave }: EditParentModalProps) {
+export default function EditParentModal({ isOpen, onClose, parentId, onSave, onDelete }: EditParentModalProps) {
   if (!isOpen) return null;
 
   const parents = (enterpriseData as any).parents || [];
@@ -31,12 +30,13 @@ export default function EditParentModal({ isOpen, onClose, parentId, onSave }: E
     : undefined;
 
   return (
-    <AddStudentModal
+    <AddForm
       isOpen={isOpen}
       onClose={onClose}
       initialData={mappedInitial}
       mode="edit"
       onSave={onSave}
+      onDelete={onDelete}
       entityLabel="Parent"
       hideAcademic={true}
     />
