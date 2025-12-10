@@ -1,8 +1,10 @@
 {
   "filters": {
     "levels": ["All Levels", "Elementary", "Middle School", "High School"],
-    "dateRanges": ["This Week", "This Month", "This Year", "Custom"],
-    "subjects": ["All Subjects", "Mathematics", "Science", "English", "Arabic"]
+    "modules": ["All Modules", "Module 1", "Module 2", "Module 3", "Module 4", "Module 5"],
+    "subjects": ["All Subjects", "Mathematics", "Science", "English", "Arabic"],
+    "teachers": ["All Teachers", "Hmida Teacher", "Ahmed Teacher", "Sara Teacher", "Mohamed Teacher", "Fatima Teacher"],
+    "dateRanges": ["This Week", "This Month", "This Year", "Custom"]
   },
   "revenue": {
     "value": "10,000 DZD",
@@ -195,7 +197,9 @@
         "attendanceRate": "80%",
         "revenue": "5000 DA",
         "date": "2024-12-15",
-        "level": "Elementary"
+        "level": "Elementary",
+        "module": "Module 1",
+        "subject": "Mathematics"
       },
       {
         "sessionId": "13",
@@ -204,7 +208,9 @@
         "attendanceRate": "85%",
         "revenue": "6000 DA",
         "date": "2024-12-16",
-        "level": "Middle School"
+        "level": "Middle School",
+        "module": "Module 2",
+        "subject": "Science"
       },
       {
         "sessionId": "14",
@@ -213,7 +219,9 @@
         "attendanceRate": "90%",
         "revenue": "5500 DA",
         "date": "2024-12-17",
-        "level": "High School"
+        "level": "High School",
+        "module": "Module 3",
+        "subject": "English"
       },
       {
         "sessionId": "15",
@@ -222,7 +230,9 @@
         "attendanceRate": "75%",
         "revenue": "7000 DA",
         "date": "2024-12-18",
-        "level": "Elementary"
+        "level": "Elementary",
+        "module": "Module 1",
+        "subject": "Arabic"
       },
       {
         "sessionId": "16",
@@ -231,7 +241,31 @@
         "attendanceRate": "88%",
         "revenue": "5800 DA",
         "date": "2024-12-19",
-        "level": "Middle School"
+        "level": "Middle School",
+        "module": "Module 2",
+        "subject": "Mathematics"
+      },
+      {
+        "sessionId": "17",
+        "teacher": "Hmida Teacher",
+        "counts": "x3",
+        "attendanceRate": "82%",
+        "revenue": "6200 DA",
+        "date": "2024-12-20",
+        "level": "Elementary",
+        "module": "Module 4",
+        "subject": "Science"
+      },
+      {
+        "sessionId": "18",
+        "teacher": "Ahmed Teacher",
+        "counts": "x2",
+        "attendanceRate": "87%",
+        "revenue": "5900 DA",
+        "date": "2024-12-21",
+        "level": "High School",
+        "module": "Module 5",
+        "subject": "English"
       }
     ]
   }

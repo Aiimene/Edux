@@ -5,7 +5,7 @@ import Image from "next/image";
 import enterpriseData from "../../../data/enterprise.json";
 import DashboardTop from "../../../components/dashboard/DashboardTop/DashboardTop";
 import FilterBy from "../../../components/analytics/filters/FilterBy/FilterBy";
-import DatePicker from "../../../components/analytics/filters/DatePicker/DatePicker";
+import DateRangePicker from "../../../components/analytics/filters/DateRangePicker/DateRangePicker";
 import CurrentFilter from "../../../components/analytics/filters/CurrentFilter/CurrentFilter";
 import analyticsData from "../../../data/analytics.json";
 import { useSidebar } from "../../../hooks/useSidebar";
@@ -13,8 +13,12 @@ import styles from "./layout.module.css";
 
 type FilterState = {
   level: string;
+  module: string;
+  subject: string;
+  teacher: string;
   dateRange: string;
-  selectedDate?: string;
+  startDate?: string;
+  endDate?: string;
 };
 
 type FilterContextType = {
@@ -40,6 +44,9 @@ export default function AnalyticsLayout({
   const { toggle } = useSidebar();
   const [filters, setFilters] = useState<FilterState>({
     level: 'All Levels',
+    module: 'All Modules',
+    subject: 'All Subjects',
+    teacher: 'All Teachers',
     dateRange: 'This Week',
   });
 
@@ -47,8 +54,20 @@ export default function AnalyticsLayout({
     setFilters((prev) => ({ ...prev, level }));
   };
 
-  const handleDateSelect = (date: string) => {
-    setFilters((prev) => ({ ...prev, selectedDate: date, dateRange: 'Custom' }));
+  const handleModuleChange = (module: string) => {
+    setFilters((prev) => ({ ...prev, module }));
+  };
+
+  const handleSubjectChange = (subject: string) => {
+    setFilters((prev) => ({ ...prev, subject }));
+  };
+
+  const handleTeacherChange = (teacher: string) => {
+    setFilters((prev) => ({ ...prev, teacher }));
+  };
+
+  const handleDateRangeSelect = (startDate: string, endDate: string) => {
+    setFilters((prev) => ({ ...prev, startDate, endDate, dateRange: 'Custom' }));
   };
 
   const getCurrentFilterText = () => {
@@ -56,9 +75,19 @@ export default function AnalyticsLayout({
     if (filters.level !== 'All Levels') {
       parts.push(filters.level);
     }
-    if (filters.dateRange === 'Custom' && filters.selectedDate) {
-      const date = new Date(filters.selectedDate);
-      parts.push(date.toLocaleDateString());
+    if (filters.module !== 'All Modules') {
+      parts.push(filters.module);
+    }
+    if (filters.subject !== 'All Subjects') {
+      parts.push(filters.subject);
+    }
+    if (filters.teacher !== 'All Teachers') {
+      parts.push(filters.teacher);
+    }
+    if (filters.dateRange === 'Custom' && filters.startDate && filters.endDate) {
+      const start = new Date(filters.startDate);
+      const end = new Date(filters.endDate);
+      parts.push(`${start.toLocaleDateString()} - ${end.toLocaleDateString()}`);
     } else if (filters.dateRange !== 'This Week') {
       parts.push(filters.dateRange);
     }
@@ -68,8 +97,12 @@ export default function AnalyticsLayout({
   const clearFilters = () => {
     setFilters({
       level: 'All Levels',
+      module: 'All Modules',
+      subject: 'All Subjects',
+      teacher: 'All Teachers',
       dateRange: 'This Week',
-      selectedDate: undefined,
+      startDate: undefined,
+      endDate: undefined,
     });
   };
 
@@ -77,29 +110,50 @@ export default function AnalyticsLayout({
     <FilterContext.Provider value={{ filters, setFilters }}>
       <DashboardTop onMenuClick={toggle} />
       <div className={styles.container}>
-        {/* Filters Section - Before Welcome */}
-        <div className={styles.filtersSection}>
-          <FilterBy
-            options={analyticsData.filters.levels}
-            selectedOption={filters.level}
-            onSelect={handleLevelChange}
-            label="Filter By"
-          />
-          <DatePicker
-            onDateSelect={handleDateSelect}
-            selectedDate={filters.selectedDate}
-          />
-          <CurrentFilter
-            filterText={getCurrentFilterText()}
-            onClear={clearFilters}
-          />
-        </div>
-
-        {/* Greeting Section */}
-        <div className={styles.greetingSection}>
-          <p className={styles.greetingText}>Hello</p>
-          <Image src="/icons/hello.svg" alt="hello" width={45} height={45} className={styles.greetingIcon} />
-          <p className={styles.enterpriseName}>{enterpriseData.name}</p>
+        {/* Greeting Section with Filters on the right */}
+        <div className={styles.greetingAndFiltersContainer}>
+          <div className={styles.greetingSection}>
+            <p className={styles.greetingText}>Hello</p>
+            <Image src="/icons/hello.svg" alt="hello" width={45} height={45} className={styles.greetingIcon} />
+            <p className={styles.enterpriseName}>{enterpriseData.name}</p>
+          </div>
+          
+          {/* Filters Section - Right of Welcome */}
+          <div className={styles.filtersSection}>
+            <FilterBy
+              options={analyticsData.filters.levels}
+              selectedOption={filters.level}
+              onSelect={handleLevelChange}
+              label="Level"
+            />
+            <FilterBy
+              options={analyticsData.filters.modules}
+              selectedOption={filters.module}
+              onSelect={handleModuleChange}
+              label="Module"
+            />
+            <FilterBy
+              options={analyticsData.filters.subjects}
+              selectedOption={filters.subject}
+              onSelect={handleSubjectChange}
+              label="Subject"
+            />
+            <FilterBy
+              options={analyticsData.filters.teachers}
+              selectedOption={filters.teacher}
+              onSelect={handleTeacherChange}
+              label="Teacher"
+            />
+            <DateRangePicker
+              onDateRangeSelect={handleDateRangeSelect}
+              startDate={filters.startDate}
+              endDate={filters.endDate}
+            />
+            <CurrentFilter
+              filterText={getCurrentFilterText()}
+              onClear={clearFilters}
+            />
+          </div>
         </div>
         <p className={styles.subtitle}>Track everything from one place</p>
         {children}
