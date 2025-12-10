@@ -1,93 +1,234 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
+import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import styles from "./login.module.css";
 
+const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/auth";
+
 export default function LoginPage() {
-  const [regular, setRegular] = useState(true);
-  function handleLoginType(type: "regular" | "admin") {
-    setRegular(type === "regular");
+  const [schoolName, setSchoolName] = useState("");
+  const [identifier, setIdentifier] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  // Regular login handler
+  const handleRegularLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    if (!schoolName.trim()) {
+      setError("School name is required");
+      setLoading(false);
+      return;
+    }
+
+    if (!identifier.trim()) {
+      setError("Username or email is required");
+      setLoading(false);
+      return;
+    }
+
+    if (!password.trim()) {
+      setError("Password is required");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_URL}/login/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          school_name: schoolName,
+          identifier,
+          password
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Store tokens
+        localStorage.setItem('access_token', data.tokens.access);
+        localStorage.setItem('refresh_token', data.tokens.refresh);
+        localStorage.setItem('user_role', data.role);
+        localStorage.setItem('school_name', data.workspace.name);
+        
+        // Redirect based on role
+        window.location.href = '/dashboard';
+      } else {
+        setError(data.error || 'Login failed');
+      }
+    } catch (err) {
+      setError('Network error. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Google login handler
+  // Google login handler
+const handleGoogleLogin = async (credentialResponse: any) => {
+  setError("");
+  setLoading(true);
+
+  if (!schoolName.trim()) {
+    setError("Please enter your school name first");
+    setLoading(false);
+    return;
   }
+
+  try {
+
+    const response = await fetch(`${API_URL}/google/login/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        access_token: credentialResponse.credential,
+        school_name: schoolName
+      })
+    });
+
+
+    // Get raw text first
+    const rawText = await response.text();
+
+
+    // Try to parse as JSON
+    let data;
+    try {
+      data = JSON.parse(rawText);
+    } catch (parseError) {
+      console.error("Failed to parse JSON:", parseError);
+      setError(`Server returned invalid response. Check console.`);
+      setLoading(false);
+      return;
+    }
+
+    if (response.ok) {
+      // Store tokens
+      localStorage.setItem('access_token', data.access);
+      localStorage.setItem('refresh_token', data.refresh);
+      localStorage.setItem('user_role', data.role);
+      localStorage.setItem('school_name', data.workspace.name);
+      
+      // Redirect based on role
+      window.location.href = '/dashboard';
+    } else {
+      setError(data.error || 'Google login failed');
+    }
+  } catch (err) {
+    console.error("Network error:", err);
+    setError('Network error. Please try again.');
+  } finally {
+    setLoading(false);
+  }
+};
+
   return (
-    <div className={styles.loginContainer}>
-      <div className={styles.leftSide}>
-        <div className={styles.backButton}>
-          <Link href="/">
-            <img src="/icons/arrow-left.svg" alt="arrow-left" />
-          </Link>
+    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+      <div className={styles.loginContainer}>
+        <div className={styles.leftSide}>
+          <div className={styles.backButton}>
+            <Link href="/">
+              <img src="/icons/arrow-left.svg" alt="arrow-left" />
+            </Link>
+          </div>
+          
+          <div className={styles.logo}>
+            <img src="/images/logo.png" alt="login-left" />
+          </div>
+          
+          <div className={styles.loginForm}>
+            <h1 className={styles.title}>Welcome Back!</h1>
+            <h3 className={styles.subtitle}>Login to your account</h3>
+
+            {error && (
+              <div className={styles.error} style={{ marginBottom: '1.5rem', textAlign: 'center' }}>
+                {error}
+              </div>
+            )}
+
+            <form onSubmit={handleRegularLogin} className={styles.form}>
+              <div className={styles.fieldHolder}>
+                <div className={styles.label}>
+                  <img src="/icons/mortarboard-fill.svg" alt="school" />
+                  <label htmlFor="schoolName">School Name</label>
+                </div>
+                <input
+                  type="text"
+                  id="schoolName"
+                  placeholder="e.g., ecole-primaire-alger"
+                  value={schoolName}
+                  onChange={(e) => setSchoolName(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className={styles.fieldHolder}>
+                <div className={styles.label}>
+                  <img src="/icons/envelope.svg" alt="user" />
+                  <label htmlFor="identifier">Username or Email</label>
+                </div>
+                <input
+                  type="text"
+                  id="identifier"
+                  placeholder="Username or Email"
+                  value={identifier}
+                  onChange={(e) => setIdentifier(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className={styles.fieldHolder}>
+                <div className={styles.label}>
+                  <img src="/icons/fingerprint.svg" alt="password" />
+                  <label htmlFor="password">Password</label>
+                </div>
+                <input
+                  type="password"
+                  id="password"
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </div>
+
+              <button type="submit" disabled={loading}>
+                {loading ? 'Logging in...' : 'Login'}
+              </button>
+
+              <div className={styles.divider}>
+                <div className={styles.dividerLine}></div>
+                <span className={styles.dividerText}>Or login with</span>
+                <div className={styles.dividerLine}></div>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+                <GoogleLogin
+                  onSuccess={handleGoogleLogin}
+                  onError={() => setError('Google login failed')}
+                  useOneTap={false}
+                  theme="outline"
+                  size="large"
+                  text="continue_with"
+                  width="100%"
+                />
+              </div>
+
+              <p>
+                Don't have an account? <Link href="/signup">Sign up</Link>
+              </p>
+            </form>
+          </div>
         </div>
-
-        <div className={styles.logo}>
-          <img src="/images/logo.png" alt="login-left" />
-        </div>
-        <div className={styles.loginForm}>
-          <h1 className={styles.title}>Welcome Back!</h1>
-          <h3 className={styles.subtitle}>la page de login not sign up</h3>
-
-          <div className={styles.loginTypes}>
-            <div
-              className={`${styles.loginTypeButton} ${regular ? styles.active : ""}`}
-              onClick={() => handleLoginType("regular")}
-            >
-              Regular
-            </div>
-            <div
-              className={`${styles.loginTypeButton} ${regular ?  "" : styles.active}`}
-              onClick={() => handleLoginType("admin")}
-            >
-              Admin
-            </div>
-            <div className={`${styles.placeholder} ${!regular ? styles.right : ""}`}></div>
-          </div>
-          <form action="" className={styles.form}>
-          <div className={`${styles.fieldHolder} ${regular ? ""  : styles.hidden} `}>
-            <div className={styles.label}>
-              <img src="/icons/mortarboard-fill.svg" alt="user" />
-              <label htmlFor="">Society username</label>
-            </div>
-            <input type="text" placeholder="Username" />
-          </div>
-          <div className={`${styles.fieldHolder} ${regular ? ""  : styles.up}`}>
-            <div className={styles.label}>
-              <img src="/icons/envelope.svg" alt="user" />
-              <label htmlFor="">Username/Eamil</label>
-            </div>
-            <input type="text" placeholder="Username/Email" />
-          </div>
-          <div className={`${styles.fieldHolder} ${regular ? ""  : styles.up}`}>
-            <div className={styles.label}>
-              <img src="/icons/fingerprint.svg" alt="user" />
-              <label htmlFor="">Password</label>
-            </div>
-            <input type="password" placeholder="Password" />
-          </div>
-
-
-          <button>Login</button>
-
-          <div className={`${styles.divider}  ${regular ? styles.hidden : ""}`}>
-            <div className={styles.dividerLine}></div>
-            <span className={styles.dividerText}>Or login with</span>
-            <div className={styles.dividerLine}></div>
-          </div>
-
-          <button className={`${styles.googleButton} ${regular ? styles.hidden : ""}`}>
-            <svg className={styles.googleIcon} viewBox="0 0 24 24">
-              <path fill="#EA4335" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-              <path fill="#4285F4" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-            </svg>
-            <span>Continue with google</span>
-          </button>
-
-          <p>
-            Don't have an account? <Link href="/signup">Sign up</Link>
-          </p>
-          </form>
-        </div>
+        <div className={styles.rightSide}></div>
       </div>
-      <div className={styles.rightSide}></div>
-    </div>
+    </GoogleOAuthProvider>
   );
 }
