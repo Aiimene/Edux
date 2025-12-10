@@ -27,7 +27,7 @@ export default function DashboardPage() {
       percentage: `${enterpriseData["teachers percentage"]}%` 
     },
     { 
-      icon: 'parents', 
+      icon: 'total_parents', 
       label: 'Total Parents', 
       value: enterpriseData["number of parents"], 
       percentage: `${enterpriseData["parents percentage"]}%` 

@@ -1,0 +1,205 @@
+.pageWrap {
+  padding: 12px 18px 40px 18px; /* match other pages' padding so TopBar lines up */
+}
+
+/* Reuse Dashboard greeting styles for Sessions page */
+.greetingSection {
+  display: flex;
+  align-items: center;
+  gap: -4px;
+  margin-left: 25px;
+  margin-top: -10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.greetingText {
+  margin: 0;
+}
+
+.greetingIcon {
+  flex-shrink: 0;
+}
+
+.enterpriseName {
+  margin: 0;
+  color: #1B2B4D;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.subtitle {
+  margin: 0;
+  margin-left: 30px;
+  margin-top: -30px;
+  margin-bottom: 20px;
+  color: #6b7280;
+  font-size: 10px;
+  font-weight: 60;
+}
+.statsContainer {
+  display: flex;
+  gap: 22px;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+}
+.controlsRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin: 12px 8px;
+}
+.leftControls {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+}
+.select {
+  padding: 12px 22px;
+  border-radius: 12px;
+  border: 1px solid #dbeafe;
+  background: #e6f3fb;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%2311223b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: calc(100% - 14px) 50%;
+  padding-right: 42px; /* room for custom chevron */
+  min-width: 240px; /* reduced width */
+  height: 48px;
+  font-size: 15px;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Match dropdown option look to gender select */
+.select option {
+  background: #ffffff;
+  color: #0f172a;
+}
+
+.select option:checked {
+  background: #e6f3fb;
+  color: #0f172a;
+}
+
+/* Scrollbar coloring for dropdowns (WebKit) */
+.select::-webkit-scrollbar {
+  width: 8px;
+}
+
+.select::-webkit-scrollbar-track {
+  background: #eef5ff;
+}
+
+.select::-webkit-scrollbar-thumb {
+  background-color: #d0e4ff;
+  border-radius: 8px;
+}
+.rightControls {
+  display: flex;
+  gap: 8px;
+}
+.primaryBtn {
+  background: #12223b; /* dark navy to match design */
+  color: #ffffff;
+  padding: 10px 18px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  min-width: 140px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(18,34,59,0.08);
+}
+
+.primaryBtn:hover {
+  filter: brightness(0.95);
+}
+.ghostBtn {
+  background: transparent;
+  border: 1px solid #c7d2fe;
+  color: #334155;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.dateControls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.monthControl, .dayControl {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+  border: 1px solid #e6eefb;
+  padding: 8px 12px;
+  border-radius: 10px;
+  min-height: 48px;
+  height: 48px;
+  white-space: nowrap; /* keep label on one line */
+}
+
+.monthControl {
+  position: relative;
+}
+
+.monthControl, .monthControl * {
+  cursor: pointer;
+}
+
+.monthInput, .dateInput {
+  border: none;
+  background: transparent;
+  font-size: 0.95rem;
+  outline: none;
+}
+
+.monthInput::-webkit-calendar-picker-indicator, .dateInput::-webkit-calendar-picker-indicator {
+  display: none;
+}
+
+.monthInput::-ms-expand, .dateInput::-ms-expand {
+  display: none;
+}
+
+/* Hidden native month input that still triggers the browser picker */
+.monthPlaceholder {
+  color: #6b7280; /* gray placeholder */
+}
+
+.monthValue {
+  color: #111827;
+}
+
+.monthDropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  background: #fff;
+  border: 1px solid #eef2ff;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(11, 19, 40, 0.08);
+  max-height: 220px;
+  overflow: auto;
+  z-index: 2000;
+  min-width: 180px;
+}
+
+.monthItem {
+  padding: 12px 16px;
+  cursor: pointer;
+  color: #0f172a;
+}
+
+.monthItem:hover, .monthItem:focus {
+  background: #f8fafc;
+}

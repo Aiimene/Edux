@@ -1,6 +1,7 @@
-'use client';
+"use client";
 
 import React from "react";
+import TopBar from "../../layout/TopBar/TopBar";
 import { usePathname } from "next/navigation";
 import styles from "./DashboardTop.module.css";
 import Image from "next/image";
@@ -12,79 +13,6 @@ type DashboardTopProps = {
 };
 
 export default function DashboardTop({ onMenuClick }: DashboardTopProps) {
-  const pathname = usePathname();
-  const { isOpen, isMobile } = useSidebar();
-  const isAnalytics = pathname === '/admin/analytics';
-  const isAttendance = pathname === '/admin/attendance';
-  const isSettings = pathname === '/admin/settings';
-  
-  let title = 'Dashboard';
-  let icon = '/icons/dashboard2.svg';
-  
-  if (isAnalytics) {
-    title = 'Analytics';
-    icon = '/icons/analytics.svg';
-  } else if (isAttendance) {
-    title = 'Attendance';
-    icon = '/icons/attendance.svg';
-  } else if (isSettings) {
-    title = 'Settings';
-    icon = '/icons/settings.svg';
-  }
-
-  // Hide hamburger button when sidebar is open on mobile
-  const showHamburger = isMobile && !isOpen && onMenuClick;
-
-  return (
-    <div className={styles.topWrapper}>
-      {/* Left side: Menu button + Logo + Dashboard title */}
-      <div className={styles.leftSection}>
-        {showHamburger && (
-          <button className={styles.menuButton} onClick={onMenuClick} aria-label="Toggle menu">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <line x1="3" y1="6" x2="21" y2="6"></line>
-              <line x1="3" y1="12" x2="21" y2="12"></line>
-              <line x1="3" y1="18" x2="21" y2="18"></line>
-            </svg>
-          </button>
-        )}
-        <Image
-          src={icon}
-          alt={`${title} Icon`}
-          width={20}
-          height={20}
-        />
-        <h2 className={styles.title}>{title}</h2>
-      </div>
-
-      {/* Right side: Notification + Profile */}
-      <div className={styles.rightSection}>
-        <button className={styles.notifBtn}>
-          <Image
-            src="/icons/notification.svg"
-            alt="Notifications"
-            width={35}
-            height={35}
-          />
-        </button>
-
-        <div className={styles.verticalLine}></div>
-
-        <div className={styles.profileBox}>
-          <Image
-            src="/icons/profile.svg"
-            alt="Profile"
-            width={35}
-            height={35}
-            className={styles.profileImg}
-          />
-          <div className={styles.profileText}>
-            <span className={styles.profileName}> {enterpriseData.name}</span>
-            <span className={styles.profileRole}>{enterpriseData.role}</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+  return <TopBar title="Dashboard" icon="/icons/dashboard2.svg" iconWidth={20} iconHeight={20} onMenuClick={onMenuClick} />;
 }
 

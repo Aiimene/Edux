@@ -264,6 +264,18 @@ background-color: #e2e8f0;
 .indented::after {
   margin-left: 30px; /* align line with indented text */
 }
+.subItem {
+  padding-left: 46px; /* further indent for nested items */
+  font-size: 13px;
+  color: #334155;
+}
+.bullet {
+  display: inline-block;
+  width: 8px;
+  text-align: center;
+  margin-right: 8px;
+  color: #94a3b8;
+}
 .Mindented {
   padding-left: 17px; /* shift text slightly to the left */
 }

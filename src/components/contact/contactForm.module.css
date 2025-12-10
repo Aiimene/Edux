@@ -43,6 +43,27 @@
   pointer-events: none;
 }
 
+/* keep icons centered and avoid shifting when errors appear */
+.inputWrapper .inputIcon {
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* position error messages absolutely inside the wrapper so icons/input don't move */
+.inputWrapper .errorText {
+  position: absolute;
+  right: 3.5rem; /* align with input text start on right-aligned inputs */
+  bottom: -18px;
+  margin-top: 0;
+  color: #ef4444;
+  font-size: 12px;
+}
+
+/* reserve space for errors */
+.field {
+  padding-bottom: 18px;
+}
+
 .textareaIcon {
   top: 1rem;
   align-self: flex-start;

@@ -1,0 +1,155 @@
+.tableWrapper {
+  width: 100%;
+  overflow-x: auto;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 600px;
+}
+
+.headerCell {
+  padding: 16px;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1B2B4D;
+  background-color: #F1F5F9;
+  border-bottom: 2px solid #e5e7eb;
+  white-space: nowrap;
+}
+
+.row {
+  border-bottom: 1px solid #e5e7eb;
+  transition: background-color 0.2s;
+}
+
+.rowEven {
+  background-color: white;
+}
+
+.rowOdd {
+  background-color: #F8F9FA;
+}
+
+.row:hover {
+  background-color: #F1F5F9;
+}
+
+.row:last-child {
+  border-bottom: none;
+}
+
+.cell {
+  padding: 16px;
+  font-size: 14px;
+  color: #374151;
+  vertical-align: middle;
+}
+
+.actionCell {
+  padding: 8px 16px;
+  text-align: center;
+}
+
+.actionButtons {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+}
+
+.actionButton {
+  background: transparent;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 6px 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+  transition: all 0.2s;
+}
+
+.actionButton:hover {
+  background-color: #F1F5F9;
+  border-color: #1B2B4D;
+  color: #1B2B4D;
+}
+
+.deleteButton:hover {
+  background-color: #FEE2E2;
+  border-color: #DC2626;
+  color: #DC2626;
+}
+
+.emptyState {
+  padding: 60px 20px;
+  text-align: center;
+  color: #6b7280;
+  font-size: 16px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.buttonContainer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 16px 20px 0 20px;
+}
+
+.toggleButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  
+  border-radius: 8px;
+  padding: 8px 16px;
+  cursor: pointer;
+  color: #1B2B4D;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.toggleButton:hover {
+  
+  color: rgb(180, 176, 176);
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .headerCell,
+  .cell {
+    padding: 12px;
+    font-size: 13px;
+  }
+
+  .actionButtons {
+    gap: 4px;
+  }
+
+  .actionButton {
+    padding: 4px 6px;
+  }
+}
+
+@media (max-width: 480px) {
+  .headerCell,
+  .cell {
+    padding: 8px;
+    font-size: 12px;
+  }
+
+  .table {
+    min-width: 500px;
+  }
+}
+

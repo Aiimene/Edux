@@ -10,6 +10,13 @@
 ```bash
 npm install
 ```
+```bash
+npm install react-chartjs-2 chart.js
+```
+```bash
+npm install react-select
+```
+
 
 ## Running the App
 

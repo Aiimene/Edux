@@ -1,0 +1,42 @@
+.listWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 18px 8px;
+}
+
+.expandWrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 6px;
+}
+
+.expandBtn {
+  cursor: pointer;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 8px;
+}
+
+.expandBtnLink {
+  background: transparent;
+  border: none;
+  color: #0b2b4a;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  padding: 4px 6px;
+}
+
+.expandBtnLink:hover {
+  color: #072036;
+}
+
+.expandBtnBox {
+  background: #ffffff;
+  border: 1px solid rgba(15,23,42,0.06);
+  color: #0f172a;
+}
+
+.expandBtnBox:hover {
+  background: #fafbfd;
+}
