@@ -57,6 +57,13 @@
   flex-shrink: 0;
 }
 
+.filtersContainer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
 /* NOTIFICATION BUTTON */
 .notifBtn {
   background: transparent;

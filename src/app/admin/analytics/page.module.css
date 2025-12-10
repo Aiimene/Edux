@@ -1,3 +1,7 @@
+.filtersSection {
+  display: none;
+}
+
 .revenueAndSummaryContainer {
   display: flex;
   gap: 22px;

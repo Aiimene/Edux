@@ -1,25 +1,72 @@
+'use client';
+
+import React, { useMemo } from 'react';
 import DashboardCard from '../../../components/dashboard/DashboardCard/DashboardCard';
 import RevenueCard from '../../../components/analytics/RevenueCard/RevenueCard';
 import SmallChartCard from '../../../components/analytics/SmallChartCard/SmallChartCard';
 import SessionsTable from '../../../components/analytics/SessionsTable/SessionsTable';
+import { useFilters } from './layout';
 import analyticsData from '../../../data/analytics.json';
 import styles from './page.module.css';
 
 export default function AnalyticsPage() {
+  const { filters } = useFilters();
+
+  // Get filtered data based on current filters
+  const filteredData = useMemo(() => {
+    let revenue = analyticsData.revenue;
+    let summaryCards = analyticsData.summaryCards;
+    let sessionsRows = analyticsData.sessionsTable.rows;
+
+    // Filter by level
+    if (filters.level !== 'All Levels') {
+      if (revenue.dataByLevel && revenue.dataByLevel[filters.level as keyof typeof revenue.dataByLevel]) {
+        revenue = {
+          ...revenue,
+          ...revenue.dataByLevel[filters.level as keyof typeof revenue.dataByLevel],
+        };
+      }
+
+      summaryCards = summaryCards.map((card) => ({
+        ...card,
+        value: card.dataByLevel?.[filters.level as keyof typeof card.dataByLevel] || card.value,
+      }));
+
+      sessionsRows = sessionsRows.filter((row) => row.level === filters.level);
+    }
+
+    // Filter by date (if date is selected)
+    if (filters.selectedDate) {
+      sessionsRows = sessionsRows.filter((row) => row.date === filters.selectedDate);
+    }
+
+    return {
+      revenue,
+      summaryCards,
+      smallCharts: analyticsData.smallCharts,
+      sessionsTable: {
+        ...analyticsData.sessionsTable,
+        rows: sessionsRows,
+      },
+    };
+  }, [filters]);
+
+
   return (
     <>
+
       {/* Revenue Card and Summary Cards */}
       <div className={styles.revenueAndSummaryContainer}>
         <div className={styles.revenueContainer}>
           <RevenueCard
-            value={analyticsData.revenue.value}
-            chartData={analyticsData.revenue.chart}
+            value={filteredData.revenue.value}
+            chartData={filteredData.revenue.chart}
           />
         </div>
 
         {/* Summary Cards */}
         <div className={styles.summaryContainer}>
-          {analyticsData.summaryCards.map((card) => (
+          {filteredData.summaryCards.map((card) => (
             <DashboardCard
               key={card.icon}
               icon={card.icon}
@@ -33,7 +80,7 @@ export default function AnalyticsPage() {
 
       {/* Small Chart Cards */}
       <div className={styles.chartsContainer}>
-        {analyticsData.smallCharts.map((chart) => (
+        {filteredData.smallCharts.map((chart) => (
           <SmallChartCard
             key={chart.icon}
             icon={chart.icon}
@@ -48,10 +95,9 @@ export default function AnalyticsPage() {
       <div className={styles.tableContainer}>
         <SessionsTable
           columns={analyticsData.sessionsTable.columns}
-          rows={analyticsData.sessionsTable.rows}
+          rows={filteredData.sessionsTable.rows}
         />
       </div>
     </>
   );
 }
-

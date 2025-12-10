@@ -1,6 +1,14 @@
 {
+  "filters": {
+    "levels": ["All Levels", "Elementary", "Middle School", "High School"],
+    "dateRanges": ["This Week", "This Month", "This Year", "Custom"],
+    "subjects": ["All Subjects", "Mathematics", "Science", "English", "Arabic"]
+  },
   "revenue": {
     "value": "10,000 DZD",
+    "date": "2024-12-15",
+    "level": "All Levels",
+    "subject": "All Subjects",
     "chart": {
       "labels": ["#1", "#2", "#3", "#4", "#5", "#6", "#7", "#8"],
       "datasets": [
@@ -16,23 +24,100 @@
           "borderDash": [8, 4]
         }
       ]
+    },
+    "dataByLevel": {
+      "Elementary": {
+        "value": "6,000 DZD",
+        "chart": {
+          "labels": ["#1", "#2", "#3", "#4", "#5", "#6", "#7", "#8"],
+          "datasets": [
+            {
+              "label": "Revenue 1",
+              "data": [1, 2, 3, 4, 3, 2, 4, 5],
+              "borderColor": "#222"
+            },
+            {
+              "label": "Revenue 2",
+              "data": [0.5, 1.5, 2.5, 3.5, 2.5, 3.5, 4.5, 4],
+              "borderColor": "#7AB2F9",
+              "borderDash": [8, 4]
+            }
+          ]
+        }
+      },
+      "Middle School": {
+        "value": "8,000 DZD",
+        "chart": {
+          "labels": ["#1", "#2", "#3", "#4", "#5", "#6", "#7", "#8"],
+          "datasets": [
+            {
+              "label": "Revenue 1",
+              "data": [1.5, 3, 4.5, 6, 4.5, 3, 6, 7.5],
+              "borderColor": "#222"
+            },
+            {
+              "label": "Revenue 2",
+              "data": [1, 2, 3, 4, 3, 4, 5, 5.5],
+              "borderColor": "#7AB2F9",
+              "borderDash": [8, 4]
+            }
+          ]
+        }
+      },
+      "High School": {
+        "value": "12,000 DZD",
+        "chart": {
+          "labels": ["#1", "#2", "#3", "#4", "#5", "#6", "#7", "#8"],
+          "datasets": [
+            {
+              "label": "Revenue 1",
+              "data": [2.5, 5, 7.5, 10, 7.5, 5, 10, 12.5],
+              "borderColor": "#222"
+            },
+            {
+              "label": "Revenue 2",
+              "data": [2, 4, 6, 8, 6, 8, 10, 10],
+              "borderColor": "#7AB2F9",
+              "borderDash": [8, 4]
+            }
+          ]
+        }
+      }
     }
   },
   "summaryCards": [
     {
       "icon": "sessions",
       "label": "Total Sessions",
-      "value": "100"
+      "value": "100",
+      "level": "All Levels",
+      "dataByLevel": {
+        "Elementary": "60",
+        "Middle School": "80",
+        "High School": "120"
+      }
     },
     {
       "icon": "teachers",
       "label": "Working Teachers",
-      "value": "100"
+      "value": "100",
+      "level": "All Levels",
+      "dataByLevel": {
+        "Elementary": "40",
+        "Middle School": "60",
+        "High School": "80"
+      }
     },
     {
       "icon": "students",
       "label": "Students",
-      "value": "100"
+      "value": "100",
+      "level": "All Levels",
+      "dataByLevel": {
+        "Elementary": "200",
+        "Middle School": "300",
+        "High School": "500"
+      }
     }
   ],
   "smallCharts": [
@@ -108,35 +193,45 @@
         "teacher": "Hmida Teacher",
         "counts": "x2",
         "attendanceRate": "80%",
-        "revenue": "5000 DA"
+        "revenue": "5000 DA",
+        "date": "2024-12-15",
+        "level": "Elementary"
       },
       {
-        "sessionId": "12",
-        "teacher": "Hmida Teacher",
-        "counts": "x2",
-        "attendanceRate": "80%",
-        "revenue": "5000 DA"
+        "sessionId": "13",
+        "teacher": "Ahmed Teacher",
+        "counts": "x3",
+        "attendanceRate": "85%",
+        "revenue": "6000 DA",
+        "date": "2024-12-16",
+        "level": "Middle School"
       },
       {
-        "sessionId": "12",
-        "teacher": "Hmida Teacher",
+        "sessionId": "14",
+        "teacher": "Sara Teacher",
         "counts": "x2",
-        "attendanceRate": "80%",
-        "revenue": "5000 DA"
+        "attendanceRate": "90%",
+        "revenue": "5500 DA",
+        "date": "2024-12-17",
+        "level": "High School"
       },
       {
-        "sessionId": "12",
-        "teacher": "Hmida Teacher",
-        "counts": "x2",
-        "attendanceRate": "80%",
-        "revenue": "5000 DA"
+        "sessionId": "15",
+        "teacher": "Mohamed Teacher",
+        "counts": "x4",
+        "attendanceRate": "75%",
+        "revenue": "7000 DA",
+        "date": "2024-12-18",
+        "level": "Elementary"
       },
       {
-        "sessionId": "12",
-        "teacher": "Hmida Teacher",
+        "sessionId": "16",
+        "teacher": "Fatima Teacher",
         "counts": "x2",
-        "attendanceRate": "80%",
-        "revenue": "5000 DA"
+        "attendanceRate": "88%",
+        "revenue": "5800 DA",
+        "date": "2024-12-19",
+        "level": "Middle School"
       }
     ]
   }
