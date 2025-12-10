@@ -1,6 +1,7 @@
 'use client';
 
 import React from "react";
+import { usePathname } from "next/navigation";
 import styles from "./DashboardTop.module.css";
 import Image from "next/image";
 import enterpriseData from "../../../data/enterprise.json";
@@ -10,6 +11,11 @@ type DashboardTopProps = {
 };
 
 export default function DashboardTop({ onMenuClick }: DashboardTopProps) {
+  const pathname = usePathname();
+  const isAnalytics = pathname === '/admin/analytics';
+  const title = isAnalytics ? 'Analytics' : 'Dashboard';
+  const icon = isAnalytics ? '/icons/analytics.svg' : '/icons/dashboard2.svg';
+
   return (
     <div className={styles.topWrapper}>
       {/* Left side: Menu button + Logo + Dashboard title */}
@@ -24,12 +30,12 @@ export default function DashboardTop({ onMenuClick }: DashboardTopProps) {
           </button>
         )}
         <Image
-          src="/icons/dashboard2.svg"
-          alt="Dashboard Icon"
+          src={icon}
+          alt={`${title} Icon`}
           width={20}
           height={20}
         />
-        <h2 className={styles.title}>Dashboard</h2>
+        <h2 className={styles.title}>{title}</h2>
       </div>
 
       {/* Right side: Notification + Profile */}

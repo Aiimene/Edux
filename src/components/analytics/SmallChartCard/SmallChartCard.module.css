@@ -1,0 +1,100 @@
+.card {
+  background: #F1F5F9;
+  border-radius: 14px;
+  padding: 12px;
+  flex: 1;
+  min-width: 0;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1), 0 2px 8px rgba(0,0,0,0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.header img {
+  flex-shrink: 0;
+}
+
+.label {
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: #222;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.value {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #222;
+  margin-bottom: 4px;
+  word-break: break-word;
+}
+
+.chart {
+  flex: 1;
+  width: 100%;
+  min-height: 120px;
+  max-width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.chart > div {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100%;
+  position: relative;
+}
+
+.chart canvas {
+  max-width: 100% !important;
+  height: auto !important;
+}
+
+@media (max-width: 768px) {
+  .card {
+    padding: 10px;
+  }
+
+  .value {
+    font-size: 1.3rem;
+  }
+
+  .label {
+    font-size: 0.85rem;
+  }
+
+  .chart {
+    min-height: 100px;
+  }
+}
+
+@media (max-width: 480px) {
+  .card {
+    padding: 8px;
+  }
+
+  .value {
+    font-size: 1.2rem;
+  }
+
+  .header img {
+    width: 18px;
+    height: 18px;
+  }
+
+  .chart {
+    min-height: 80px;
+  }
+}
+

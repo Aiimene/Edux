@@ -14,6 +14,7 @@ type SidebarProps = {
 export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
   const pathname = usePathname();
   const isDashboardActive = pathname === '/admin/dashboard';
+  const isAnalyticsActive = pathname === '/admin/analytics';
 
   return (
     <>
@@ -34,7 +35,7 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
           <span>Dashboard</span>
         </Link>
 
-        <Link href="#" className={styles.link}>
+        <Link href="/admin/analytics" className={`${styles.link} ${isAnalyticsActive ? styles.active : ''}`}>
           <Image src="/icons/analytics.svg" alt="analytics" width={20} height={20} />
           <span>Analytics</span>
         </Link>

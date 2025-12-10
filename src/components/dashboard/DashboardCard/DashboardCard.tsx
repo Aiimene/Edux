@@ -27,10 +27,12 @@ const DashboardCard: React.FC<DashboardCardProps> = ({
       <span className={styles.label}>{label}</span>
     </div>
     <div className={styles.value}>{value}</div>
-    <div className={styles.percentWrapper}>
-      {percentage}
-      <img src="/icons/up.svg" alt="Arrow Up" width={18} height={18} />
-    </div>
+    {percentage && (
+      <div className={styles.percentWrapper}>
+        {percentage}
+        <img src="/icons/up.svg" alt="Arrow Up" width={18} height={18} />
+      </div>
+    )}
   </div>
 );
 
