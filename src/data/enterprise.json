@@ -1,0 +1,101 @@
+{
+    "name": "ELITE SCHOOL",
+    "role": "Administrator",
+    "number of students": 1000,
+    "number of teachers": 100,
+    "number of parents": 800,
+    "students percentage": 50,
+    "teachers percentage": 20,
+    "parents percentage": 10,
+    "number of modules": 100,
+    "number of sessions": 100,
+    "number of announcements": 100,
+    "Monthly Profit": 10000,
+    "monthly profit percentage": 15.50,
+  
+    "classesRanking": {
+      "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+      "datasets": [
+        {
+          "label": "Students",
+          "data": [12, 16, 14, 8, 11, 15]
+        }
+      ]
+    },
+    "studentsEvolvement": {
+      "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+      "datasets": [
+        {
+          "label": "Evolvement 1",
+          "data": [7, 8, 12, 9, 14, 11]
+        },
+        {
+          "label": "Evolvement 2",
+          "data": [10, 9, 7, 11, 13, 12],
+          "borderDash": [8, 4]
+        }
+      ]
+    },
+  
+    "teachersRanking": [
+      {
+        "name": "Mohamed Mohamed",
+        "sessions": 100,
+        "percentage": 85
+      },
+      {
+        "name": "Amir Amir",
+        "sessions": 90,
+        "percentage": 80
+      },
+      {
+        "name": "Ahmed Ahmed",
+        "sessions": 85,
+        "percentage": 78
+      },
+      {
+        "name": "Mourad Mourad",
+        "sessions": 80,
+        "percentage": 70
+      },
+      {
+        "name": "Sara Sara",
+        "sessions": 70,
+        "percentage": 67
+      }
+    ],
+  
+    "weeklySessions": [
+      {
+        "Module": "Arabic",
+        "teacher": "Lounis ",
+        "students": 30,
+        "date": "2024-12-12",
+        "time": "11:00 AM"
+      },
+      {
+        "Module": "Mathematics",
+        "teacher": "Sahraoui ",
+        "students": 30,
+        "date": "2024-12-12",
+        "time": "02:00 PM"
+      },
+      {
+        "Module": "English",
+        "teacher": "Ines ",
+        "students": 30,
+        "date": "2024-12-12",
+        "time": "09:00 AM"
+      },
+      {
+        "Module": "Science",
+        "teacher": "Remita",
+        "students": 30,
+        "date": "2024-12-12",
+        "time": "03:00 PM"
+      }
+    ],
+    "remainingSessionsCount": 15,
+    "remainingSessionsHours": 32,
+    "remainingSessionsDays": 4
+  }
