@@ -177,16 +177,62 @@
     padding: 24px;
   }
 
-  .contactCards {
-    grid-template-columns: 1fr;
+  .sectionTitle {
+    font-size: 24px;
+  }
+
+  .label {
+    font-size: 20px;
+  }
+
+  .textarea {
+    font-size: 14px;
   }
 
   .submitButton {
     width: 100%;
     align-self: stretch;
+    font-size: 20px;
   }
 
   .contactDescription {
     font-size: 18px;
+  }
+
+  .cardTitle {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .section,
+  .contactSection {
+    padding: 16px;
+  }
+
+  .sectionTitle {
+    font-size: 20px;
+  }
+
+  .label {
+    font-size: 18px;
+  }
+
+  .submitButton {
+    font-size: 18px;
+    height: 44px;
+  }
+
+  .contactDescription {
+    font-size: 16px;
+  }
+
+  .cardTitle {
+    font-size: 16px;
+  }
+
+  .cardDescription,
+  .emailLink {
+    font-size: 14px;
   }
 }

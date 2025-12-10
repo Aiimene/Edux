@@ -2,7 +2,7 @@
 
 import React from "react";
 import DashboardTop from "../../../components/dashboard/DashboardTop/DashboardTop";
-import { useSidebar } from "../../../hooks/useSidebar";
+import { useSidebar } from "../../../contexts/SidebarContext";
 import styles from "./layout.module.css";
 
 export default function SettingsLayout({

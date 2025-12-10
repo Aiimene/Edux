@@ -321,6 +321,10 @@
     padding: 24px;
   }
 
+  .sectionTitle {
+    font-size: 24px;
+  }
+
   .planHeader {
     flex-direction: column;
     gap: 16px;
@@ -341,5 +345,27 @@
   .paymentStatus {
     width: 100%;
     justify-content: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .section {
+    padding: 16px;
+  }
+
+  .sectionTitle {
+    font-size: 20px;
+  }
+
+  .paymentCard {
+    padding: 16px;
+  }
+
+  .paymentId {
+    font-size: 18px;
+  }
+
+  .paymentAmount {
+    font-size: 24px;
   }
 }

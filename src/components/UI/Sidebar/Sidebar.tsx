@@ -22,6 +22,11 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
       {isOpen && <div className={styles.overlay} onClick={onClose} />}
       <aside className={`${styles.sidebar} ${isOpen ? styles.open : styles.closed}`}>
       <div className={styles.logoBox}>
+        {onClose && (
+          <button className={styles.closeButton} onClick={onClose} aria-label="Close menu">
+            ×
+          </button>
+        )}
         <Image src="/images/logo2.png" alt="Logo" width={80} height={80} className={styles.logoImg} />
         <div className={styles.logoTextBox}>
           <span className={styles.logoTitle}>Education Tracking</span>
@@ -102,11 +107,6 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
           <span>Logout</span>
         </Link>
       </nav>
-      {onClose && (
-        <button className={styles.closeButton} onClick={onClose} aria-label="Close menu">
-          ×
-        </button>
-      )}
     </aside>
     </>
   );

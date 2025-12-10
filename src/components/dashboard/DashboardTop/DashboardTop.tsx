@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import styles from "./DashboardTop.module.css";
 import Image from "next/image";
 import enterpriseData from "../../../data/enterprise.json";
+import { useSidebar } from "../../../contexts/SidebarContext";
 
 type DashboardTopProps = {
   onMenuClick?: () => void;
@@ -12,6 +13,7 @@ type DashboardTopProps = {
 
 export default function DashboardTop({ onMenuClick }: DashboardTopProps) {
   const pathname = usePathname();
+  const { isOpen, isMobile } = useSidebar();
   const isAnalytics = pathname === '/admin/analytics';
   const isAttendance = pathname === '/admin/attendance';
   const isSettings = pathname === '/admin/settings';
@@ -30,11 +32,14 @@ export default function DashboardTop({ onMenuClick }: DashboardTopProps) {
     icon = '/icons/settings.svg';
   }
 
+  // Hide hamburger button when sidebar is open on mobile
+  const showHamburger = isMobile && !isOpen && onMenuClick;
+
   return (
     <div className={styles.topWrapper}>
       {/* Left side: Menu button + Logo + Dashboard title */}
       <div className={styles.leftSection}>
-        {onMenuClick && (
+        {showHamburger && (
           <button className={styles.menuButton} onClick={onMenuClick} aria-label="Toggle menu">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <line x1="3" y1="6" x2="21" y2="6"></line>

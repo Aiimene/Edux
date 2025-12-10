@@ -151,6 +151,14 @@
     padding: 24px;
   }
 
+  .title {
+    font-size: 24px;
+  }
+
+  .subtitle {
+    font-size: 18px;
+  }
+
   .header {
     align-items: flex-start;
   }
@@ -160,6 +168,8 @@
     width: 100%;
     justify-content: center;
     margin-top: 16px;
+    font-size: 20px;
+    height: 56px;
   }
 
   .table {
@@ -170,6 +180,42 @@
   .table td {
     padding: 12px 8px;
     font-size: 16px;
+  }
+
+  .roleBadge,
+  .statusBadge {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 16px;
+  }
+
+  .title {
+    font-size: 20px;
+  }
+
+  .subtitle {
+    font-size: 16px;
+  }
+
+  .addButton {
+    font-size: 18px;
+    height: 48px;
+  }
+
+  .table th,
+  .table td {
+    padding: 10px 6px;
+    font-size: 14px;
+  }
+
+  .roleBadge,
+  .statusBadge {
+    font-size: 14px;
+    padding: 2px 12px;
   }
 }
 

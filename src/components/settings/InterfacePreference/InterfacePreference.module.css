@@ -91,13 +91,53 @@
     padding: 24px;
   }
 
+  .title {
+    font-size: 24px;
+    margin-bottom: 24px;
+  }
+
   .preferenceItem {
     flex-direction: column;
     align-items: flex-start;
+    gap: 16px;
+  }
+
+  .preferenceTitle {
+    font-size: 24px;
+  }
+
+  .preferenceDescription {
+    font-size: 18px;
   }
 
   .select {
     width: 100%;
+    font-size: 20px;
+    height: 44px;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 16px;
+  }
+
+  .title {
+    font-size: 20px;
+    margin-bottom: 20px;
+  }
+
+  .preferenceTitle {
+    font-size: 20px;
+  }
+
+  .preferenceDescription {
+    font-size: 16px;
+  }
+
+  .select {
+    font-size: 18px;
+    height: 40px;
   }
 }
 

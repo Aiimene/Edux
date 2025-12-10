@@ -8,7 +8,7 @@ import FilterBy from "../../../components/analytics/filters/FilterBy/FilterBy";
 import DateRangePicker from "../../../components/analytics/filters/DateRangePicker/DateRangePicker";
 import CurrentFilter from "../../../components/analytics/filters/CurrentFilter/CurrentFilter";
 import attendanceData from "../../../data/attendance.json";
-import { useSidebar } from "../../../hooks/useSidebar";
+import { useSidebar } from "../../../contexts/SidebarContext";
 import styles from "./layout.module.css";
 
 type FilterState = {

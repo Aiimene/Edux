@@ -13,6 +13,10 @@
   margin-left: 20px;
 }
 
+.mainContent.sidebarClosed {
+  margin-left: 0;
+}
+
 .content {
   padding: 20px;
   flex-grow: 1;

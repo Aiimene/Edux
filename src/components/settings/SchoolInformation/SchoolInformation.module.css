@@ -130,12 +130,69 @@
     padding: 24px;
   }
 
+  .title {
+    font-size: 24px;
+    margin-bottom: 24px;
+  }
+
+  .logoLabel {
+    font-size: 20px;
+  }
+
   .logoContainer {
     flex-direction: column;
   }
 
+  .logoRequirements {
+    width: 100%;
+  }
+
+  .requirementsTitle {
+    font-size: 20px;
+  }
+
   .formRow {
     flex-direction: column;
+    gap: 16px;
+  }
+
+  .label {
+    font-size: 20px;
+  }
+
+  .input,
+  .select {
+    font-size: 16px;
+    height: 44px;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 16px;
+  }
+
+  .title {
+    font-size: 20px;
+    margin-bottom: 20px;
+  }
+
+  .logoLabel {
+    font-size: 18px;
+  }
+
+  .requirementsTitle {
+    font-size: 18px;
+  }
+
+  .label {
+    font-size: 18px;
+  }
+
+  .input,
+  .select {
+    font-size: 14px;
+    height: 40px;
   }
 }
 

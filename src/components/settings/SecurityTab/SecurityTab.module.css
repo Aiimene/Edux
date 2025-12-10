@@ -274,6 +274,24 @@
     padding: 24px;
   }
 
+  .sectionTitle {
+    font-size: 24px;
+  }
+
+  .subtitle {
+    font-size: 20px;
+  }
+
+  .label {
+    font-size: 20px;
+  }
+
+  .input,
+  .select {
+    font-size: 20px;
+    height: 44px;
+  }
+
   .passwordActions {
     flex-direction: column;
     align-items: flex-start;
@@ -282,10 +300,16 @@
   .updateButton {
     width: 100%;
     justify-content: center;
+    font-size: 20px;
+  }
+
+  .forgotLink {
+    font-size: 20px;
   }
 
   .sessionCard {
     flex-wrap: wrap;
+    padding: 16px;
   }
 
   .statusBadge,
@@ -293,5 +317,39 @@
   .revokeButton {
     width: 100%;
     justify-content: center;
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .section {
+    padding: 16px;
+  }
+
+  .sectionTitle {
+    font-size: 20px;
+  }
+
+  .subtitle {
+    font-size: 18px;
+  }
+
+  .label {
+    font-size: 18px;
+  }
+
+  .input,
+  .select {
+    font-size: 18px;
+    height: 40px;
+  }
+
+  .updateButton,
+  .forgotLink {
+    font-size: 18px;
+  }
+
+  .sessionDevice {
+    font-size: 20px;
   }
 }
