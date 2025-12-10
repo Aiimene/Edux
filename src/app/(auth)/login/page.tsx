@@ -7,6 +7,21 @@ import styles from "./login.module.css";
 const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "";
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/auth";
 
+// Helper function to get redirect URL based on role
+const getRedirectUrl = (role: string): string => {
+  switch (role.toLowerCase()) {
+    case 'admin':
+    case 'teacher':
+      return '/admin/dashboard';
+    case 'parent':
+      return '/parent/dashboard';
+    case 'student':
+      return '/student/dashboard';
+    default:
+      return '/dashboard';
+  }
+};
+
 export default function LoginPage() {
   const [schoolName, setSchoolName] = useState("");
   const [identifier, setIdentifier] = useState("");
@@ -59,7 +74,8 @@ export default function LoginPage() {
         localStorage.setItem('school_name', data.workspace.name);
         
         // Redirect based on role
-        window.location.href = '/dashboard';
+        const redirectUrl = getRedirectUrl(data.role);
+        window.location.href = redirectUrl;
       } else {
         setError(data.error || 'Login failed');
       }
@@ -117,7 +133,8 @@ const handleGoogleLogin = async (credentialResponse: any) => {
       localStorage.setItem('school_name', data.workspace.name);
       
       // Redirect based on role
-      window.location.href = '/dashboard';
+      const redirectUrl = getRedirectUrl(data.role);
+      window.location.href = redirectUrl;
     } else {
       setError(data.error || 'Google login failed');
     }
