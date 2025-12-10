@@ -10,6 +10,7 @@
   flex-direction: column;
   width: 100%;
   transition: margin-left 0.3s ease-in-out;
+  margin-left: 20px;
 }
 
 .content {
@@ -17,17 +18,29 @@
   flex-grow: 1;
   width: 100%;
   overflow-x: hidden;
+  margin-right: 20px;
+  box-sizing: border-box;
 }
 
 @media (max-width: 768px) {
+  .mainContent {
+    margin-left: 0;
+  }
+
   .content {
     padding: 15px;
+    margin-right: 15px;
   }
 }
 
 @media (max-width: 480px) {
+  .mainContent {
+    margin-left: 0;
+  }
+
   .content {
     padding: 10px;
+    margin-right: 10px;
   }
 }
 

@@ -2,6 +2,9 @@
   display: flex;
   gap: 22px;
   margin-bottom: 32px;
+  margin-left: 0;
+  margin-right: 0;
+  width: 100%;
   flex-wrap: wrap;
 }
 
@@ -10,6 +13,8 @@
   gap: 22px;
   width: 100%;
   margin-bottom: 32px;
+  margin-left: 0;
+  margin-right: 0;
   flex-wrap: wrap;
 }
 
@@ -25,6 +30,8 @@
   gap: 22px;
   width: 100%;
   margin-top: 24px;
+  margin-left: 0;
+  margin-right: 0;
   align-items: stretch;
   flex-wrap: wrap;
 }

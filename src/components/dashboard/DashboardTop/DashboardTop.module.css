@@ -1,7 +1,6 @@
 .topWrapper {
   width: 100%;
   max-width: 100%;
- 
   min-height: 60px;
   height: 60px;
   background: #F1F5F9;
@@ -11,8 +10,9 @@
   align-items: center;
   justify-content: space-between;
   border: 1px solid #e1e7f0;
-  margin: 10px 8px 0 8px;
+  margin: 0 20px 0 0;
   box-sizing: border-box;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1), 0 2px 8px rgba(0,0,0,0.06);
 }
 
 /* LEFT SECTION */
@@ -129,7 +129,7 @@
 /* Responsive Styles */
 @media (max-width: 768px) {
   .topWrapper {
-    margin: 10px 5px 0 5px;
+    margin: 0 15px 0 0;
     padding: 12px 15px;
     border-radius: 12px;
   }
@@ -184,7 +184,7 @@
 
 @media (max-width: 480px) {
   .topWrapper {
-    margin: 5px;
+    margin: 0 10px 0 0;
     padding: 10px 12px;
     min-height: 50px;
   }
