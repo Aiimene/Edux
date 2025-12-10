@@ -1,0 +1,154 @@
+.container {
+  background: #f1f5f9;
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.25);
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 40px;
+  position: relative;
+}
+
+.title {
+  font-size: 32px;
+  font-weight: 400;
+  color: #000;
+  margin: 0 0 8px 0;
+}
+
+.subtitle {
+  font-size: 20px;
+  font-weight: 400;
+  color: rgba(0, 0, 0, 0.41);
+  margin: 0 0 16px 0;
+}
+
+.addButton {
+  position: absolute;
+  right: 0;
+  top: 0;
+  background: #a6e4fb;
+  border: none;
+  border-radius: 15px;
+  padding: 15px 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 24px;
+  font-weight: 400;
+  color: #000;
+  transition: background 0.2s;
+  height: 66px;
+}
+
+.addButton:hover {
+  background: #8dd4f0;
+}
+
+.rolesGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.roleCard {
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.44);
+  border-radius: 20px;
+  padding: 32px 24px;
+}
+
+.roleHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.roleName {
+  font-size: 24px;
+  font-weight: 400;
+  color: #000;
+  margin: 0;
+}
+
+.roleActions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.actionButton {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.2s;
+}
+
+.actionButton:hover {
+  opacity: 0.7;
+}
+
+.permissionsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.permissionItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  height: 33px;
+}
+
+.checkbox {
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  accent-color: #23B6E7;
+}
+
+.permissionName {
+  font-size: 16px;
+  font-weight: 400;
+  color: #000;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 24px;
+  }
+
+  .header {
+    align-items: flex-start;
+  }
+
+  .addButton {
+    position: static;
+    width: 100%;
+    justify-content: center;
+    margin-top: 16px;
+  }
+
+  .permissionsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .roleHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+}
+

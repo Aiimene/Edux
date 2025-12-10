@@ -14,6 +14,7 @@ export default function DashboardTop({ onMenuClick }: DashboardTopProps) {
   const pathname = usePathname();
   const isAnalytics = pathname === '/admin/analytics';
   const isAttendance = pathname === '/admin/attendance';
+  const isSettings = pathname === '/admin/settings';
   
   let title = 'Dashboard';
   let icon = '/icons/dashboard2.svg';
@@ -24,6 +25,9 @@ export default function DashboardTop({ onMenuClick }: DashboardTopProps) {
   } else if (isAttendance) {
     title = 'Attendance';
     icon = '/icons/attendance.svg';
+  } else if (isSettings) {
+    title = 'Settings';
+    icon = '/icons/settings.svg';
   }
 
   return (

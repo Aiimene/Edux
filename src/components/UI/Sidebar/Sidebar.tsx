@@ -92,7 +92,7 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
 
 
 
-        <Link href="#" className={styles.link}>
+        <Link href="/admin/settings" className={`${styles.link} ${pathname === '/admin/settings' ? styles.active : ''}`}>
           <Image src="/icons/settings.svg" alt="settings" width={20} height={20} />
           <span>Settings</span>
         </Link>
