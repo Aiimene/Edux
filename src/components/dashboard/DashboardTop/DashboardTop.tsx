@@ -13,8 +13,18 @@ type DashboardTopProps = {
 export default function DashboardTop({ onMenuClick }: DashboardTopProps) {
   const pathname = usePathname();
   const isAnalytics = pathname === '/admin/analytics';
-  const title = isAnalytics ? 'Analytics' : 'Dashboard';
-  const icon = isAnalytics ? '/icons/analytics.svg' : '/icons/dashboard2.svg';
+  const isAttendance = pathname === '/admin/attendance';
+  
+  let title = 'Dashboard';
+  let icon = '/icons/dashboard2.svg';
+  
+  if (isAnalytics) {
+    title = 'Analytics';
+    icon = '/icons/analytics.svg';
+  } else if (isAttendance) {
+    title = 'Attendance';
+    icon = '/icons/attendance.svg';
+  }
 
   return (
     <div className={styles.topWrapper}>

@@ -1,0 +1,211 @@
+{
+  "filters": {
+    "levels": ["All Levels", "Elementary", "Middle School", "High School", "3rd Level"],
+    "modules": ["All Modules", "Module 1", "Module 2", "Module 3", "Module 4", "Module 5"],
+    "subjects": ["All Subjects", "Mathematics", "Science", "English", "Arabic"],
+    "dateRanges": ["This Week", "This Month", "This Year", "Custom"]
+  },
+  "summary": {
+    "teachers": {
+      "percentage": "80%",
+      "trend": "15.50%",
+      "trendDirection": "up"
+    },
+    "students": {
+      "percentage": "80%",
+      "trend": "15.50%",
+      "trendDirection": "up"
+    }
+  },
+  "teachers": {
+    "columns": ["Teacher", "Level", "Module", "Sessions", "Working", "Attendance Rate"],
+    "rows": [
+      {
+        "id": "1",
+        "name": "Hmida Teacher",
+        "level": "3rd Level",
+        "module": "Science",
+        "sessions": "20",
+        "working": "16",
+        "attendanceRate": "80%"
+      },
+      {
+        "id": "2",
+        "name": "Ahmed Teacher",
+        "level": "3rd Level",
+        "module": "Science",
+        "sessions": "20",
+        "working": "16",
+        "attendanceRate": "80%"
+      },
+      {
+        "id": "3",
+        "name": "Sara Teacher",
+        "level": "3rd Level",
+        "module": "Science",
+        "sessions": "20",
+        "working": "16",
+        "attendanceRate": "80%"
+      },
+      {
+        "id": "4",
+        "name": "Mohamed Teacher",
+        "level": "3rd Level",
+        "module": "Science",
+        "sessions": "20",
+        "working": "16",
+        "attendanceRate": "80%"
+      },
+      {
+        "id": "5",
+        "name": "Fatima Teacher",
+        "level": "3rd Level",
+        "module": "Science",
+        "sessions": "20",
+        "working": "16",
+        "attendanceRate": "80%"
+      },
+      {
+        "id": "6",
+        "name": "Ali Teacher",
+        "level": "3rd Level",
+        "module": "Science",
+        "sessions": "20",
+        "working": "16",
+        "attendanceRate": "80%"
+      },
+      {
+        "id": "7",
+        "name": "Layla Teacher",
+        "level": "3rd Level",
+        "module": "Science",
+        "sessions": "20",
+        "working": "16",
+        "attendanceRate": "80%"
+      },
+      {
+        "id": "8",
+        "name": "Omar Teacher",
+        "level": "Elementary",
+        "module": "Mathematics",
+        "sessions": "18",
+        "working": "15",
+        "attendanceRate": "83%"
+      },
+      {
+        "id": "9",
+        "name": "Nadia Teacher",
+        "level": "Middle School",
+        "module": "English",
+        "sessions": "22",
+        "working": "19",
+        "attendanceRate": "86%"
+      },
+      {
+        "id": "10",
+        "name": "Karim Teacher",
+        "level": "High School",
+        "module": "Arabic",
+        "sessions": "25",
+        "working": "22",
+        "attendanceRate": "88%"
+      }
+    ]
+  },
+  "students": {
+    "columns": ["Student", "Level", "Module", "Sessions", "Working", "Attendance Rate"],
+    "rows": [
+      {
+        "id": "1",
+        "name": "Hmida Student",
+        "level": "3rd Level",
+        "module": "Science",
+        "sessions": "20",
+        "working": "16",
+        "attendanceRate": "80%"
+      },
+      {
+        "id": "2",
+        "name": "Ahmed Student",
+        "level": "3rd Level",
+        "module": "Science",
+        "sessions": "20",
+        "working": "16",
+        "attendanceRate": "80%"
+      },
+      {
+        "id": "3",
+        "name": "Sara Student",
+        "level": "3rd Level",
+        "module": "Science",
+        "sessions": "20",
+        "working": "16",
+        "attendanceRate": "80%"
+      },
+      {
+        "id": "4",
+        "name": "Mohamed Student",
+        "level": "3rd Level",
+        "module": "Science",
+        "sessions": "20",
+        "working": "16",
+        "attendanceRate": "80%"
+      },
+      {
+        "id": "5",
+        "name": "Fatima Student",
+        "level": "3rd Level",
+        "module": "Science",
+        "sessions": "20",
+        "working": "16",
+        "attendanceRate": "80%"
+      },
+      {
+        "id": "6",
+        "name": "Ali Student",
+        "level": "3rd Level",
+        "module": "Science",
+        "sessions": "20",
+        "working": "16",
+        "attendanceRate": "80%"
+      },
+      {
+        "id": "7",
+        "name": "Layla Student",
+        "level": "3rd Level",
+        "module": "Science",
+        "sessions": "20",
+        "working": "16",
+        "attendanceRate": "80%"
+      },
+      {
+        "id": "8",
+        "name": "Omar Student",
+        "level": "Elementary",
+        "module": "Mathematics",
+        "sessions": "18",
+        "working": "15",
+        "attendanceRate": "83%"
+      },
+      {
+        "id": "9",
+        "name": "Nadia Student",
+        "level": "Middle School",
+        "module": "English",
+        "sessions": "22",
+        "working": "19",
+        "attendanceRate": "86%"
+      },
+      {
+        "id": "10",
+        "name": "Karim Student",
+        "level": "High School",
+        "module": "Arabic",
+        "sessions": "25",
+        "working": "22",
+        "attendanceRate": "88%"
+      }
+    ]
+  }
+}
+
