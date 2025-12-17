@@ -8,7 +8,8 @@ import AddStudentModal from '../../../../../components/students/AddStudentModal/
 import EditStudentModal from '../../../../../components/students/EditStudentModal/EditStudentModal';
 import StudentProfileModal from '../../../../../components/students/StudentProfileModal/StudentProfileModal';
 import ConfirmModal from '../../../../../components/UI/ConfirmModal/ConfirmModal';
-import enterpriseData from '../../../../../data/enterprise.json';
+import { getStudents, deleteStudent, createStudent, updateStudent } from '../../../../../api/students';
+import { FormData } from '../../../../../components/UI/AddForm/AddForm';
 import styles from './page.module.css';
 
 type Student = {
@@ -28,6 +29,7 @@ export default function StudentListPage() {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [selectedStudentId, setSelectedStudentId] = useState<string>('');
   const [selectedStudentRow, setSelectedStudentRow] = useState<any>(null);
+  const [originalStudentData, setOriginalStudentData] = useState<any>(null);
   const [isMonthPopupOpen, setIsMonthPopupOpen] = useState(false);
   const [isSelectByPopupOpen, setIsSelectByPopupOpen] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState<string>('');
@@ -35,21 +37,54 @@ export default function StudentListPage() {
   const [filterValue, setFilterValue] = useState<string>('');
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [studentToDelete, setStudentToDelete] = useState<string>('');
+  const [students, setStudents] = useState<Student[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const monthPopupRef = useRef<HTMLDivElement>(null);
   const selectByPopupRef = useRef<HTMLDivElement>(null);
 
-  // Get students data from enterprise.json and normalize to `Student` shape
-  const rawStudents = (enterpriseData as any).studentsOfThisMonth || [];
-  const students: Student[] = rawStudents.map((s: any, i: number) => ({
-    id: s.id ?? `stu-${i + 1}`,
-    studentName: s.student ?? s['student name '] ?? s.studentName ?? '',
-    level: s.level ?? '',
-    module: s.module ?? '',
-    sessions: Number(s.sessions ?? 0),
-    email: s.email ?? '',
-    parentName: s.parent ?? s.parentName ?? '',
-    feePayment: Number(s.feesPayment ?? s.feesPayment ?? 0),
-  }));
+  // Fetch students from API
+  useEffect(() => {
+    fetchStudents();
+  }, []);
+
+  const fetchStudents = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await getStudents();
+      
+      // Handle paginated or direct array response
+      const apiData = Array.isArray(response) ? response : (response.results || []);
+      
+      // Debug: log first item shape to align fields
+      if (apiData && apiData.length) {
+        console.log('Students API sample:', apiData[0]);
+      }
+
+      // Transform API response to match Student type
+      const transformedStudents: Student[] = apiData.map((s: any) => ({
+        id: s.id?.toString() || '',
+        studentName: s.name || s.studentName || s.full_name || '',
+        level: s.level || s.level_name || s.level?.name || 'N/A',
+        module: Array.isArray(s.modules)
+          ? s.modules.map((m: any) => m?.name || m).filter(Boolean).join(', ')
+          : s.modules_titles?.join(', ') || s.modules || 'N/A',
+        sessions: s.sessions || s.sessions_count || s.total_sessions || 0,
+        email: s.email || s.user?.email || 'N/A',
+        parentName: s.parent_name || s.parent?.name || 'N/A',
+        feePayment: s.total_owed ?? s.balance ?? s.fee_payment ?? s.total_paid ?? 0,
+      }));
+      
+      setStudents(transformedStudents);
+    } catch (err) {
+      console.error('Error fetching students:', err);
+      setError('Failed to load students. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Close popups when clicking outside
   useEffect(() => {
@@ -80,6 +115,7 @@ export default function StudentListPage() {
   const handleEditClick = (studentId: string, row?: any) => {
     setSelectedStudentId(studentId);
     setSelectedStudentRow(row ?? null);
+    setOriginalStudentData(row ?? null);
     setIsEditModalOpen(true);
   };
 
@@ -94,12 +130,30 @@ export default function StudentListPage() {
     setIsDeleteModalOpen(true);
   };
 
-  const handleDeleteConfirm = () => {
-    console.log('Deleting student:', studentToDelete);
-    // TODO: Implement actual delete logic here
-    // This would typically call an API to delete the student
-    setIsDeleteModalOpen(false);
-    setStudentToDelete('');
+  const handleDeleteConfirm = async () => {
+    setDeleteError(null);
+    try {
+      await deleteStudent(studentToDelete);
+      await fetchStudents();
+      setIsDeleteModalOpen(false);
+      setStudentToDelete('');
+    } catch (err: any) {
+      console.error('Error deleting student:', err);
+      
+      let errorMsg = 'Failed to delete student.';
+      if (err?.response?.data?.error) {
+        errorMsg = err.response.data.error;
+        if (err.response.data.balance) {
+          errorMsg += ` Outstanding balance: ${err.response.data.balance} DZD`;
+        }
+      } else if (err?.message) {
+        errorMsg = err.message;
+      }
+      
+      setDeleteError(errorMsg);
+      setIsDeleteModalOpen(false);
+      setStudentToDelete('');
+    }
   };
 
   const handleDeleteCancel = () => {
@@ -133,20 +187,20 @@ export default function StudentListPage() {
     {
       icon: 'total_students',
       label: 'Total Students',
-      value: enterpriseData['number of students'],
-      percentage: `${enterpriseData['students percentage']}%`,
+      value: students.length,
+      percentage: '0%',
     },
     {
       icon: 'attendance',
       label: 'Absent Students',
-      value: enterpriseData['absent students'],
-      percentage: `${((enterpriseData['absent students'] / enterpriseData['number of students']) * 100).toFixed(1)}%`,
+      value: 0,
+      percentage: '0%',
     },
     {
       icon: 'attendance_rate',
       label: 'Attendance Rate',
-      value: `${enterpriseData['attendance rate']}%`,
-      percentage: `${enterpriseData['attendance rate']}%`,
+      value: '0%',
+      percentage: '0%',
     },
   ];
 
@@ -177,9 +231,197 @@ export default function StudentListPage() {
     setFilterValue('');
   };
 
+  const handleSaveStudent = async (data: FormData) => {
+    console.log('=== ADD STUDENT STARTED ===');
+    console.log('Form data received:', data);
+    try {
+      const studentPayload = {
+        name: data.studentName,
+        username: data.email ? data.email.split('@')[0] : data.studentName.replace(/\s+/g, '').toLowerCase(),
+        password: data.password,
+        email: data.email || undefined,
+        phone_number: data.phoneNumber || undefined,
+        fee_payment: data.feePayment ? parseFloat(data.feePayment) : undefined,
+        // Additional fields from the form
+        level: data.level || undefined,
+        modules: data.modules || undefined,
+        sessions: data.sessions ? parseInt(data.sessions) : undefined,
+        date_of_birth: data.dateOfBirth || undefined,
+        gender: data.gender || undefined,
+        parent_name: data.parentName || undefined,
+      };
+
+      console.log('Payload to send:', studentPayload);
+      const response = await createStudent(studentPayload);
+      console.log('Student created successfully:', response);
+      
+      // Refresh the students list
+      console.log('Refreshing student list...');
+      await fetchStudents();
+      console.log('Student list refreshed');
+      
+      setIsAddModalOpen(false);
+    } catch (err: any) {
+      console.error('=== ERROR CREATING STUDENT ===');
+      console.error('Error object:', err);
+      console.error('Error response:', err.response);
+      console.error('Error data:', err.response?.data);
+      
+      // Extract detailed error messages from backend
+      let errorMessage = 'Failed to create student';
+      
+      if (err.response?.data) {
+        const errorData = err.response.data;
+        
+        // Handle field-specific errors (like email, username validation)
+        if (typeof errorData === 'object' && !errorData.error && !errorData.detail) {
+          const fieldErrors = Object.entries(errorData)
+            .map(([field, messages]) => {
+              const msgArray = Array.isArray(messages) ? messages : [messages];
+              return `${field}: ${msgArray.join(', ')}`;
+            })
+            .join('\n');
+          errorMessage = fieldErrors || errorMessage;
+        } else {
+          // Handle generic error or detail messages
+          errorMessage = errorData.error || errorData.detail || errorMessage;
+        }
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      
+      setError(`Failed to create student: ${errorMessage}`);
+    }
+  };
+
+  const handleUpdateStudent = async (data: FormData) => {
+    console.log('=== UPDATE STUDENT STARTED ===');
+    console.log('Student ID:', selectedStudentId);
+    console.log('Form data received:', data);
+    console.log('Original student data:', originalStudentData);
+    try {
+      const studentPayload: any = {
+        name: data.studentName,
+      };
+
+      // Only send email if it has changed from original
+      // This avoids the "email already exists" error when updating without changing email
+      const originalEmail = originalStudentData?.email || '';
+      if (data.email && data.email !== originalEmail) {
+        studentPayload.email = data.email;
+      }
+      
+      // Only send phone if it has changed
+      const originalPhone = originalStudentData?.phoneNumber || '';
+      if (data.phoneNumber && data.phoneNumber !== originalPhone) {
+        studentPayload.phone_number = data.phoneNumber;
+      }
+      
+      // Always allow password updates if provided
+      if (data.password) {
+        studentPayload.password = data.password;
+      }
+
+      console.log('Payload to send:', studentPayload);
+      await updateStudent(selectedStudentId, studentPayload);
+      console.log('Student updated successfully');
+      await fetchStudents();
+      setIsEditModalOpen(false);
+      setOriginalStudentData(null);
+      setError(null);
+    } catch (err: any) {
+      console.error('=== UPDATE STUDENT ERROR ===');
+      console.error('Error object:', err);
+      console.error('Error response:', err.response);
+      console.error('Error data:', err.response?.data);
+      
+      // Parse backend error
+      let errorMsg = 'Failed to update student';
+      if (err?.response?.data) {
+        const data = err.response.data;
+        if (typeof data === 'object') {
+          const fieldErrors = Object.entries(data)
+            .filter(([key]) => key !== 'error' && key !== 'detail')
+            .map(([field, msgs]) => `${field}: ${Array.isArray(msgs) ? msgs.join(', ') : msgs}`)
+            .join(', ');
+          
+          if (fieldErrors) {
+            errorMsg = fieldErrors;
+          } else if (data.error || data.detail) {
+            errorMsg = data.error || data.detail;
+          }
+        } else {
+          errorMsg = String(data);
+        }
+      } else if (err?.message) {
+        errorMsg = err.message;
+      }
+      
+      setError('Error updating student: ' + errorMsg);
+    }
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.content}>
+      {loading && <div className={styles.loading}>Loading students...</div>}
+      {error && (
+        <div style={{
+          padding: '12px 16px',
+          marginBottom: '16px',
+          backgroundColor: '#fee',
+          border: '1px solid #fcc',
+          borderRadius: '8px',
+          color: '#c33',
+          fontSize: '14px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}>
+          <span>{error}</span>
+          <button
+            onClick={() => setError(null)}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#c33',
+              cursor: 'pointer',
+              fontSize: '18px',
+              fontWeight: 'bold'
+            }}
+          >×</button>
+        </div>
+      )}
+      {deleteError && (
+        <div style={{
+          padding: '12px 16px',
+          marginBottom: '16px',
+          backgroundColor: '#fff3cd',
+          border: '1px solid #ffc107',
+          borderRadius: '8px',
+          color: '#856404',
+          fontSize: '14px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}>
+          <span>{deleteError}</span>
+          <button
+            onClick={() => setDeleteError(null)}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#856404',
+              cursor: 'pointer',
+              fontSize: '18px',
+              fontWeight: 'bold'
+            }}
+          >×</button>
+        </div>
+      )}
+      
+      {!loading && (
+        <>
       <div className={styles.cardsRow}>
           {studentStats.map((stat) => (
             <DashboardCard key={stat.label} {...stat} />
@@ -312,23 +554,34 @@ export default function StudentListPage() {
             emptyMessage="No students found"
           />
         </div>
+        </>
+      )}
       </div>
 
       {/* Modals */}
       <AddStudentModal 
         isOpen={isAddModalOpen} 
-        onClose={() => setIsAddModalOpen(false)} 
+        onClose={() => {
+          setIsAddModalOpen(false);
+        }}
+        onSave={handleSaveStudent}
       />
       <EditStudentModal
         isOpen={isEditModalOpen}
-        onClose={() => setIsEditModalOpen(false)}
+        onClose={() => {
+          setIsEditModalOpen(false);
+        }}
         studentId={selectedStudentId}
         studentData={selectedStudentRow}
         onDelete={handleDeleteFromModal}
+        onSave={handleUpdateStudent}
       />
       <StudentProfileModal
         isOpen={isProfileModalOpen}
-        onClose={() => setIsProfileModalOpen(false)}
+        onClose={() => {
+          setIsProfileModalOpen(false);
+          fetchStudents();
+        }}
         studentId={selectedStudentId}
         studentData={selectedStudentRow}
         onDelete={handleDeleteFromModal}

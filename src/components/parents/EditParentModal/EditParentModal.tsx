@@ -1,31 +1,24 @@
 'use client';
 
 import AddForm, { FormData } from '@/components/UI/AddForm/AddForm';
-import enterpriseData from '@/data/enterprise.json';
 
 type EditParentModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  parentId: string;
+  initialData?: Partial<FormData>;
   onSave?: (data: FormData) => void;
   onDelete?: () => void;
 };
 
-export default function EditParentModal({ isOpen, onClose, parentId, onSave, onDelete }: EditParentModalProps) {
+export default function EditParentModal({ isOpen, onClose, initialData, onSave, onDelete }: EditParentModalProps) {
   if (!isOpen) return null;
 
-  const parents = (enterpriseData as any).parents || [];
-  const found = parents.find((p: any) => String(p.id) === String(parentId) || p.parentName === parentId) || null;
-
-  const mappedInitial = found
+  const mappedInitial = initialData
     ? {
-        studentName: found.parentName ?? '',
-        email: found.email ?? '',
-        password: found.password ?? '',
-        phoneNumber: found.phoneNumber ?? '',
-        parentName: found.childName ?? '',
-        academicYear: found.academicYear ?? '',
-        feePayment: found.feesPayment ?? found.feePayment ?? '',
+        studentName: initialData.studentName ?? initialData.parentName ?? (initialData as any).name ?? '',
+        email: initialData.email ?? '',
+        password: initialData.password ?? '',
+        phoneNumber: initialData.phoneNumber ?? (initialData as any).phone_number ?? '',
       }
     : undefined;
 

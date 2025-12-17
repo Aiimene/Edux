@@ -8,13 +8,19 @@ import AddTeacherModal from '../../../../../components/teachers/AddTeacherModal/
 import EditTeacherModal from '../../../../../components/teachers/EditTeacherModal/EditTeacherModal';
 import TeacherProfileModal from '../../../../../components/teachers/TeacherProfileModal/TeacherProfileModal';
 import ConfirmModal from '../../../../../components/UI/ConfirmModal/ConfirmModal';
-import enterpriseData from '../../../../../data/enterprise.json';
+import { getTeachers, deleteTeacher, createTeacher, updateTeacher } from '../../../../../api/teachers';
+import { FormData } from '../../../../../components/UI/AddForm/AddForm';
 import styles from './page.module.css';
 
 type Teacher = {
-  name: string;
+  id: string;
+  teacherName: string;
+  level: string;
+  modules: string;
   sessions: number;
-  percentage: number;
+  email: string;
+  paymentMethod: string;
+  paymentStatus: string;
 };
 
 export default function TeacherListPage() {
@@ -30,121 +36,53 @@ export default function TeacherListPage() {
   const [filterValue, setFilterValue] = useState<string>('');
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [teacherToDelete, setTeacherToDelete] = useState<string>('');
+  const [teachers, setTeachers] = useState<Teacher[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const monthPopupRef = useRef<HTMLDivElement>(null);
   const selectByPopupRef = useRef<HTMLDivElement>(null);
 
-  // Get teachers data from enterprise.json and normalize
-  const rawTeachers = (enterpriseData as any).teachers || [];
+  // Fetch teachers from API
+  useEffect(() => {
+    fetchTeachers();
+  }, []);
 
-  const teachers = rawTeachers.map((t: any) => ({
-    id: t.id ?? String(t.teacherName).toLowerCase().replace(/\s+/g, '-'),
-    teacherName: t.teacherName ?? '',
-    level: t.level ?? '',
-    modules: Array.isArray(t.modules) ? t.modules.join(', ') : (t.modules || ''),
-    sessions: Array.isArray(t.sessions) ? t.sessions.length : Number(t.sessions ?? 0),
-    email: t.email ?? '',
-    paymentMethod: t.paymentMethod ?? '',
-    paymentStatus: t.paymentStatus ?? '',
-  })) as any[];
+  const fetchTeachers = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await getTeachers();
+      
+      // Handle paginated or direct array response
+      const apiData = Array.isArray(response) ? response : (response.results || []);
+      
+      if (apiData && apiData.length) {
+        console.log('Teachers API sample:', apiData[0]);
+      }
 
-  const handleAddClick = () => {
-    setIsAddModalOpen(true);
+      // Transform API response to match Teacher type
+      const transformedTeachers: Teacher[] = apiData.map((t: any) => ({
+        id: t.id?.toString() || '',
+        teacherName: t.name || t.teacherName || t.full_name || '',
+        level: t.level || t.level_name || t.level?.name || '',
+        modules: Array.isArray(t.modules)
+          ? t.modules.map((m: any) => m?.name || m).filter(Boolean).join(', ')
+          : t.modules_titles?.join(', ') || t.modules || '',
+        sessions: t.sessions || t.sessions_count || t.total_sessions || 0,
+        email: t.email || t.user?.email || '',
+        paymentMethod: t.payment_method || t.paymentMethod || '',
+        paymentStatus: t.payment_status || t.paymentStatus || '',
+      }));
+      
+      setTeachers(transformedTeachers);
+    } catch (err) {
+      console.error('Error fetching teachers:', err);
+      setError('Failed to load teachers. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
-
-  // Helper: map a raw teacher object from enterprise.json to the modal's `initialData` shape
-  const mapTeacherToInitial = (t: any) => {
-    if (!t) return null;
-    return {
-      studentName: t.teacherName ?? t.name ?? '',
-      email: t.email ?? '',
-      password: t.password ?? '',
-      dateOfBirth: t.dateOfBirth ?? '',
-      phoneNumber: t.phoneNumber ? String(t.phoneNumber) : '',
-      level: t.level ?? '',
-      sessions: Array.isArray(t.sessions) ? t.sessions.map(String) : (t.sessions ? [String(t.sessions)] : []),
-      feePayment: t.feePayment ? String(t.feePayment) : '',
-      enrollmentDate: t.enrollmentDate ?? t.enrollment_date ?? '',
-      paymentMethod: t.paymentMethod ? String(t.paymentMethod).toLowerCase() : '',
-      paymentStatus: t.paymentStatus ? String(t.paymentStatus).toLowerCase() : '',
-      gender: t.gender ?? '',
-      parentName: t.parentName ?? '',
-      modules: Array.isArray(t.modules) ? t.modules : (typeof t.modules === 'string' ? t.modules.split(',').map((s: string) => s.trim()) : []),
-      academicYear: t.academicYear ?? t['academic year'] ?? '',
-      id: t.id ?? '',
-    };
-  };
-
-  const handleEditClick = (teacherId: string) => {
-    setSelectedTeacherId(teacherId);
-    setIsEditModalOpen(true);
-  };
-
-  const handleProfileClick = (teacherId: string) => {
-    setSelectedTeacherId(teacherId);
-    setIsProfileModalOpen(true);
-  };
-
-  const handleDeleteClick = (teacherId: string) => {
-    setTeacherToDelete(teacherId);
-    setIsDeleteModalOpen(true);
-  };
-
-  const handleDeleteConfirm = () => {
-    console.log('Deleting teacher:', teacherToDelete);
-    // TODO: Implement actual delete logic here
-    // This would typically call an API to delete the teacher
-    setIsDeleteModalOpen(false);
-    setTeacherToDelete('');
-  };
-
-  const handleDeleteCancel = () => {
-    setIsDeleteModalOpen(false);
-    setTeacherToDelete('');
-  };
-
-  const handleDeleteFromModal = () => {
-    handleDeleteClick(selectedTeacherId);
-    setIsEditModalOpen(false);
-    setIsProfileModalOpen(false);
-  };
-
-  // Define table columns for teachers
-  const columns: Column<any>[] = [
-    { key: 'id', label: 'ID' },
-    { key: 'teacherName', label: 'Teacher Name' },
-    { key: 'level', label: 'Level' },
-    { key: 'modules', label: 'Modules' },
-    { key: 'sessions', label: 'Sessions' },
-    { key: 'email', label: 'Email' },
-    { key: 'paymentMethod', label: 'Payment Method' },
-    { key: 'paymentStatus', label: 'Payment Status' },
-  ];
-
-  const teacherStats = [
-    {
-      icon: 'attendance',
-      label: 'Attendance Rate',
-      value: `${enterpriseData['attendance rate']}%`,
-      percentage: `${enterpriseData['attendance rate']}%`,
-    },
-    {
-      icon: 'total_teachers',
-      label: 'Total Teachers',
-      value: enterpriseData['number of teachers'],
-      percentage: `${enterpriseData['teachers percentage']}%`,
-    },
-    {
-      icon: 'total_students',
-      label: 'Total Students',
-      value: enterpriseData['number of students'],
-      percentage: `${enterpriseData['students percentage']}%`,
-    },
-  ];
-
-  const months = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
-  ];
 
   // Close popups when clicking outside
   useEffect(() => {
@@ -167,6 +105,144 @@ export default function TeacherListPage() {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isMonthPopupOpen, isSelectByPopupOpen]);
+
+  const handleAddClick = () => {
+    setIsAddModalOpen(true);
+  };
+
+  const handleEditClick = (teacherId: string, row?: any) => {
+    setSelectedTeacherId(teacherId);
+    setSelectedTeacherRow(row ?? null);
+    setIsEditModalOpen(true);
+  };
+
+  const handleProfileClick = (teacherId: string, row?: any) => {
+    setSelectedTeacherId(teacherId);
+    setSelectedTeacherRow(row ?? null);
+    setIsProfileModalOpen(true);
+  };
+
+  const handleDeleteClick = (teacherId: string) => {
+    setTeacherToDelete(teacherId);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    setDeleteError(null);
+    try {
+      await deleteTeacher(teacherToDelete);
+      await fetchTeachers();
+      setIsDeleteModalOpen(false);
+      setTeacherToDelete('');
+    } catch (err: any) {
+      console.error('Error deleting teacher:', err);
+      
+      let errorMsg = 'Failed to delete teacher.';
+      if (err?.response?.data?.error) {
+        errorMsg = err.response.data.error;
+        if (err.response.data.active_classes) {
+          errorMsg += ` Active classes: ${err.response.data.active_classes}`;
+        }
+        if (err.response.data.enrolled_students) {
+          errorMsg += ` Enrolled students: ${err.response.data.enrolled_students}`;
+        }
+      } else if (err?.message) {
+        errorMsg = err.message;
+      }
+      
+      setDeleteError(errorMsg);
+      setIsDeleteModalOpen(false);
+      setTeacherToDelete('');
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setIsDeleteModalOpen(false);
+    setTeacherToDelete('');
+  };
+
+  const handleDeleteFromModal = () => {
+    handleDeleteClick(selectedTeacherId);
+    setIsEditModalOpen(false);
+    setIsProfileModalOpen(false);
+  };
+
+  const handleSaveTeacher = async (data: FormData) => {
+    try {
+      const teacherPayload = {
+        name: data.studentName,
+        username: data.email ? data.email.split('@')[0] : data.studentName.replace(/\s+/g, '').toLowerCase(),
+        password: data.password,
+        email: data.email || undefined,
+        phone_number: data.phoneNumber || undefined,
+      };
+
+      await createTeacher(teacherPayload);
+      await fetchTeachers();
+      setIsAddModalOpen(false);
+    } catch (err: any) {
+      console.error('Error creating teacher:', err);
+      const errorMessage = err.response?.data?.error || err.response?.data?.detail || err.message || 'Failed to create teacher';
+      alert(`Failed to create teacher: ${errorMessage}`);
+    }
+  };
+
+  const handleUpdateTeacher = async (data: FormData) => {
+    try {
+      const teacherPayload: any = {
+        name: data.studentName,
+        email: data.email,
+        phone_number: data.phoneNumber,
+      };
+
+      if (data.password) teacherPayload.password = data.password;
+
+      await updateTeacher(selectedTeacherId, teacherPayload);
+      await fetchTeachers();
+      setIsEditModalOpen(false);
+    } catch (err) {
+      console.error('Error updating teacher:', err);
+      alert('Failed to update teacher. Please try again.');
+    }
+  };
+
+  // Define table columns for teachers
+  const columns: Column<Teacher>[] = [
+    { key: 'id', label: 'ID' },
+    { key: 'teacherName', label: 'Teacher Name' },
+    { key: 'level', label: 'Level' },
+    { key: 'modules', label: 'Modules' },
+    { key: 'sessions', label: 'Sessions' },
+    { key: 'email', label: 'Email' },
+    { key: 'paymentMethod', label: 'Payment Method' },
+    { key: 'paymentStatus', label: 'Payment Status' },
+  ];
+
+  const teacherStats = [
+    {
+      icon: 'total_teachers',
+      label: 'Total Teachers',
+      value: teachers.length,
+      percentage: '0%',
+    },
+    {
+      icon: 'attendance',
+      label: 'Absent Teachers',
+      value: 0,
+      percentage: '0%',
+    },
+    {
+      icon: 'attendance_rate',
+      label: 'Attendance Rate',
+      value: '0%',
+      percentage: '0%',
+    },
+  ];
+
+  const months = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
 
   const handleMonthSelect = (month: string) => {
     setSelectedMonth(month);
@@ -193,6 +269,64 @@ export default function TeacherListPage() {
   return (
     <div className={styles.container}>
       <div className={styles.content}>
+      {loading && <div className={styles.loading}>Loading teachers...</div>}
+      {error && (
+        <div style={{
+          padding: '12px 16px',
+          marginBottom: '16px',
+          backgroundColor: '#fee',
+          border: '1px solid #fcc',
+          borderRadius: '8px',
+          color: '#c33',
+          fontSize: '14px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}>
+          <span>{error}</span>
+          <button
+            onClick={() => setError(null)}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#c33',
+              cursor: 'pointer',
+              fontSize: '18px',
+              fontWeight: 'bold'
+            }}
+          >×</button>
+        </div>
+      )}
+      {deleteError && (
+        <div style={{
+          padding: '12px 16px',
+          marginBottom: '16px',
+          backgroundColor: '#fff3cd',
+          border: '1px solid #ffc107',
+          borderRadius: '8px',
+          color: '#856404',
+          fontSize: '14px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}>
+          <span>{deleteError}</span>
+          <button
+            onClick={() => setDeleteError(null)}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#856404',
+              cursor: 'pointer',
+              fontSize: '18px',
+              fontWeight: 'bold'
+            }}
+          >×</button>
+        </div>
+      )}
+      
+      {!loading && (
+        <>
         <div className={styles.cardsRow}>
           {teacherStats.map((stat) => (
             <DashboardCard key={stat.label} {...stat} />
@@ -288,38 +422,28 @@ export default function TeacherListPage() {
           <MembersTable
             data={teachers}
             columns={columns}
-            onEdit={(id: string, row?: any) => {
-              setSelectedTeacherId(id);
-              // find the full raw teacher object from enterprise data so modal gets complete fields
-              const full = rawTeachers.find((t: any) => String(t.id ?? String(t.teacherName).toLowerCase().replace(/\s+/g, '-')) === String(id));
-              const initial = mapTeacherToInitial(full ?? row ?? null);
-              setSelectedTeacherRow(initial);
-              setIsEditModalOpen(true);
-            }}
-            onViewProfile={(id: string, row?: any) => {
-              setSelectedTeacherId(id);
-              const full = rawTeachers.find((t: any) => String(t.id ?? String(t.teacherName).toLowerCase().replace(/\s+/g, '-')) === String(id));
-              const initial = mapTeacherToInitial(full ?? row ?? null);
-              setSelectedTeacherRow(initial);
-              setIsProfileModalOpen(true);
-            }}
+            onEdit={(id: string, row?: any) => handleEditClick(id, row)}
+            onViewProfile={(id: string, row?: any) => handleProfileClick(id, row)}
             onDelete={handleDeleteClick}
-            getId={(row) => (row as any).id}
+            getId={(row) => row.id}
             emptyMessage="No teachers found"
           />
         </div>
         <div className={styles.addButtonContainer}>
           <button className={styles.addButton} onClick={handleAddClick}>Add Teacher</button>
         </div>
+        </>
+      )}
       </div>
 
       {/* Modals */}
-      <AddTeacherModal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} />
+      <AddTeacherModal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} onSave={handleSaveTeacher} />
       <EditTeacherModal
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
         initialData={selectedTeacherRow}
         onDelete={handleDeleteFromModal}
+        onSave={handleUpdateTeacher}
       />
       <TeacherProfileModal
         isOpen={isProfileModalOpen}

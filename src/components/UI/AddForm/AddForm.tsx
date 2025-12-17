@@ -308,6 +308,15 @@ export default function AddForm({
       return Object.keys(e).length === 0;
     }
 
+    if (entityLabel === 'Teacher') {
+      if (!formData.studentName || !String(formData.studentName).trim()) e.studentName = 'Teacher name is required';
+      if (!formData.email || !String(formData.email).trim() || !isEmail(String(formData.email))) e.email = 'Valid email is required';
+      if (!formData.password || String(formData.password).length < 8) e.password = 'Password must be at least 8 characters';
+      if (!formData.phoneNumber || !String(formData.phoneNumber).trim()) e.phoneNumber = 'Phone number is required';
+      setErrors(e);
+      return Object.keys(e).length === 0;
+    }
+
     if (!formData.studentName || !String(formData.studentName).trim()) e.studentName = 'Student name is required';
     if (!formData.email || !String(formData.email).trim() || !isEmail(String(formData.email))) e.email = 'Valid email is required';
     if (!formData.password || String(formData.password).length < 8) e.password = 'Password must be at least 8 characters';
@@ -325,9 +334,6 @@ export default function AddForm({
       if (!formData.email || !String(formData.email).trim() || !isEmail(String(formData.email))) e.email = 'Valid email is required';
       if (!formData.password || String(formData.password).length < 8) e.password = 'Password must be at least 8 characters';
       if (!formData.phoneNumber || !String(formData.phoneNumber).trim()) e.phoneNumber = 'Phone number is required';
-      if (!formData.parentName || !String(formData.parentName).trim()) e.parentName = 'Child name is required';
-      if (!formData.academicYear || String(formData.academicYear).trim() === '') e.academicYear = 'Academic year is required';
-      if (!formData.feePayment || String(formData.feePayment).trim() === '') e.feePayment = 'Fee payment is required';
       setErrors(e);
       return e;
     }
@@ -338,16 +344,17 @@ export default function AddForm({
     if (!formData.dateOfBirth || String(formData.dateOfBirth).trim() === '') e.dateOfBirth = 'Date of birth is required';
     if (!formData.phoneNumber || !String(formData.phoneNumber).trim()) e.phoneNumber = 'Phone number is required';
     if (!formData.gender || String(formData.gender).trim() === '') e.gender = 'Gender is required';
-    if (!formData.level || String(formData.level).trim() === '') e.level = 'Level is required';
-    if (!formData.modules || (Array.isArray(formData.modules) && formData.modules.length === 0)) e.modules = 'At least one module is required';
-    if (!formData.sessions || (Array.isArray(formData.sessions) && formData.sessions.length === 0)) e.sessions = 'At least one session is required';
-    if (!formData.academicYear || String(formData.academicYear).trim() === '') e.academicYear = 'Academic year is required';
-    if (entityLabel !== 'Teacher') {
-      if (!formData.feePayment || String(formData.feePayment).trim() === '') e.feePayment = 'Fee payment is required';
+    if (entityLabel === 'Teacher') {
+      if (!formData.studentName || !String(formData.studentName).trim()) e.studentName = 'Teacher name is required';
+      if (!formData.email || !String(formData.email).trim() || !isEmail(String(formData.email))) e.email = 'Valid email is required';
+      if (!formData.password || String(formData.password).length < 8) e.password = 'Password must be at least 8 characters';
+      if (!formData.phoneNumber || !String(formData.phoneNumber).trim()) e.phoneNumber = 'Phone number is required';
     } else {
-      if (!formData.enrollmentDate || String(formData.enrollmentDate).trim() === '') e.enrollmentDate = 'Enrollment date is required';
-      if (!formData.paymentMethod || String(formData.paymentMethod).trim() === '') e.paymentMethod = 'Payment method is required';
-      if (!formData.paymentStatus || String(formData.paymentStatus).trim() === '') e.paymentStatus = 'Payment status is required';
+      if (!formData.level || String(formData.level).trim() === '') e.level = 'Level is required';
+      if (!formData.modules || (Array.isArray(formData.modules) && formData.modules.length === 0)) e.modules = 'At least one module is required';
+      if (!formData.sessions || (Array.isArray(formData.sessions) && formData.sessions.length === 0)) e.sessions = 'At least one session is required';
+      if (!formData.academicYear || String(formData.academicYear).trim() === '') e.academicYear = 'Academic year is required';
+      if (!formData.feePayment || String(formData.feePayment).trim() === '') e.feePayment = 'Fee payment is required';
     }
     setErrors(e);
     return e;
@@ -400,11 +407,12 @@ export default function AddForm({
       return;
     }
 
-    if (mode === 'edit' && onSave) {
-      onSave(formData);
-    } else if (mode === 'add') {
+    // Call onSave for both add and edit modes
+    if (onSave) {
       console.log('Form submitted:', formData);
+      onSave(formData);
     }
+    
     resetForm();
     onClose();
   };

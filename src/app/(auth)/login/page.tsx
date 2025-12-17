@@ -52,14 +52,16 @@ export default function LoginPage() {
       const data = await response.json();
 
       if (response.ok) {
-        // Store tokens
+        // Store tokens (use both keys for consistency)
         localStorage.setItem('access_token', data.tokens.access);
+        localStorage.setItem('authToken', data.tokens.access);
         localStorage.setItem('refresh_token', data.tokens.refresh);
+        localStorage.setItem('refreshToken', data.tokens.refresh);
         localStorage.setItem('user_role', data.role);
         localStorage.setItem('school_name', data.workspace.name);
         
-        // Redirect based on role
-        window.location.href = '/dashboard';
+        // Redirect to admin dashboard
+        window.location.href = '/admin/dashboard';
       } else {
         setError(data.error || 'Login failed');
       }
@@ -110,14 +112,16 @@ const handleGoogleLogin = async (credentialResponse: any) => {
     }
 
     if (response.ok) {
-      // Store tokens
+      // Store tokens (use both keys for consistency)
       localStorage.setItem('access_token', data.access);
+      localStorage.setItem('authToken', data.access);
       localStorage.setItem('refresh_token', data.refresh);
+      localStorage.setItem('refreshToken', data.refresh);
       localStorage.setItem('user_role', data.role);
       localStorage.setItem('school_name', data.workspace.name);
       
-      // Redirect based on role
-      window.location.href = '/dashboard';
+      // Redirect to admin dashboard
+      window.location.href = '/admin/dashboard';
     } else {
       setError(data.error || 'Google login failed');
     }

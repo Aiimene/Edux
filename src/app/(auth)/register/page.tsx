@@ -136,17 +136,19 @@ export default function RegisterPage() {
       const data = await response.json();
 
       if (response.ok) {
-        // Store tokens
+        // Store tokens (use both keys for consistency)
         localStorage.setItem('access_token', data.tokens.access);
+        localStorage.setItem('authToken', data.tokens.access);
         localStorage.setItem('refresh_token', data.tokens.refresh);
+        localStorage.setItem('refreshToken', data.tokens.refresh);
         localStorage.setItem('school_name', data.school_name);
         localStorage.setItem('user_role', 'admin');
 
         // Show success message with school_name
         alert(`Registration successful! Your school login ID is: ${data.school_name}\n\nPlease save this ID - you'll need it to login.`);
         
-        // Redirect to dashboard
-        window.location.href = '/dashboard';
+        // Redirect to admin dashboard
+        window.location.href = '/admin/dashboard';
       } else {
         // Handle validation errors
         const errorMessage = Object.entries(data)
@@ -241,14 +243,16 @@ const handleGoogleFinalSubmit = async (e: React.FormEvent) => {
     }
 
     if (response.ok) {
-      // Store tokens
+      // Store tokens (use both keys for consistency)
       localStorage.setItem('access_token', data.tokens.access);
+      localStorage.setItem('authToken', data.tokens.access);
       localStorage.setItem('refresh_token', data.tokens.refresh);
+      localStorage.setItem('refreshToken', data.tokens.refresh);
       localStorage.setItem('school_name', data.school_name);
       localStorage.setItem('user_role', 'admin');
 
       alert(`Registration successful! Your school login ID is: ${data.school_name}\n\nPlease save this ID - you'll need it to login.`);
-      window.location.href = '/dashboard';
+      window.location.href = '/admin/dashboard';
     } else {
       const errorMessage = Object.entries(data)
         .map(([key, value]) => `${key}: ${Array.isArray(value) ? value.join(', ') : value}`)
