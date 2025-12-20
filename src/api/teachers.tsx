@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://127.0.0.1:8000/api/dashboard';
+const API_BASE_URL = 'http://127.0.0.1:8000/api/members';
 
 // Create axios instance with default config
 const api = axios.create({
@@ -14,8 +14,12 @@ const api = axios.create({
 // Add JWT token to every request if available (support both authToken and access_token keys)
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('authToken') || localStorage.getItem('access_token');
+  console.log('API Interceptor - Token available:', !!token);
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
+    console.log('Adding Authorization header to request:', config.url);
+  } else {
+    console.warn('No token found in localStorage for request:', config.url);
   }
   return config;
 });
@@ -69,8 +73,40 @@ export const deleteTeacher = async (id: string) => {
   try {
     const response = await api.delete(`/teachers/${id}/`);
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
+    // Normalize backend HTML/500 errors into a user-friendly message
+    const status = error?.response?.status;
+    const isHtml = error?.response?.headers?.['content-type']?.includes('text/html');
+    
+    // If resource is already gone, consider it a successful no-op
+    if (status === 404) {
+      return { ok: true, status };
+    }
+
+    // Extract structured backend validation errors (e.g., active classes, enrolled students)
+    const backendError = error?.response?.data?.error;
+    const activeClasses = error?.response?.data?.active_classes;
+    const enrolledStudents = error?.response?.data?.enrolled_students;
+
+    let message = 'Failed to delete teacher.';
+    
+    if (backendError) {
+      message = backendError;
+      if (activeClasses) message += ` (Active classes: ${activeClasses})`;
+      if (enrolledStudents) message += ` (Enrolled students: ${enrolledStudents})`;
+    } else if (status && status >= 500) {
+      message = `Delete failed on the server (${status}). Please try again later.`;
+    } else if (isHtml) {
+      message = 'Delete failed because the server returned an unexpected response.';
+    } else if (error?.message) {
+      message = error.message;
+    }
+
     console.error(`Failed to delete teacher ${id}:`, error);
-    throw error;
+    const friendlyError = new Error(message);
+    // Preserve status for callers that need it
+    // @ts-expect-error augmenting error with status for downstream checks
+    friendlyError.status = status;
+    throw friendlyError;
   }
 };

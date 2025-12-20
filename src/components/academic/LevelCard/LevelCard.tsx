@@ -5,10 +5,11 @@ import Image from 'next/image';
 import styles from './LevelCard.module.css';
 import ConfirmModal from '@/components/UI/ConfirmModal/ConfirmModal';
 
+type Module = { id: string; name: string };
 type Level = {
   id: string;
   name: string;
-  modules: string[];
+  modules: Module[];
   students?: number;
 };
 
@@ -17,7 +18,7 @@ type LevelCardProps = {
   onEdit: () => void;
   onDelete: () => void;
   onAddModule: (moduleName: string) => void;
-  onRemoveModule: (moduleName: string) => void;
+  onRemoveModule: (moduleIdOrName: string) => void;
   availableModules: string[];
 };
 
@@ -32,10 +33,10 @@ export default function LevelCard({
   const [showAddModuleModal, setShowAddModuleModal] = useState(false);
   const [newModuleName, setNewModuleName] = useState('');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [moduleToDelete, setModuleToDelete] = useState<string | null>(null);
+  const [moduleToDelete, setModuleToDelete] = useState<Module | null>(null);
   const [showLevelDeleteConfirm, setShowLevelDeleteConfirm] = useState(false);
 
-  const unassignedModules = availableModules.filter(m => !level.modules.includes(m));
+  const unassignedModules = availableModules.filter(m => !level.modules.some(x => x.name === m));
 
   const openAddModuleModal = () => {
     setNewModuleName('');
@@ -45,7 +46,7 @@ export default function LevelCard({
   const saveNewModule = () => {
     const name = newModuleName.trim();
     if (!name) return;
-    if (level.modules.includes(name)) {
+    if (level.modules.some(m => m.name === name)) {
       setShowAddModuleModal(false);
       return;
     }
@@ -53,14 +54,14 @@ export default function LevelCard({
     setShowAddModuleModal(false);
   };
 
-  const handleRemoveModule = (moduleName: string) => {
-    setModuleToDelete(moduleName);
+  const handleRemoveModule = (m: Module) => {
+    setModuleToDelete(m);
     setShowDeleteConfirm(true);
   };
 
   const confirmRemoveModule = () => {
     if (moduleToDelete) {
-      onRemoveModule(moduleToDelete);
+      onRemoveModule(moduleToDelete.id);
       setModuleToDelete(null);
     }
     setShowDeleteConfirm(false);
@@ -114,8 +115,8 @@ export default function LevelCard({
               <p className={styles.noModules}>No modules assigned</p>
             ) : (
               level.modules.map(module => (
-                <div key={module} className={styles.moduleChip}>
-                  <span>{module}</span>
+                <div key={module.id} className={styles.moduleChip}>
+                  <span>{module.name}</span>
                   <button
                     className={styles.removeModuleBtn}
                     onClick={() => handleRemoveModule(module)}
@@ -133,7 +134,7 @@ export default function LevelCard({
       <ConfirmModal
         open={showDeleteConfirm}
         title="Remove Module?"
-        message={`Are you sure you want to remove "${moduleToDelete}" from ${level.name}?`}
+        message={`Are you sure you want to remove "${moduleToDelete?.name}" from ${level.name}?`}
         confirmLabel="Remove"
         cancelLabel="Cancel"
         onConfirm={confirmRemoveModule}

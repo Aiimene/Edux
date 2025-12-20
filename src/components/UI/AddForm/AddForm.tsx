@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import './AddForm.css';
 import Select, { components } from 'react-select';
-import enterprise from '@/data/enterprise.json';
+import useLevels from '@/hooks/useLevels';
 import ConfirmModal from '@/components/UI/ConfirmModal/ConfirmModal';
 
 const DropdownIndicator = (props: any) => (
@@ -124,7 +124,6 @@ export default function AddForm({
   }, [initialData, isOpen, mode]);
 
   type SelectOptions = {
-    levels: string[];
     modules: string[];
     sessions: Array<string | number>;
     genders?: string[];
@@ -145,10 +144,11 @@ export default function AddForm({
     setAddAmountVisible(false);
   };
 
-  const selectOptions = ((enterprise as any).selectOptions as SelectOptions | undefined);
-
-  const levels = selectOptions?.levels ?? [];
-  const availableModules = selectOptions?.modules ?? [];
+  const selectOptions = (undefined as unknown as SelectOptions | undefined);
+  const { levels: dynamicLevels } = useLevels();
+  // Modules depend on selected level
+  const selectedLevel = dynamicLevels.find(l => l.name === formData.level);
+  const availableModules = (selectedLevel?.modules ?? []).map(m => m.name);
   const availableSessions = (selectOptions?.sessions ?? []).map(String);
   const genders = ['male', 'female'];
 
@@ -165,7 +165,12 @@ export default function AddForm({
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    // When level changes, reset modules to those belonging to the new level
+    if (name === 'level') {
+      setFormData({ ...formData, level: value, modules: [] });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
     setErrors(prev => {
       const { [name]: _, ...rest } = prev;
       return rest;
@@ -206,7 +211,7 @@ export default function AddForm({
   };
 
   const genderOptions = genders.map(g => ({ value: g, label: g.charAt(0).toUpperCase() + g.slice(1) }));
-  const levelOptions = levels.map(l => ({ value: l, label: l }));
+  const levelOptions = dynamicLevels.map(l => ({ value: l.name, label: l.name }));
 
   const portalTarget = typeof window !== 'undefined' ? document.body : null;
 

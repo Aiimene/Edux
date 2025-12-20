@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import Select, { components } from 'react-select';
 import styles from './AddSessionModal.module.css';
 import enterpriseData from '@/data/enterprise.json';
+import useLevels from '@/hooks/useLevels';
 import Image from 'next/image';
 
 const DropdownIndicator = (props: any) => (
@@ -48,6 +49,7 @@ const defaultForm: SessionForm = {
 
 export default function AddSessionModal({ isOpen, onClose, onSave, initialData, mode = 'add' }: AddSessionModalProps) {
   const [form, setForm] = useState<SessionForm>(defaultForm);
+  const { levels: dynamicLevels } = useLevels();
 
   useEffect(() => {
     if (isOpen) {
@@ -55,8 +57,11 @@ export default function AddSessionModal({ isOpen, onClose, onSave, initialData, 
     }
   }, [isOpen, initialData]);
 
-  const modules = useMemo(() => enterpriseData.selectOptions?.modules || [], []);
-  const levels = useMemo(() => enterpriseData.selectOptions?.levels || [], []);
+  const levels = useMemo(() => dynamicLevels.map(l => l.name), [dynamicLevels]);
+  const modules = useMemo(() => {
+    const lev = dynamicLevels.find(l => l.name === form.level);
+    return (lev?.modules ?? []).map(m => m.name);
+  }, [dynamicLevels, form.level]);
   const teachers = useMemo(() => enterpriseData.teachers?.map((t: any) => t.name || t.teacherName || '') || [], []);
   const weekdays = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
 

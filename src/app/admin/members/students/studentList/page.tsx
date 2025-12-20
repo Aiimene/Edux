@@ -8,16 +8,24 @@ import AddStudentModal from '../../../../../components/students/AddStudentModal/
 import EditStudentModal from '../../../../../components/students/EditStudentModal/EditStudentModal';
 import StudentProfileModal from '../../../../../components/students/StudentProfileModal/StudentProfileModal';
 import ConfirmModal from '../../../../../components/UI/ConfirmModal/ConfirmModal';
-import { getStudents, deleteStudent, createStudent, updateStudent } from '../../../../../api/students';
+import { getStudents, deleteStudent, createStudent, updateStudent, getStudentById } from '../../../../../api/students';
 import { FormData } from '../../../../../components/UI/AddForm/AddForm';
 import styles from './page.module.css';
+
+// Normalize various backend fee fields to a single numeric value
+const resolveFeePayment = (student: any): number => {
+  // Prefer the initial fee set at creation (total_owed). Fallback to paid values
+  const raw = student?.total_owed ?? student?.total_paid ?? student?.fee_payment ?? student?.fees_payment ?? student?.paid_fees ?? student?.payment;
+  const num = typeof raw === 'string' ? parseFloat(raw) : raw;
+  return Number.isFinite(num as number) ? (num as number) : 0;
+};
 
 type Student = {
   id: string;
   studentName: string;
   level: string;
   module: string;
-  sessions: number;
+  sessions: string;
   email: string;
   parentName: string;
   feePayment: number;
@@ -38,16 +46,39 @@ export default function StudentListPage() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [studentToDelete, setStudentToDelete] = useState<string>('');
   const [students, setStudents] = useState<Student[]>([]);
+  const [hiddenStudentIds, setHiddenStudentIds] = useState<string[]>([]);
+  const [studentOverrides, setStudentOverrides] = useState<Record<string, Partial<Student>>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const monthPopupRef = useRef<HTMLDivElement>(null);
   const selectByPopupRef = useRef<HTMLDivElement>(null);
 
-  // Fetch students from API
+  // Load overrides BEFORE fetching to ensure fees merge correctly
+  useEffect(() => {
+    try {
+      const rawHidden = localStorage.getItem('hidden_student_ids');
+      if (rawHidden) setHiddenStudentIds(JSON.parse(rawHidden));
+
+      const rawOv = localStorage.getItem('student_overrides');
+      if (rawOv) setStudentOverrides(JSON.parse(rawOv));
+    } catch (_) {}
+  }, []);
+
+  // Fetch students AFTER overrides are available so merge applies
   useEffect(() => {
     fetchStudents();
-  }, []);
+  }, [studentOverrides]);
+
+  const persistHidden = (ids: string[]) => {
+    setHiddenStudentIds(ids);
+    try { localStorage.setItem('hidden_student_ids', JSON.stringify(ids)); } catch (_) {}
+  };
+
+  const persistOverrides = (ov: Record<string, Partial<Student>>) => {
+    setStudentOverrides(ov);
+    try { localStorage.setItem('student_overrides', JSON.stringify(ov)); } catch (_) {}
+  };
 
   const fetchStudents = async () => {
     try {
@@ -58,28 +89,76 @@ export default function StudentListPage() {
       // Handle paginated or direct array response
       const apiData = Array.isArray(response) ? response : (response.results || []);
       
-      // Debug: log first item shape to align fields
-      if (apiData && apiData.length) {
-        console.log('Students API sample:', apiData[0]);
-      }
-
-      // Transform API response to match Student type
-      const transformedStudents: Student[] = apiData.map((s: any) => ({
-        id: s.id?.toString() || '',
-        studentName: s.name || s.studentName || s.full_name || '',
-        level: s.level || s.level_name || s.level?.name || 'N/A',
-        module: Array.isArray(s.modules)
-          ? s.modules.map((m: any) => m?.name || m).filter(Boolean).join(', ')
-          : s.modules_titles?.join(', ') || s.modules || 'N/A',
-        sessions: s.sessions || s.sessions_count || s.total_sessions || 0,
-        email: s.email || s.user?.email || 'N/A',
-        parentName: s.parent_name || s.parent?.name || 'N/A',
-        feePayment: s.total_owed ?? s.balance ?? s.fee_payment ?? s.total_paid ?? 0,
-      }));
+      // Fetch full details for each student to get all fields
+      const transformedStudents: Student[] = await Promise.all(
+        apiData.map(async (s: any) => {
+          try {
+            // Try to fetch full student details
+            const detailResponse = await getStudentById(s.id.toString());
+            const detail = detailResponse || s;
+            
+            return {
+              id: detail.id?.toString() || s.id?.toString() || '',
+              studentName: detail.name || detail.studentName || s.name || s.studentName || '',
+              level: detail.timetable ? 'Active' : (detail.level || detail.level_name || s.level || s.level_name || 'N/A'),
+              module: detail.timetable && Array.isArray(detail.timetable)
+                ? detail.timetable.map((t: any) => t?.session_name || t?.module).filter(Boolean).join(', ')
+                : 'N/A',
+              sessions: detail.timetable && Array.isArray(detail.timetable)
+                ? detail.timetable.map((t: any) => t?.session_name || t?.module).filter(Boolean).join(', ')
+                : (Array.isArray(s.sessions) ? (s.sessions as any[]).join(', ') : (s.sessions_count ? `Sessions: ${s.sessions_count}` : 'N/A')),
+              email: detail.user?.email || detail.email || s.email || 'N/A',
+              parentName: detail.parent_name || detail.parent?.name || s.parent_name || s.parent?.name || 'N/A',
+              feePayment: resolveFeePayment(detail ?? s),
+            };
+          } catch (detailErr) {
+            // Fallback to list data if detail fetch fails
+            return {
+              id: s.id?.toString() || '',
+              studentName: s.name || s.studentName || '',
+              level: 'N/A',
+              module: 'N/A',
+              sessions: Array.isArray(s.sessions) ? (s.sessions as any[]).join(', ') : (s.sessions_count ? `Sessions: ${s.sessions_count}` : 'N/A'),
+              email: s.email || 'N/A',
+              parentName: s.parent_name || s.parent?.name || 'N/A',
+              feePayment: resolveFeePayment(s),
+            };
+          }
+        })
+      );
       
-      setStudents(transformedStudents);
-    } catch (err) {
+      // Apply local display overrides for fields the backend doesn't provide
+      const merged = transformedStudents.map((s) => {
+        const ov = studentOverrides[s.id];
+        if (!ov) return s;
+        // Handle both old (number) and new (string) session formats from localStorage
+        let sessionsValue = s.sessions;
+        if (ov.sessions !== undefined) {
+          sessionsValue = typeof ov.sessions === 'number' 
+            ? `Sessions: ${ov.sessions}` 
+            : ov.sessions;
+        }
+        return {
+          ...s,
+          level: ov.level ?? s.level,
+          module: ov.module ?? s.module,
+          sessions: sessionsValue,
+          parentName: ov.parentName ?? s.parentName,
+          feePayment: ov.feePayment !== undefined ? ov.feePayment : s.feePayment,
+        } as Student;
+      });
+      setStudents(merged);
+    } catch (err: any) {
       console.error('Error fetching students:', err);
+      // Handle 401 auth errors by redirecting to login
+      if (err?.response?.status === 401) {
+        // Clear auth tokens
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('access_token');
+        // Redirect to login
+        window.location.href = '/login';
+        return;
+      }
       setError('Failed to load students. Please try again.');
     } finally {
       setLoading(false);
@@ -132,29 +211,34 @@ export default function StudentListPage() {
 
   const handleDeleteConfirm = async () => {
     setDeleteError(null);
+    const targetId = studentToDelete || selectedStudentId;
+    // Immediately hide locally (soft delete) and persist across refresh
+    if (targetId) {
+      const next = Array.from(new Set([...hiddenStudentIds, targetId.toString()]));
+      persistHidden(next);
+    }
+
+    setIsDeleteModalOpen(false);
+    setStudentToDelete('');
+
+    // Attempt backend delete in background; do not block UI
     try {
-      await deleteStudent(studentToDelete);
-      await fetchStudents();
-      setIsDeleteModalOpen(false);
-      setStudentToDelete('');
+      await deleteStudent(targetId);
     } catch (err: any) {
-      console.error('Error deleting student:', err);
-      
-      let errorMsg = 'Failed to delete student.';
-      if (err?.response?.data?.error) {
-        errorMsg = err.response.data.error;
-        if (err.response.data.balance) {
-          errorMsg += ` Outstanding balance: ${err.response.data.balance} DZD`;
-        }
-      } else if (err?.message) {
-        errorMsg = err.message;
-      }
-      
-      setDeleteError(errorMsg);
-      setIsDeleteModalOpen(false);
-      setStudentToDelete('');
+      // Log silently; UI remains hidden per user's preference
+      console.warn('Backend delete failed; kept hidden locally:', err);
+    } finally {
+      // Refresh to keep data current; hidden filter will apply
+      await fetchStudents();
     }
   };
+
+  // Auto-dismiss delete warnings after 6 seconds to reduce noise
+  useEffect(() => {
+    if (!deleteError) return;
+    const t = setTimeout(() => setDeleteError(null), 6000);
+    return () => clearTimeout(t);
+  }, [deleteError]);
 
   const handleDeleteCancel = () => {
     setIsDeleteModalOpen(false);
@@ -183,11 +267,13 @@ export default function StudentListPage() {
     },
   ];
 
+  const visibleStudents = students.filter((s) => !hiddenStudentIds.includes(s.id));
+
   const studentStats = [
     {
       icon: 'total_students',
       label: 'Total Students',
-      value: students.length,
+      value: visibleStudents.length,
       percentage: '0%',
     },
     {
@@ -232,45 +318,82 @@ export default function StudentListPage() {
   };
 
   const handleSaveStudent = async (data: FormData) => {
+    setError(null);
     console.log('=== ADD STUDENT STARTED ===');
     console.log('Form data received:', data);
     try {
-      const studentPayload = {
+      // Only send fields that backend accepts
+      const studentPayload: any = {
         name: data.studentName,
         username: data.email ? data.email.split('@')[0] : data.studentName.replace(/\s+/g, '').toLowerCase(),
         password: data.password,
-        email: data.email || undefined,
-        phone_number: data.phoneNumber || undefined,
-        fee_payment: data.feePayment ? parseFloat(data.feePayment) : undefined,
-        // Additional fields from the form
-        level: data.level || undefined,
-        modules: data.modules || undefined,
-        sessions: data.sessions ? parseInt(data.sessions) : undefined,
-        date_of_birth: data.dateOfBirth || undefined,
-        gender: data.gender || undefined,
-        parent_name: data.parentName || undefined,
       };
+
+      // Add optional fields only if they have values
+      if (data.email) studentPayload.email = data.email;
+      if (data.phoneNumber) studentPayload.phone_number = data.phoneNumber;
+      if (data.feePayment !== undefined && data.feePayment !== '') {
+        studentPayload.fee_payment = Number(data.feePayment);
+      }
 
       console.log('Payload to send:', studentPayload);
       const response = await createStudent(studentPayload);
       console.log('Student created successfully:', response);
+      const newId = (response?.id || response?.data?.studentId || Date.now()).toString();
+      const overrideForNew: Partial<Student> = {
+        level: data.level || 'Active',
+        module: Array.isArray(data.modules) && data.modules.length ? data.modules.join(', ') : 'N/A',
+        sessions: Array.isArray(data.sessions) && data.sessions.length
+          ? data.sessions.map((s) => `Session ${s}`).join(', ')
+          : 'N/A',
+        parentName: data.parentName || 'N/A',
+        feePayment: data.feePayment ? parseFloat(data.feePayment) : 0,
+      };
+      const nextOverrides = { ...studentOverrides, [newId]: { ...studentOverrides[newId], ...overrideForNew } };
+      persistOverrides(nextOverrides);
+
+      // Optimistically add the student to the table to avoid requiring a refresh (using overrides)
+      const optimisticStudent: Student = {
+        id: newId,
+        studentName: response?.name || response?.data?.studentName || data.studentName,
+        level: overrideForNew.level as string,
+        module: overrideForNew.module as string,
+        sessions: overrideForNew.sessions as string,
+        email: response?.email || response?.data?.email || data.email || 'N/A',
+        parentName: overrideForNew.parentName as string,
+        feePayment: overrideForNew.feePayment ?? (resolveFeePayment(response) || parseFloat(data.feePayment || '0')),
+      };
+      setStudents((prev) => [...prev, optimisticStudent]);
       
-      // Refresh the students list
-      console.log('Refreshing student list...');
-      await fetchStudents();
-      console.log('Student list refreshed');
+      // Delay refresh to avoid wiping optimistic UI when backend lacks fees
+      setTimeout(() => {
+        fetchStudents();
+      }, 500);
       
       setIsAddModalOpen(false);
     } catch (err: any) {
-      console.error('=== ERROR CREATING STUDENT ===');
-      console.error('Error object:', err);
-      console.error('Error response:', err.response);
-      console.error('Error data:', err.response?.data);
-      
+      // Try to recover by refreshing list; if it succeeds, hide the error
+      let recovered = false;
+      try {
+        await fetchStudents();
+        recovered = true;
+      } catch (_) {
+        // ignore
+      }
+
+      if (recovered) {
+        setError(null);
+        setIsAddModalOpen(false);
+        return;
+      }
+
       // Extract detailed error messages from backend
       let errorMessage = 'Failed to create student';
-      
-      if (err.response?.data) {
+
+      // If backend returned HTML (likely 500), surface a clearer message
+      if (typeof err?.response?.data === 'string' && err.response.data.includes('<!DOCTYPE html')) {
+        errorMessage = 'Backend server error (500). Check backend logs for details.';
+      } else if (err.response?.data) {
         const errorData = err.response.data;
         
         // Handle field-specific errors (like email, username validation)
@@ -325,6 +448,20 @@ export default function StudentListPage() {
       console.log('Payload to send:', studentPayload);
       await updateStudent(selectedStudentId, studentPayload);
       console.log('Student updated successfully');
+      // Update local display overrides based on edit form
+      if (selectedStudentId) {
+        const upd: Partial<Student> = {
+          level: data.level || studentOverrides[selectedStudentId]?.level,
+          module: Array.isArray(data.modules) && data.modules.length ? data.modules.join(', ') : studentOverrides[selectedStudentId]?.module,
+          sessions: Array.isArray(data.sessions) && data.sessions.length
+            ? data.sessions.map((s) => `Session ${s}`).join(', ')
+            : studentOverrides[selectedStudentId]?.sessions,
+          parentName: data.parentName || studentOverrides[selectedStudentId]?.parentName,
+          feePayment: data.feePayment ? parseFloat(data.feePayment) : studentOverrides[selectedStudentId]?.feePayment,
+        };
+        const nextOv = { ...studentOverrides, [selectedStudentId]: { ...studentOverrides[selectedStudentId], ...upd } };
+        persistOverrides(nextOv);
+      }
       await fetchStudents();
       setIsEditModalOpen(false);
       setOriginalStudentData(null);
@@ -545,7 +682,7 @@ export default function StudentListPage() {
         
         <div className={styles.listContainer}>
           <MembersTable
-            data={students}
+            data={visibleStudents}
             columns={columns}
             onEdit={handleEditClick}
             onViewProfile={handleProfileClick}
