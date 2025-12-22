@@ -2,10 +2,10 @@ import axios, { AxiosInstance, AxiosError } from 'axios';
 
 // Base URLs
 export const API_BASE_URLS = {
-  AUTH: 'http://127.0.0.1:8000/api/auth',
-  MEMBERS: 'http://127.0.0.1:8000/api/members',
-  DASHBOARD: 'http://127.0.0.1:8000/api/dashboard',
-  ACADEMIC: 'http://127.0.0.1:8000/api/academic',
+  AUTH: 'http://localhost:8000/api/auth',
+  MEMBERS: 'http://localhost:8000/api/members',
+  DASHBOARD: 'http://localhost:8000/api/dashboard',
+  ACADEMIC: 'http://localhost:8000/api/academic',
 } as const;
 
 export interface ApiError {
@@ -71,25 +71,15 @@ export const handleApiError = (error: any, context: string): ApiError => {
 };
 
 // Create API Instance (HTTP-only Cookies)
-
 export const createApiInstance = (baseURL: string): AxiosInstance => {
   const api = axios.create({
     baseURL,
     headers: {
       'Content-Type': 'application/json',
     },
-    withCredentials: true, // with this, we are making sure that the browser is sending the http-only cookies alongside the request
+    withCredentials: true, // Automatically sends HttpOnly cookies
   });
 
-// Thz request interceptor
-  api.interceptors.request.use(
-    (config) => {
-      return config;
-    },
-    (error) => {
-      return Promise.reject(error);
-    }
-  );
 
   api.interceptors.response.use(
     (response) => response,
@@ -101,19 +91,15 @@ export const createApiInstance = (baseURL: string): AxiosInstance => {
         originalRequest._retry = true;
 
         try {
-          // Try to refresh token
           await axios.post(
             `${API_BASE_URLS.AUTH}/token/refresh/`,
             {},
-            { withCredentials: true } 
+            { withCredentials: true }
           );
 
-          // Retry original request (new access token now in cookie)
           return api(originalRequest);
         } catch (refreshError) {
-          console.error('Token refresh failed');
           
-          // Clear any client-side state
           if (typeof window !== 'undefined') {
             window.location.href = '/login';
           }
@@ -134,9 +120,8 @@ export const membersApi = createApiInstance(API_BASE_URLS.MEMBERS);
 export const dashboardApi = createApiInstance(API_BASE_URLS.DASHBOARD);
 export const academicApi = createApiInstance(API_BASE_URLS.ACADEMIC);
 
-
 export const api = {
-  //  GET request
+  // GET request
   get: async <T = any>(url: string, config?: any): Promise<T> => {
     try {
       const response = await authApi.get(url, config);
@@ -146,9 +131,7 @@ export const api = {
     }
   },
 
-
   // POST request
-
   post: async <T = any>(url: string, data?: any, config?: any): Promise<T> => {
     try {
       const response = await authApi.post(url, data, config);
@@ -158,9 +141,7 @@ export const api = {
     }
   },
 
-
-  //  PUT request
-
+  // PUT request
   put: async <T = any>(url: string, data?: any, config?: any): Promise<T> => {
     try {
       const response = await authApi.put(url, data, config);
@@ -170,9 +151,7 @@ export const api = {
     }
   },
 
-
-   //PATCH request
-
+  // PATCH request
   patch: async <T = any>(url: string, data?: any, config?: any): Promise<T> => {
     try {
       const response = await authApi.patch(url, data, config);
@@ -182,8 +161,7 @@ export const api = {
     }
   },
 
-   //DELETE request
-
+  // DELETE request
   delete: async <T = any>(url: string, config?: any): Promise<T> => {
     try {
       const response = await authApi.delete(url, config);
