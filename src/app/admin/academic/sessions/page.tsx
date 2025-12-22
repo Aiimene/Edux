@@ -6,9 +6,9 @@ import SessionsList from '../../../../components/academic/SessionsList/SessionsL
 import AddSessionModal from '@/components/academic/AddSessionModal/AddSessionModal';
 import DashboardCard from '../../../../components/dashboard/DashboardCard/DashboardCard';
 import styles from './page.module.css';
-import { getSessions, createSession, updateSession, deleteSession } from '@/api/sessions';
-import { getTeachers } from '@/api/teachers';
-import { getCourses } from '@/api/levels';
+import { getSessions, createSession, updateSession, deleteSession } from '../../../../lib/api/sessions';
+import { getTeachers } from '../../../../lib/api/teachers';
+import { getCourses } from '../../../../lib/api/levels';
 import useLevels from '@/hooks/useLevels';
 
 export default function SessionsPage() {

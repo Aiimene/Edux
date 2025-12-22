@@ -6,6 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import styles from "./Sidebar.module.css";
 import enterpriseData from '../../../data/enterprise.json';
+import { logout } from "@/lib/authUtils";
 
 type SidebarProps = {
   isOpen?: boolean;
@@ -104,7 +105,7 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
           <span>Settings</span>
         </Link>
 
-        <Link href="#" className={styles.logout}>
+        <Link href="#" className={styles.logout} onClick={() => logout()}>
           <Image src="/icons/logout.svg" alt="logout" width={20} height={20} />
           <span>Logout</span>
         </Link>

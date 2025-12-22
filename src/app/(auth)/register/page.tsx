@@ -2,10 +2,10 @@
 import Link from "next/link";
 import { useState } from "react";
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
+import { authService, type RegisterData, type GoogleRegisterData } from "@/lib/api/auth.service";
 import styles from "../login/login.module.css";
 
 const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "";
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/auth";
 
 export default function RegisterPage() {
   // Step 1: Email/Password
@@ -71,7 +71,7 @@ export default function RegisterPage() {
       return;
     }
 
-    if (password.length < 8) { // changed this from 6 to 8, bcz it should  be compatible with django
+    if (password.length < 8) {
       setError("Password must be at least 8 characters");
       return;
     }
@@ -112,7 +112,7 @@ export default function RegisterPage() {
     }
 
     try {
-      const payload = {
+      const registerData: RegisterData = {
         username,
         email,
         password1: password,
@@ -127,37 +127,46 @@ export default function RegisterPage() {
         phone_number: phoneNumber
       };
 
-      const response = await fetch(`${API_URL}/register/`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
+      const response = await authService.register(registerData);
 
-      const data = await response.json();
+      // Store user metadata (tokens are in HTTP-only cookies)
+      localStorage.setItem('user_role', 'admin');
+      localStorage.setItem('school_name', response.school_name || '');
+      localStorage.setItem('user_id', response.user.id.toString());
+      localStorage.setItem('username', response.user.username);
+      localStorage.setItem('workspace_display_name', response.workspace.display_name);
+      
+      // Store full user data
+      localStorage.setItem('user_data', JSON.stringify({
+        user: response.user,
+        role: 'admin',
+        workspace: response.workspace
+      }));
 
-      if (response.ok) {
-        // Store tokens (use both keys for consistency)
-        localStorage.setItem('access_token', data.tokens.access);
-        localStorage.setItem('authToken', data.tokens.access);
-        localStorage.setItem('refresh_token', data.tokens.refresh);
-        localStorage.setItem('refreshToken', data.tokens.refresh);
-        localStorage.setItem('school_name', data.school_name);
-        localStorage.setItem('user_role', 'admin');
+      // Show success message with school_name
+      alert(
+        `Registration successful! 🎉\n\n` +
+        `Your school login ID is: ${response.school_name}\n\n` +
+        `Please save this ID - you'll need it to login.`
+      );
+      
+      // Redirect to admin dashboard
+      window.location.href = '/admin/dashboard';
 
-        // Show success message with school_name
-        alert(`Registration successful! Your school login ID is: ${data.school_name}\n\nPlease save this ID - you'll need it to login.`);
-        
-        // Redirect to admin dashboard
-        window.location.href = '/admin/dashboard';
-      } else {
-        // Handle validation errors
-        const errorMessage = Object.entries(data)
-          .map(([key, value]) => `${key}: ${Array.isArray(value) ? value.join(', ') : value}`)
+    } catch (err: any) {
+      // Handle validation errors from backend
+      if (err.data && typeof err.data === 'object') {
+        const errorMessages = Object.entries(err.data)
+          .map(([key, value]) => {
+            const fieldName = key.replace(/_/g, ' ').replace(/^\w/, c => c.toUpperCase());
+            const message = Array.isArray(value) ? value.join(', ') : value;
+            return `${fieldName}: ${message}`;
+          })
           .join('\n');
-        setError(errorMessage || 'Registration failed');
+        setError(errorMessages);
+      } else {
+        setError(err.message || 'Registration failed. Please try again.');
       }
-    } catch (err) {
-      setError('Network error. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -175,9 +184,12 @@ export default function RegisterPage() {
     try {
       const base64Url = credentialResponse.credential.split('.')[1];
       const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-      }).join(''));
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      );
       
       const decoded = JSON.parse(jsonPayload);
       setGoogleEmail(decoded.email);
@@ -192,80 +204,76 @@ export default function RegisterPage() {
   };
 
   // Google Registration Complete
-const handleGoogleFinalSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setError("");
-  setLoading(true);
+  const handleGoogleFinalSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
 
-  if (!wilaya || !commune || !zipCode || !street) {
-    setError("All location fields are required");
-    setLoading(false);
-    return;
-  }
-
-  if (!username || !displayName) {
-    setError("Username and school name are required");
-    setLoading(false);
-    return;
-  }
-
-  try {
-    const payload = {
-      google_access_token: googleToken,
-      username,
-      display_name: displayName,
-      wilaya,
-      commune,
-      zip_code: zipCode,
-      street,
-      phone_number: phoneNumber
-    };
-
-    const response = await fetch(`${API_URL}/google/register/complete/`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-
-
-    // Get raw text to see what we actually received
-    const rawText = await response.text();
-
-    // Try to parse as JSON
-    let data;
-    try {
-      data = JSON.parse(rawText);
-    } catch (parseError) {
-      console.error("Failed to parse JSON");
-      setError(`Server returned invalid response. Check console for details.`);
+    if (!wilaya || !commune || !zipCode || !street) {
+      setError("All location fields are required");
       setLoading(false);
       return;
     }
 
-    if (response.ok) {
-      // Store tokens (use both keys for consistency)
-      localStorage.setItem('access_token', data.tokens.access);
-      localStorage.setItem('authToken', data.tokens.access);
-      localStorage.setItem('refresh_token', data.tokens.refresh);
-      localStorage.setItem('refreshToken', data.tokens.refresh);
-      localStorage.setItem('school_name', data.school_name);
-      localStorage.setItem('user_role', 'admin');
-
-      alert(`Registration successful! Your school login ID is: ${data.school_name}\n\nPlease save this ID - you'll need it to login.`);
-      window.location.href = '/admin/dashboard';
-    } else {
-      const errorMessage = Object.entries(data)
-        .map(([key, value]) => `${key}: ${Array.isArray(value) ? value.join(', ') : value}`)
-        .join('\n');
-      setError(errorMessage || 'Registration failed');
+    if (!username || !displayName) {
+      setError("Username and school name are required");
+      setLoading(false);
+      return;
     }
-  } catch (err) {
-    console.error("Network error:", err);
-    setError('Network error. Please try again.');
-  } finally {
-    setLoading(false);
-  }
-};
+
+    try {
+      const googleRegisterData: GoogleRegisterData = {
+        google_access_token: googleToken,
+        username,
+        display_name: displayName,
+        wilaya,
+        commune,
+        zip_code: zipCode,
+        street,
+        phone_number: phoneNumber
+      };
+
+      const response = await authService.googleRegisterComplete(googleRegisterData);
+
+      // Store user metadata (tokens are in HTTP-only cookies)
+      localStorage.setItem('user_role', 'admin');
+      localStorage.setItem('school_name', response.school_name || '');
+      localStorage.setItem('user_id', response.user.id.toString());
+      localStorage.setItem('username', response.user.username);
+      localStorage.setItem('workspace_display_name', response.workspace.display_name);
+      
+      // Store full user data
+      localStorage.setItem('user_data', JSON.stringify({
+        user: response.user,
+        role: 'admin',
+        workspace: response.workspace
+      }));
+
+      alert(
+        `Registration successful! 🎉\n\n` +
+        `Your school login ID is: ${response.school_name}\n\n` +
+        `Please save this ID - you'll need it to login.`
+      );
+      
+      window.location.href = '/admin/dashboard';
+
+    } catch (err: any) {
+      if (err.data && typeof err.data === 'object') {
+        const errorMessages = Object.entries(err.data)
+          .map(([key, value]) => {
+            const fieldName = key.replace(/_/g, ' ').replace(/^\w/, c => c.toUpperCase());
+            const message = Array.isArray(value) ? value.join(', ') : value;
+            return `${fieldName}: ${message}`;
+          })
+          .join('\n');
+        setError(errorMessages);
+      } else {
+        setError(err.message || 'Registration failed. Please try again.');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
@@ -311,7 +319,7 @@ const handleGoogleFinalSubmit = async (e: React.FormEvent) => {
                   <input 
                     type="password" 
                     id="password" 
-                    placeholder="Password" 
+                    placeholder="Password (min 8 characters)" 
                     value={password}
                     onChange={(e) => setPassword(e.target.value)} 
                   />
@@ -357,7 +365,7 @@ const handleGoogleFinalSubmit = async (e: React.FormEvent) => {
               </form>
             ) : (
               <div style={{ textAlign: 'center', padding: '2rem' }}>
-                <p style={{ marginBottom: '1rem' }}>✓ Google authentication successful</p>
+                <p style={{ marginBottom: '1rem', fontSize: '1.2rem' }}>✓ Google authentication successful</p>
                 <p style={{ color: '#666' }}>Email: {googleEmail}</p>
                 <p style={{ marginTop: '2rem' }}>Click "Continue" to proceed →</p>
               </div>

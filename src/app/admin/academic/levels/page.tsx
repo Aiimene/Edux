@@ -5,7 +5,7 @@ import Image from 'next/image';
 import LevelCard from '@/components/academic/LevelCard/LevelCard';
 import AddLevelModal from '@/components/academic/AddLevelModal/AddLevelModal';
 import styles from './page.module.css';
-import { getLevels, createLevel, updateLevel, deleteLevel, addModuleToLevel, deleteModule } from '@/api/levels';
+import { getLevels, createLevel, updateLevel, deleteLevel, addModuleToLevel, deleteModule } from '../../../../lib/api/levels';
 
 type Module = {
   id: string;
