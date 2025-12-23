@@ -47,7 +47,7 @@ export const createApiInstance = (baseURL: string): AxiosInstance => {
     headers: {
       'Content-Type': 'application/json',
     },
-    withCredentials: false,
+    withCredentials: true,
   });
 
   // Add JWT token to every request
@@ -67,15 +67,45 @@ export const createApiInstance = (baseURL: string): AxiosInstance => {
   // Response interceptor for handling errors
   api.interceptors.response.use(
     (response) => response,
-    (error) => {
-      if (error.response?.status === 401) {
-        // Token expired or invalid
-        console.error('Authentication failed - redirecting to login');
-        // Optionally clear tokens and redirect
-        // localStorage.removeItem('authToken');
-        // localStorage.removeItem('access_token');
-        // window.location.href = '/login';
+    async (error) => {
+      const originalRequest = error.config;
+      const status = error.response?.status;
+
+      // Avoid infinite loops
+      if (status === 401 && !originalRequest._retry) {
+        originalRequest._retry = true;
+        try {
+          // Try to refresh access token.
+          // Prefer cookie-based refresh via withCredentials.
+          const refreshToken = localStorage.getItem('refreshToken') || localStorage.getItem('refresh_token');
+          const payload = refreshToken ? { refresh: refreshToken } : {};
+
+          const refreshResponse = await axios.post(
+            `${API_BASE_URLS.AUTH}/token/refresh/`,
+            payload,
+            {
+              headers: { 'Content-Type': 'application/json' },
+              withCredentials: true,
+            }
+          );
+
+          const newAccess = refreshResponse.data?.access || refreshResponse.data?.token || refreshResponse.data?.access_token;
+          if (newAccess) {
+            // Persist new access token for header-based auth, if applicable
+            localStorage.setItem('authToken', newAccess);
+            localStorage.setItem('access_token', newAccess);
+
+            // Update header and retry original request
+            originalRequest.headers = originalRequest.headers || {};
+            originalRequest.headers['Authorization'] = `Bearer ${newAccess}`;
+            return api(originalRequest);
+          }
+        } catch (refreshErr) {
+          console.error('Token refresh failed:', refreshErr);
+          // Don't auto-redirect - let the individual pages handle auth errors
+        }
       }
+
       return Promise.reject(error);
     }
   );
@@ -87,3 +117,4 @@ export const createApiInstance = (baseURL: string): AxiosInstance => {
 export const membersApi = createApiInstance(API_BASE_URLS.MEMBERS);
 export const dashboardApi = createApiInstance(API_BASE_URLS.DASHBOARD);
 export const authApi = createApiInstance(API_BASE_URLS.AUTH);
+export const academicApi = createApiInstance(API_BASE_URLS.ACADEMIC);

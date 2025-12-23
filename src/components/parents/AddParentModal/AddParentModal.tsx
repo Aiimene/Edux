@@ -17,6 +17,7 @@ export default function AddParentModal({ isOpen, onClose, initialData, mode = 'a
         email: initialData.email ?? '',
         password: initialData.password ?? '',
         phoneNumber: initialData.phoneNumber ?? (initialData as any).phone_number ?? '',
+        children: initialData.children ?? [],
       }
     : undefined;
 

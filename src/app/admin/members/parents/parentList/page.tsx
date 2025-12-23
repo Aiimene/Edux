@@ -17,6 +17,8 @@ type Parent = {
   email: string;
   phoneNumber?: string;
   childrenCount?: number;
+  childName?: string;
+  children?: string[];
 };
 
 export default function ParentListPage() {
@@ -32,18 +34,30 @@ export default function ParentListPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [parentOverrides, setParentOverrides] = useState<Record<string, Partial<Parent>>>({});
 
-  const [isMonthPopupOpen, setIsMonthPopupOpen] = useState(false);
   const [isSelectByPopupOpen, setIsSelectByPopupOpen] = useState(false);
-  const [selectedMonth, setSelectedMonth] = useState<string>('');
   const [selectedFilterFeature, setSelectedFilterFeature] = useState<string>('');
   const [filterValue, setFilterValue] = useState<string>('');
-  const monthPopupRef = useRef<HTMLDivElement>(null);
+  const [activeFilter, setActiveFilter] = useState<{ feature: string; value: string } | null>(null);
+  const [searchQuery, setSearchQuery] = useState<string>('');
   const selectByPopupRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    fetchParents();
+    try {
+      const raw = localStorage.getItem('parent_overrides');
+      if (raw) setParentOverrides(JSON.parse(raw));
+    } catch (_) {}
   }, []);
+
+  const persistOverrides = (ov: Record<string, Partial<Parent>>) => {
+    setParentOverrides(ov);
+    try { localStorage.setItem('parent_overrides', JSON.stringify(ov)); } catch (_) {}
+  };
+
+  useEffect(() => {
+    fetchParents();
+  }, [parentOverrides]);
 
   const fetchParents = async () => {
     try {
@@ -51,13 +65,33 @@ export default function ParentListPage() {
       setError(null);
       const response = await getParents();
       const apiData = Array.isArray(response) ? response : response?.results || [];
-      const normalized: Parent[] = apiData.map((p: any) => ({
-        id: p.id,
-        parentName: p.name ?? '',
-        email: p.user?.email ?? '',
-        phoneNumber: p.user?.phone_number ?? '',
-        childrenCount: p.children_count ?? 0,
-      }));
+      const normalized: Parent[] = apiData.map((p: any) => {
+        const childrenNames = Array.isArray(p.children)
+          ? p.children.map((c: any) => c?.name || c?.student_name || c).filter(Boolean).join(', ')
+          : p.children_names?.join?.(', ') || '';
+        const childrenArray = Array.isArray(p.children)
+          ? p.children.map((c: any) => c?.name || c?.student_name || c).filter(Boolean)
+          : p.children_names || [];
+        const base: Parent = {
+          id: p.id,
+          parentName: p.name ?? '',
+          email: p.user?.email ?? '',
+          phoneNumber: p.user?.phone_number ?? '',
+          childrenCount: p.children_count ?? 0,
+          childName: childrenNames || '',
+          children: childrenArray,
+        };
+        const ov = parentOverrides[String(base.id)];
+        if (!ov) return base;
+        return {
+          ...base,
+          parentName: ov.parentName !== undefined ? ov.parentName : base.parentName,
+          email: ov.email !== undefined ? ov.email : base.email,
+          phoneNumber: ov.phoneNumber !== undefined ? ov.phoneNumber : base.phoneNumber,
+          childName: ov.childName !== undefined ? ov.childName : base.childName,
+          children: ov.children !== undefined ? ov.children : base.children,
+        } as Parent;
+      });
       setParents(normalized);
     } catch (err) {
       console.error('Error fetching parents:', err);
@@ -75,10 +109,14 @@ export default function ParentListPage() {
     try {
       setSelectedParentId(parentId);
       const detail = await getParentById(parentId);
+      const childrenArray = Array.isArray(detail.children)
+        ? detail.children.map((c: any) => c?.name || c?.student_name || c).filter(Boolean)
+        : detail.children_names || [];
       const mapped = {
         studentName: detail.name ?? '',
         email: detail.user?.email ?? '',
         phoneNumber: detail.user?.phone_number ?? '',
+        children: childrenArray,
       };
       setSelectedParentData(mapped);
       if (open === 'edit') setIsEditModalOpen(true);
@@ -153,7 +191,27 @@ export default function ParentListPage() {
       console.log('Payload to send:', payload);
       const response = await createParent(payload);
       console.log('Parent created successfully:', response);
-      await fetchParents();
+      const newId = (response?.id || response?.data?.id || Date.now()).toString();
+      const override: Partial<Parent> = {
+        parentName: payload.name,
+        email: payload.email || '',
+        phoneNumber: payload.phone_number || '',
+        childName: (data.children || []).join(', ') || '',
+        children: data.children || [],
+      };
+      const nextOverrides = { ...parentOverrides, [newId]: { ...parentOverrides[newId], ...override } };
+      persistOverrides(nextOverrides);
+      
+      setParents((prev) => [...prev, {
+        id: newId,
+        parentName: data.studentName,
+        email: data.email || '',
+        phoneNumber: data.phoneNumber || '',
+        childrenCount: (data.children || []).length,
+        childName: (data.children || []).join(', ') || '',
+        children: data.children || [],
+      }]);
+      
       setIsAddModalOpen(false);
     } catch (err: any) {
       console.error('=== ADD PARENT ERROR ===');
@@ -210,14 +268,9 @@ export default function ParentListPage() {
     { key: 'parentName', label: 'Parent Name' },
     { key: 'email', label: 'Email' },
     { key: 'phoneNumber', label: 'Phone' },
-    { key: 'childrenCount', label: 'Children' },
+    { key: 'childName', label: 'Children' },
   ];
 
-
-  const months = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
-  ];
 
   const parentStats = [
     {
@@ -243,9 +296,6 @@ export default function ParentListPage() {
   // Close popups when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (monthPopupRef.current && !monthPopupRef.current.contains(event.target as Node)) {
-        setIsMonthPopupOpen(false);
-      }
       if (selectByPopupRef.current && !selectByPopupRef.current.contains(event.target as Node)) {
         setIsSelectByPopupOpen(false);
         setSelectedFilterFeature('');
@@ -253,19 +303,14 @@ export default function ParentListPage() {
       }
     };
 
-    if (isMonthPopupOpen || isSelectByPopupOpen) {
+    if (isSelectByPopupOpen) {
       document.addEventListener('mousedown', handleClickOutside);
     }
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isMonthPopupOpen, isSelectByPopupOpen]);
-
-  const handleMonthSelect = (month: string) => {
-    setSelectedMonth(month);
-    setIsMonthPopupOpen(false);
-  };
+  }, [isSelectByPopupOpen]);
 
   const handleFilterFeatureSelect = (feature: string) => {
     setSelectedFilterFeature(feature);
@@ -273,8 +318,14 @@ export default function ParentListPage() {
   };
 
   const handleFilterApply = () => {
-    // Apply filter logic here (placeholder)
+    const trimmed = filterValue.trim();
+    if (selectedFilterFeature && trimmed) {
+      setActiveFilter({ feature: selectedFilterFeature, value: trimmed.toLowerCase() });
+    } else {
+      setActiveFilter(null);
+    }
     setIsSelectByPopupOpen(false);
+    setSelectedFilterFeature('');
     setFilterValue('');
   };
 
@@ -283,6 +334,19 @@ export default function ParentListPage() {
     setSelectedFilterFeature('');
     setFilterValue('');
   };
+
+  const visibleParents = parents
+    .filter((p) => {
+      const q = (searchQuery || '').trim().toLowerCase();
+      if (!q) return true;
+      return (p.parentName || '').toLowerCase().includes(q);
+    })
+    .filter((p) => {
+      if (!activeFilter || !activeFilter.value.trim()) return true;
+      const raw = (p as any)[activeFilter.feature];
+      if (raw === undefined || raw === null) return false;
+      return raw.toString().toLowerCase().includes(activeFilter.value);
+    });
   return (
     <div className={styles.container}>
       
@@ -364,40 +428,17 @@ export default function ParentListPage() {
               type="text"
               placeholder="Enter parent name"
               className={styles.searchInput}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
 
           <div className={styles.filterButtons}>
-            <div className={styles.filterButtonWrapper} ref={monthPopupRef}>
-              <button
-                className={styles.filterButton}
-                onClick={() => {
-                  setIsMonthPopupOpen(!isMonthPopupOpen);
-                  setIsSelectByPopupOpen(false);
-                }}
-              >
-                <Image src="/icons/select-month.svg" alt="Select Month" width={20} height={20} />
-                <span>{selectedMonth || 'Select Month'}</span>
-              </button>
-              {isMonthPopupOpen && (
-                <div className={styles.popup}>
-                  <div className={styles.popupContent}>
-                    {months.map((m) => (
-                      <button key={m} className={styles.popupItem} onClick={() => handleMonthSelect(m)}>
-                        {m}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
             <div className={styles.filterButtonWrapper} ref={selectByPopupRef}>
               <button
                 className={styles.filterButton}
                 onClick={() => {
                   setIsSelectByPopupOpen(!isSelectByPopupOpen);
-                  setIsMonthPopupOpen(false);
                 }}
               >
                 <Image src="/icons/select-by.svg" alt="Select By" width={20} height={20} />
@@ -445,7 +486,7 @@ export default function ParentListPage() {
         {!loading && (
           <div className={styles.listContainer}>
             <MembersTable
-              data={parents}
+              data={visibleParents}
               columns={columns}
               onEdit={handleEditClick}
               onViewProfile={handleProfileClick}

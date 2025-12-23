@@ -84,6 +84,7 @@ export const authAPI = {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify(data),
       });
 
@@ -123,6 +124,7 @@ export const authAPI = {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify(data),
       });
 
@@ -179,11 +181,32 @@ export const authAPI = {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
+        credentials: 'include',
       });
 
       const result = await response.json();
 
       if (!response.ok) {
+        // Attempt refresh on unauthorized
+        if (response.status === 401) {
+          const refreshed = await refreshAccessToken();
+          if (refreshed) {
+            const retryToken = localStorage.getItem('access_token');
+            const retryRes = await fetch(`${API_BASE_URL}/auth/me/`, {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': retryToken ? `Bearer ${retryToken}` : undefined as any,
+              },
+              credentials: 'include',
+            });
+            const retryBody = await retryRes.json();
+            if (retryRes.ok) {
+              return { data: retryBody, status: retryRes.status };
+            }
+            return { error: retryBody.error || retryBody.detail || 'Failed to fetch profile', status: retryRes.status };
+          }
+        }
         return {
           error: result.error || result.detail || 'Failed to fetch profile',
           status: response.status,
@@ -212,4 +235,29 @@ export const authAPI = {
     localStorage.removeItem('role');
     localStorage.removeItem('workspace');
   },
+};
+
+// Try to refresh the access token using cookie or stored refresh token
+const refreshAccessToken = async (): Promise<boolean> => {
+  try {
+    const refresh = localStorage.getItem('refresh_token') || localStorage.getItem('refreshToken');
+    const body = refresh ? { refresh } : {};
+    const res = await fetch(`${API_BASE_URL}/auth/token/refresh/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify(body),
+    });
+    const data = await res.json();
+    if (!res.ok) return false;
+    const newAccess = data?.access || data?.access_token || data?.token;
+    if (newAccess) {
+      localStorage.setItem('access_token', newAccess);
+      localStorage.setItem('authToken', newAccess);
+      return true;
+    }
+    return false;
+  } catch (_err) {
+    return false;
+  }
 };

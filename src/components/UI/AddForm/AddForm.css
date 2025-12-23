@@ -129,6 +129,12 @@
   z-index: 3; /* ensure icon sits above the input background */
 }
 
+/* Smaller, grey tone for payment icons */
+.paymentIcon {
+  opacity: 0.6;
+  filter: grayscale(100%);
+}
+
 /* keep icon vertically centered regardless of error state */
 .inputWrapper .inputIcon {
   transform: translateY(-50%);

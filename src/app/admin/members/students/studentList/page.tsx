@@ -38,11 +38,10 @@ export default function StudentListPage() {
   const [selectedStudentId, setSelectedStudentId] = useState<string>('');
   const [selectedStudentRow, setSelectedStudentRow] = useState<any>(null);
   const [originalStudentData, setOriginalStudentData] = useState<any>(null);
-  const [isMonthPopupOpen, setIsMonthPopupOpen] = useState(false);
   const [isSelectByPopupOpen, setIsSelectByPopupOpen] = useState(false);
-  const [selectedMonth, setSelectedMonth] = useState<string>('');
   const [selectedFilterFeature, setSelectedFilterFeature] = useState<string>('');
   const [filterValue, setFilterValue] = useState<string>('');
+  const [activeFilter, setActiveFilter] = useState<{ feature: string; value: string } | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [studentToDelete, setStudentToDelete] = useState<string>('');
   const [students, setStudents] = useState<Student[]>([]);
@@ -51,7 +50,7 @@ export default function StudentListPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
-  const monthPopupRef = useRef<HTMLDivElement>(null);
+  const [searchQuery, setSearchQuery] = useState<string>('');
   const selectByPopupRef = useRef<HTMLDivElement>(null);
 
   // Load overrides BEFORE fetching to ensure fees merge correctly
@@ -96,19 +95,43 @@ export default function StudentListPage() {
             // Try to fetch full student details
             const detailResponse = await getStudentById(s.id.toString());
             const detail = detailResponse || s;
-            
+
+            const levelName = detail.level?.name
+              || detail.level_name
+              || detail.level
+              || s.level_name
+              || s.level
+              || '';
+
+            const moduleList = Array.isArray(detail.modules)
+              ? detail.modules.map((m: any) => m?.name || m).filter(Boolean)
+              : detail.module
+                ? [detail.module]
+                : Array.isArray(s.modules)
+                  ? s.modules.map((m: any) => m?.name || m).filter(Boolean)
+                  : [];
+
+            const timetableEntries = Array.isArray(detail.timetable) ? detail.timetable : [];
+            const sessionListFromTimetable = timetableEntries
+              .map((t: any) => t?.session_name || t?.module || t?.name)
+              .filter(Boolean);
+
+            const sessionsList = Array.isArray(detail.sessions)
+              ? detail.sessions.map((ses: any) => ses?.name || ses?.session_name || ses).filter(Boolean)
+              : sessionListFromTimetable.length
+                ? sessionListFromTimetable
+                : Array.isArray(s.sessions)
+                  ? s.sessions.map((ses: any) => ses?.name || ses).filter(Boolean)
+                  : [];
+
             return {
               id: detail.id?.toString() || s.id?.toString() || '',
               studentName: detail.name || detail.studentName || s.name || s.studentName || '',
-              level: detail.timetable ? 'Active' : (detail.level || detail.level_name || s.level || s.level_name || 'N/A'),
-              module: detail.timetable && Array.isArray(detail.timetable)
-                ? detail.timetable.map((t: any) => t?.session_name || t?.module).filter(Boolean).join(', ')
-                : 'N/A',
-              sessions: detail.timetable && Array.isArray(detail.timetable)
-                ? detail.timetable.map((t: any) => t?.session_name || t?.module).filter(Boolean).join(', ')
-                : (Array.isArray(s.sessions) ? (s.sessions as any[]).join(', ') : (s.sessions_count ? `Sessions: ${s.sessions_count}` : 'N/A')),
-              email: detail.user?.email || detail.email || s.email || 'N/A',
-              parentName: detail.parent_name || detail.parent?.name || s.parent_name || s.parent?.name || 'N/A',
+              level: levelName || '',
+              module: moduleList.length ? moduleList.join(', ') : '',
+              sessions: sessionsList.length ? sessionsList.join(', ') : (s.sessions_count ? `Count: ${s.sessions_count}` : ''),
+              email: detail.user?.email || detail.email || s.email || '',
+              parentName: detail.parent_name || detail.parent?.name || s.parent_name || s.parent?.name || '',
               feePayment: resolveFeePayment(detail ?? s),
             };
           } catch (detailErr) {
@@ -116,18 +139,18 @@ export default function StudentListPage() {
             return {
               id: s.id?.toString() || '',
               studentName: s.name || s.studentName || '',
-              level: 'N/A',
-              module: 'N/A',
-              sessions: Array.isArray(s.sessions) ? (s.sessions as any[]).join(', ') : (s.sessions_count ? `Sessions: ${s.sessions_count}` : 'N/A'),
-              email: s.email || 'N/A',
-              parentName: s.parent_name || s.parent?.name || 'N/A',
+              level: '',
+              module: '',
+              sessions: Array.isArray(s.sessions) ? (s.sessions as any[]).join(', ') : (s.sessions_count ? `Count: ${s.sessions_count}` : ''),
+              email: s.email || '',
+              parentName: s.parent_name || s.parent?.name || '',
               feePayment: resolveFeePayment(s),
             };
           }
         })
       );
       
-      // Apply local display overrides for fields the backend doesn't provide
+      // Apply local display overrides - overrides always take precedence
       const merged = transformedStudents.map((s) => {
         const ov = studentOverrides[s.id];
         if (!ov) return s;
@@ -140,11 +163,12 @@ export default function StudentListPage() {
         }
         return {
           ...s,
-          level: ov.level ?? s.level,
-          module: ov.module ?? s.module,
-          sessions: sessionsValue,
-          parentName: ov.parentName ?? s.parentName,
+          level: ov.level !== undefined ? ov.level : s.level,
+          module: ov.module !== undefined ? ov.module : s.module,
+          sessions: ov.sessions !== undefined ? sessionsValue : s.sessions,
+          parentName: ov.parentName !== undefined ? ov.parentName : s.parentName,
           feePayment: ov.feePayment !== undefined ? ov.feePayment : s.feePayment,
+          email: ov.email !== undefined ? ov.email : s.email,
         } as Student;
       });
       setStudents(merged);
@@ -168,9 +192,6 @@ export default function StudentListPage() {
   // Close popups when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (monthPopupRef.current && !monthPopupRef.current.contains(event.target as Node)) {
-        setIsMonthPopupOpen(false);
-      }
       if (selectByPopupRef.current && !selectByPopupRef.current.contains(event.target as Node)) {
         setIsSelectByPopupOpen(false);
         setSelectedFilterFeature('');
@@ -178,14 +199,14 @@ export default function StudentListPage() {
       }
     };
 
-    if (isMonthPopupOpen || isSelectByPopupOpen) {
+    if (isSelectByPopupOpen) {
       document.addEventListener('mousedown', handleClickOutside);
     }
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isMonthPopupOpen, isSelectByPopupOpen]);
+  }, [isSelectByPopupOpen]);
 
   const handleAddClick = () => {
     setIsAddModalOpen(true);
@@ -267,7 +288,19 @@ export default function StudentListPage() {
     },
   ];
 
-  const visibleStudents = students.filter((s) => !hiddenStudentIds.includes(s.id));
+  const visibleStudents = students
+    .filter((s) => !hiddenStudentIds.includes(s.id))
+    .filter((s) => {
+      const q = (searchQuery || '').trim().toLowerCase();
+      if (!q) return true;
+      return (s.studentName || '').toLowerCase().includes(q);
+    })
+    .filter((s) => {
+      if (!activeFilter || !activeFilter.value.trim()) return true;
+      const raw = (s as any)[activeFilter.feature];
+      if (raw === undefined || raw === null) return false;
+      return raw.toString().toLowerCase().includes(activeFilter.value);
+    });
 
   const studentStats = [
     {
@@ -290,24 +323,20 @@ export default function StudentListPage() {
     },
   ];
 
-  const months = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
-  ];
-
-  const handleMonthSelect = (month: string) => {
-    setSelectedMonth(month);
-    setIsMonthPopupOpen(false);
-  };
-
   const handleFilterFeatureSelect = (feature: string) => {
     setSelectedFilterFeature(feature);
     setFilterValue('');
   };
 
   const handleFilterApply = () => {
-    // Apply filter logic here
+    const trimmed = filterValue.trim();
+    if (selectedFilterFeature && trimmed) {
+      setActiveFilter({ feature: selectedFilterFeature, value: trimmed.toLowerCase() });
+    } else {
+      setActiveFilter(null);
+    }
     setIsSelectByPopupOpen(false);
+    setSelectedFilterFeature('');
     setFilterValue('');
   };
 
@@ -331,44 +360,97 @@ export default function StudentListPage() {
 
       // Add optional fields only if they have values
       if (data.email) studentPayload.email = data.email;
+      // Add optional fields only if they have values
+      if (data.email) studentPayload.email = data.email;
       if (data.phoneNumber) studentPayload.phone_number = data.phoneNumber;
       if (data.feePayment !== undefined && data.feePayment !== '') {
         studentPayload.fee_payment = Number(data.feePayment);
       }
+      
+      // Add academic fields - try to send to backend
+      if (data.level) studentPayload.level = data.level;
+      if (data.parentName) studentPayload.parent_name = data.parentName;
+      
+      // Send modules and sessions as arrays
+      if (Array.isArray(data.modules) && data.modules.length > 0) {
+        studentPayload.modules = data.modules;
+      }
+      if (Array.isArray(data.sessions) && data.sessions.length > 0) {
+        studentPayload.sessions = data.sessions;
+      }
+      if (data.dateOfBirth) studentPayload.date_of_birth = data.dateOfBirth;
+      if (data.gender) studentPayload.gender = data.gender;
 
       console.log('Payload to send:', studentPayload);
       const response = await createStudent(studentPayload);
       console.log('Student created successfully:', response);
-      const newId = (response?.id || response?.data?.studentId || Date.now()).toString();
-      const overrideForNew: Partial<Student> = {
-        level: data.level || 'Active',
-        module: Array.isArray(data.modules) && data.modules.length ? data.modules.join(', ') : 'N/A',
-        sessions: Array.isArray(data.sessions) && data.sessions.length
-          ? data.sessions.map((s) => `Session ${s}`).join(', ')
-          : 'N/A',
-        parentName: data.parentName || 'N/A',
-        feePayment: data.feePayment ? parseFloat(data.feePayment) : 0,
-      };
+      console.log('Full response object:', JSON.stringify(response, null, 2));
+      console.log('Response.id:', response?.id);
+      console.log('Response.data:', response?.data);
+      console.log('Response level:', response?.level);
+      console.log('Response modules:', response?.modules);
+      console.log('Response sessions:', response?.sessions);
+      console.log('Response parent_name:', response?.parent_name);
+      
+      const newId = (response?.id || response?.data?.id || response?.data?.studentId || Date.now()).toString();
+      console.log('Using ID for fetch:', newId);
+      
+      // Fetch full student details to get all fields from backend
+      let fullStudentData = response;
+      try {
+        console.log('Fetching full student details for ID:', newId);
+        fullStudentData = await getStudentById(newId);
+        console.log('Full student data from backend:', fullStudentData);
+      } catch (fetchErr) {
+        console.warn('Could not fetch full student details, using creation response and form data');
+        // If fetch fails, just use the response we have
+        fullStudentData = response;
+      }
+      
+      // Only store what user actually entered - no N/A defaults
+      const overrideForNew: Partial<Student> = {};
+      if (data.level) overrideForNew.level = data.level;
+      if (Array.isArray(data.modules) && data.modules.length) {
+        overrideForNew.module = data.modules.join(', ');
+      }
+      if (Array.isArray(data.sessions) && data.sessions.length) {
+        overrideForNew.sessions = data.sessions.join(', ');
+      }
+      if (data.parentName) overrideForNew.parentName = data.parentName;
+      if (data.feePayment) overrideForNew.feePayment = parseFloat(data.feePayment);
+      if (data.email) overrideForNew.email = data.email;
+      
       const nextOverrides = { ...studentOverrides, [newId]: { ...studentOverrides[newId], ...overrideForNew } };
       persistOverrides(nextOverrides);
 
-      // Optimistically add the student to the table to avoid requiring a refresh (using overrides)
+      // Extract data - prefer backend, fallback to form data, then overrides
+      const backendLevel = fullStudentData?.level?.name || fullStudentData?.level_name || fullStudentData?.level || data.level || '';
+      const backendModules = Array.isArray(fullStudentData?.modules) 
+        ? fullStudentData.modules.map((m: any) => m?.name || m).filter(Boolean).join(', ')
+        : Array.isArray(data.modules) && data.modules.length 
+          ? data.modules.join(', ')
+          : '';
+      const backendSessions = Array.isArray(fullStudentData?.sessions)
+        ? fullStudentData.sessions.map((s: any) => s?.name || s?.session_name || s).filter(Boolean).join(', ')
+        : Array.isArray(data.sessions) && data.sessions.length
+          ? data.sessions.join(', ')
+          : '';
+      const backendParent = fullStudentData?.parent_name || fullStudentData?.parent?.name || data.parentName || '';
+
+      // Optimistically add the student to the table
       const optimisticStudent: Student = {
         id: newId,
-        studentName: response?.name || response?.data?.studentName || data.studentName,
-        level: overrideForNew.level as string,
-        module: overrideForNew.module as string,
-        sessions: overrideForNew.sessions as string,
-        email: response?.email || response?.data?.email || data.email || 'N/A',
-        parentName: overrideForNew.parentName as string,
-        feePayment: overrideForNew.feePayment ?? (resolveFeePayment(response) || parseFloat(data.feePayment || '0')),
+        studentName: fullStudentData?.name || fullStudentData?.data?.studentName || data.studentName,
+        level: backendLevel,
+        module: backendModules,
+        sessions: backendSessions,
+        email: fullStudentData?.email || fullStudentData?.user?.email || fullStudentData?.data?.email || data.email || '',
+        parentName: backendParent,
+        feePayment: data.feePayment ? parseFloat(data.feePayment) : 0,
       };
-      setStudents((prev) => [...prev, optimisticStudent]);
       
-      // Delay refresh to avoid wiping optimistic UI when backend lacks fees
-      setTimeout(() => {
-        fetchStudents();
-      }, 500);
+      console.log('Optimistic student to add to table:', optimisticStudent);
+      setStudents((prev) => [...prev, optimisticStudent]);
       
       setIsAddModalOpen(false);
     } catch (err: any) {
@@ -580,47 +662,16 @@ export default function StudentListPage() {
               type="text"
               placeholder="Enter student name"
               className={styles.searchInput}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
           <div className={styles.filterButtons}>
-            <div className={styles.filterButtonWrapper} ref={monthPopupRef}>
-              <button 
-                className={styles.filterButton}
-                onClick={() => {
-                  setIsMonthPopupOpen(!isMonthPopupOpen);
-                  setIsSelectByPopupOpen(false);
-                }}
-              >
-                <Image
-                  src="/icons/select-month.svg"
-                  alt="Select Month"
-                  width={20}
-                  height={20}
-                />
-                <span>{selectedMonth || 'Select Month'}</span>
-              </button>
-              {isMonthPopupOpen && (
-                <div className={styles.popup}>
-                  <div className={styles.popupContent}>
-                    {months.map((month) => (
-                      <button
-                        key={month}
-                        className={styles.popupItem}
-                        onClick={() => handleMonthSelect(month)}
-                      >
-                        {month}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
             <div className={styles.filterButtonWrapper} ref={selectByPopupRef}>
               <button 
                 className={styles.filterButton}
                 onClick={() => {
                   setIsSelectByPopupOpen(!isSelectByPopupOpen);
-                  setIsMonthPopupOpen(false);
                 }}
               >
                 <Image

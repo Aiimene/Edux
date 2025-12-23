@@ -29,24 +29,37 @@ export default function TeacherListPage() {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [selectedTeacherId, setSelectedTeacherId] = useState<string>('');
   const [selectedTeacherRow, setSelectedTeacherRow] = useState<any>(null);
-  const [isMonthPopupOpen, setIsMonthPopupOpen] = useState(false);
   const [isSelectByPopupOpen, setIsSelectByPopupOpen] = useState(false);
-  const [selectedMonth, setSelectedMonth] = useState<string>('');
   const [selectedFilterFeature, setSelectedFilterFeature] = useState<string>('');
   const [filterValue, setFilterValue] = useState<string>('');
+  const [activeFilter, setActiveFilter] = useState<{ feature: string; value: string } | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [teacherToDelete, setTeacherToDelete] = useState<string>('');
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
-  const monthPopupRef = useRef<HTMLDivElement>(null);
+  const [teacherOverrides, setTeacherOverrides] = useState<Record<string, Partial<Teacher>>>({});
+  const [searchQuery, setSearchQuery] = useState<string>('');
   const selectByPopupRef = useRef<HTMLDivElement>(null);
+
+  // Load overrides before fetching
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('teacher_overrides');
+      if (raw) setTeacherOverrides(JSON.parse(raw));
+    } catch (_) {}
+  }, []);
+
+  const persistOverrides = (ov: Record<string, Partial<Teacher>>) => {
+    setTeacherOverrides(ov);
+    try { localStorage.setItem('teacher_overrides', JSON.stringify(ov)); } catch (_) {}
+  };
 
   // Fetch teachers from API
   useEffect(() => {
     fetchTeachers();
-  }, []);
+  }, [teacherOverrides]);
 
   const fetchTeachers = async () => {
     try {
@@ -62,18 +75,39 @@ export default function TeacherListPage() {
       }
 
       // Transform API response to match Teacher type
-      const transformedTeachers: Teacher[] = apiData.map((t: any) => ({
-        id: t.id?.toString() || '',
-        teacherName: t.name || t.teacherName || t.full_name || '',
-        level: t.level || t.level_name || t.level?.name || '',
-        modules: Array.isArray(t.modules)
-          ? t.modules.map((m: any) => m?.name || m).filter(Boolean).join(', ')
-          : t.modules_titles?.join(', ') || t.modules || '',
-        sessions: t.sessions || t.sessions_count || t.total_sessions || 0,
-        email: t.email || t.user?.email || '',
-        paymentMethod: t.payment_method || t.paymentMethod || '',
-        paymentStatus: t.payment_status || t.paymentStatus || '',
-      }));
+      const transformedTeachers: Teacher[] = apiData.map((t: any) => {
+        const levelName = t.level?.name || t.level_name || t.level || '';
+        const modulesList = Array.isArray(t.modules)
+          ? t.modules.map((m: any) => m?.name || m).filter(Boolean)
+          : t.modules_titles?.map((m: any) => m?.name || m).filter(Boolean)
+            || (Array.isArray(t.courses) ? t.courses.map((c: any) => c?.name || c).filter(Boolean) : []);
+
+        const id = t.id?.toString() || '';
+        const paymentMethod = t.payment_method || t.paymentMethod || t.payment?.method || '';
+        const paymentStatus = t.payment_status || t.paymentStatus || t.payment?.status || '';
+
+        const base: Teacher = {
+          id,
+          teacherName: t.name || t.teacherName || t.full_name || '',
+          level: levelName,
+          modules: modulesList.length ? modulesList.join(', ') : '',
+          sessions: t.sessions_count ?? 0,
+          email: t.email || t.user?.email || '',
+          paymentMethod,
+          paymentStatus,
+        };
+
+        const ov = teacherOverrides[id];
+        if (!ov) return base;
+        return {
+          ...base,
+          level: ov.level !== undefined ? ov.level : base.level,
+          modules: ov.modules !== undefined ? ov.modules : base.modules,
+          email: ov.email !== undefined ? ov.email : base.email,
+          paymentMethod: ov.paymentMethod !== undefined ? ov.paymentMethod : base.paymentMethod,
+          paymentStatus: ov.paymentStatus !== undefined ? ov.paymentStatus : base.paymentStatus,
+        } as Teacher;
+      });
       
       setTeachers(transformedTeachers);
     } catch (err) {
@@ -87,9 +121,6 @@ export default function TeacherListPage() {
   // Close popups when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (monthPopupRef.current && !monthPopupRef.current.contains(event.target as Node)) {
-        setIsMonthPopupOpen(false);
-      }
       if (selectByPopupRef.current && !selectByPopupRef.current.contains(event.target as Node)) {
         setIsSelectByPopupOpen(false);
         setSelectedFilterFeature('');
@@ -97,14 +128,14 @@ export default function TeacherListPage() {
       }
     };
 
-    if (isMonthPopupOpen || isSelectByPopupOpen) {
+    if (isSelectByPopupOpen) {
       document.addEventListener('mousedown', handleClickOutside);
     }
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isMonthPopupOpen, isSelectByPopupOpen]);
+  }, [isSelectByPopupOpen]);
 
   const handleAddClick = () => {
     setIsAddModalOpen(true);
@@ -175,10 +206,37 @@ export default function TeacherListPage() {
         password: data.password,
         email: data.email || undefined,
         phone_number: data.phoneNumber || undefined,
+        // Optional associations
+        levels: Array.isArray(data.levels) ? data.levels : (data.level ? [data.level] : []),
+        modules: Array.isArray(data.modules) ? data.modules : [],
+        payment_method: data.paymentMethod || undefined,
+        payment_status: data.paymentStatus || undefined,
       };
 
-      await createTeacher(teacherPayload);
-      await fetchTeachers();
+      const res = await createTeacher(teacherPayload);
+      const newId = (res?.id || res?.data?.id || Date.now()).toString();
+      const override: Partial<Teacher> = {
+        level: teacherPayload.levels?.[0] || '',
+        modules: teacherPayload.modules?.join(', ') || '',
+        paymentMethod: teacherPayload.payment_method || '',
+        paymentStatus: teacherPayload.payment_status || '',
+        email: teacherPayload.email || '',
+      };
+      const nextOverrides = { ...teacherOverrides, [newId]: { ...teacherOverrides[newId], ...override } };
+      persistOverrides(nextOverrides);
+
+      // Optimistic row
+      setTeachers((prev) => [...prev, {
+        id: newId,
+        teacherName: teacherPayload.name,
+        level: (Array.isArray(data.levels) && data.levels.length) ? data.levels.join(', ') : (data.level || ''),
+        modules: (Array.isArray(data.modules) && data.modules.length) ? data.modules.join(', ') : '',
+        sessions: 0,
+        email: teacherPayload.email || '',
+        paymentMethod: data.paymentMethod || '',
+        paymentStatus: data.paymentStatus || '',
+      }]);
+
       setIsAddModalOpen(false);
     } catch (err: any) {
       console.error('Error creating teacher:', err);
@@ -212,7 +270,6 @@ export default function TeacherListPage() {
     { key: 'teacherName', label: 'Teacher Name' },
     { key: 'level', label: 'Level' },
     { key: 'modules', label: 'Modules' },
-    { key: 'sessions', label: 'Sessions' },
     { key: 'email', label: 'Email' },
     { key: 'paymentMethod', label: 'Payment Method' },
     { key: 'paymentStatus', label: 'Payment Status' },
@@ -239,24 +296,20 @@ export default function TeacherListPage() {
     },
   ];
 
-  const months = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
-  ];
-
-  const handleMonthSelect = (month: string) => {
-    setSelectedMonth(month);
-    setIsMonthPopupOpen(false);
-  };
-
   const handleFilterFeatureSelect = (feature: string) => {
     setSelectedFilterFeature(feature);
     setFilterValue('');
   };
 
   const handleFilterApply = () => {
-    // Apply filter logic here (placeholder)
+    const trimmed = filterValue.trim();
+    if (selectedFilterFeature && trimmed) {
+      setActiveFilter({ feature: selectedFilterFeature, value: trimmed.toLowerCase() });
+    } else {
+      setActiveFilter(null);
+    }
     setIsSelectByPopupOpen(false);
+    setSelectedFilterFeature('');
     setFilterValue('');
   };
 
@@ -265,6 +318,19 @@ export default function TeacherListPage() {
     setSelectedFilterFeature('');
     setFilterValue('');
   };
+
+  const visibleTeachers = teachers
+    .filter((t) => {
+      const q = (searchQuery || '').trim().toLowerCase();
+      if (!q) return true;
+      return (t.teacherName || '').toLowerCase().includes(q);
+    })
+    .filter((t) => {
+      if (!activeFilter || !activeFilter.value.trim()) return true;
+      const raw = (t as any)[activeFilter.feature];
+      if (raw === undefined || raw === null) return false;
+      return raw.toString().toLowerCase().includes(activeFilter.value);
+    });
 
   return (
     <div className={styles.container}>
@@ -342,40 +408,21 @@ export default function TeacherListPage() {
               height={20}
               className={styles.searchIcon}
             />
-            <input type="text" placeholder="Enter teacher name" className={styles.searchInput} />
+            <input
+              type="text"
+              placeholder="Enter teacher name"
+              className={styles.searchInput}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
           </div>
 
           <div className={styles.filterButtons}>
-            <div className={styles.filterButtonWrapper} ref={monthPopupRef}>
-              <button
-                className={styles.filterButton}
-                onClick={() => {
-                  setIsMonthPopupOpen(!isMonthPopupOpen);
-                  setIsSelectByPopupOpen(false);
-                }}
-              >
-                <Image src="/icons/select-month.svg" alt="Select Month" width={20} height={20} />
-                <span>{selectedMonth || 'Select Month'}</span>
-              </button>
-              {isMonthPopupOpen && (
-                <div className={styles.popup}>
-                  <div className={styles.popupContent}>
-                    {months.map((m) => (
-                      <button key={m} className={styles.popupItem} onClick={() => handleMonthSelect(m)}>
-                        {m}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
             <div className={styles.filterButtonWrapper} ref={selectByPopupRef}>
               <button
                 className={styles.filterButton}
                 onClick={() => {
                   setIsSelectByPopupOpen(!isSelectByPopupOpen);
-                  setIsMonthPopupOpen(false);
                 }}
               >
                 <Image src="/icons/select-by.svg" alt="Select By" width={20} height={20} />
@@ -420,7 +467,7 @@ export default function TeacherListPage() {
 
         <div className={styles.listContainer}>
           <MembersTable
-            data={teachers}
+            data={visibleTeachers}
             columns={columns}
             onEdit={(id: string, row?: any) => handleEditClick(id, row)}
             onViewProfile={(id: string, row?: any) => handleProfileClick(id, row)}

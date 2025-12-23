@@ -8,6 +8,7 @@ const authApi = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true,
 });
 
 // Add auth token to requests if available

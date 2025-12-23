@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styles from './TopBar.module.css';
 import Image from 'next/image';
 import enterpriseData from '../../../data/enterprise.json';
@@ -14,6 +14,20 @@ type TopBarProps = {
 };
 
 export default function TopBar({ title, icon, iconWidth = 24, iconHeight = 24, onMenuClick }: TopBarProps) {
+  const [schoolName, setSchoolName] = useState<string>(enterpriseData.name || '');
+  const [role, setRole] = useState<string>(enterpriseData.role || '');
+
+  useEffect(() => {
+    const storedSchool = typeof window !== 'undefined' ? localStorage.getItem('school_name') : '';
+    if (storedSchool && storedSchool.trim()) {
+      setSchoolName(storedSchool);
+    }
+    const storedRole = typeof window !== 'undefined' ? localStorage.getItem('user_role') : '';
+    if (storedRole && storedRole.trim()) {
+      setRole(storedRole);
+    }
+  }, []);
+
   return (
     <div className={styles.topWrapper}>
       <div className={styles.leftSection}>
@@ -41,8 +55,8 @@ export default function TopBar({ title, icon, iconWidth = 24, iconHeight = 24, o
         <div className={styles.profileBox}>
           <Image src="/icons/profile.svg" alt="Profile" width={35} height={35} className={styles.profileImg} />
           <div className={styles.profileText}>
-            <span className={styles.profileName}> {enterpriseData.name}</span>
-            <span className={styles.profileRole}>{enterpriseData.role}</span>
+            <span className={styles.profileName}> {schoolName || 'Your School'}</span>
+            <span className={styles.profileRole}>{role || enterpriseData.role}</span>
           </div>
         </div>
       </div>

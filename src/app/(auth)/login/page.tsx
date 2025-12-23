@@ -59,6 +59,8 @@ export default function LoginPage() {
         localStorage.setItem('refreshToken', data.tokens.refresh);
         localStorage.setItem('user_role', data.role);
         localStorage.setItem('school_name', data.workspace.name);
+        localStorage.setItem('username', data.user.username);
+        localStorage.setItem('display_name', data.workspace.display_name || data.user.username);
         
         // Redirect to admin dashboard
         window.location.href = '/admin/dashboard';

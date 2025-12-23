@@ -19,6 +19,7 @@ export default function EditParentModal({ isOpen, onClose, initialData, onSave, 
         email: initialData.email ?? '',
         password: initialData.password ?? '',
         phoneNumber: initialData.phoneNumber ?? (initialData as any).phone_number ?? '',
+        children: initialData.children ?? [],
       }
     : undefined;
 

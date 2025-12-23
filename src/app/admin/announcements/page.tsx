@@ -1,141 +1,350 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import styles from "./page.module.css";
 import AnnouncementsTop from "@/components/academic/AnnouncementsTop/AnnouncementsTop";
+import { getAnnouncements, createAnnouncement, deleteAnnouncement } from "@/api/announcements";
+import { getProfile } from "@/api/auth";
+import ConfirmModal from "@/components/UI/ConfirmModal/ConfirmModal";
 
 type Announcement = {
   id: string;
   sender: string;
-  role: "Teacher" | "Admin";
+  role: string;
   title: string;
   message: string;
   date: string;
 };
 
-const announcements: Announcement[] = [
-  {
-    id: "1",
-    sender: "Mohamed",
-    role: "Teacher",
-    title: "Tomorrow's Mathematics Quiz",
-    message: "A short quiz will be held tomorrow during the first period. Please review Chapter 4",
-    date: "12/12/2024",
-  },
-  {
-    id: "2",
-    sender: "Mohamed",
-    role: "Admin",
-    title: "School is closed",
-    message: "Please be informed that the school will be closed tomorrow from 10AM to 5PM",
-    date: "12/12/2024",
-  },
-  {
-    id: "3",
-    sender: "Mohamed",
-    role: "Teacher",
-    title: "Tomorrow's Mathematics Quiz",
-    message: "A short quiz will be held tomorrow during the first period. Please review Chapter 4",
-    date: "12/12/2024",
-  },
-  {
-    id: "4",
-    sender: "Sarah Johnson",
-    role: "Teacher",
-    title: "Science Fair Next Week",
-    message: "Don't forget to prepare your science projects. The fair will be held next Friday in the main hall.",
-    date: "12/11/2024",
-  },
-  {
-    id: "5",
-    sender: "Admin Office",
-    role: "Admin",
-    title: "Parent-Teacher Meeting",
-    message: "The monthly parent-teacher meeting is scheduled for December 20th at 3:00 PM. All parents are encouraged to attend.",
-    date: "12/10/2024",
-  },
-];
+const normalizeAnnouncement = (a: any): Announcement => {
+  const created = a?.created_at || a?.date || a?.updated_at || '';
+  return {
+    id: (a?.id ?? Math.random().toString(36).slice(2)) + '',
+    sender: a?.name || a?.sender || a?.created_by?.name || a?.author || 'Unknown',
+    role: a?.role || a?.created_by?.role || 'Admin',
+    title: a?.title || a?.subject || '',
+    message: a?.message || a?.body || a?.content || '',
+    date: created ? new Date(created).toLocaleDateString() : '',
+  };
+};
 
 export default function AnnouncementsPage() {
-  const [visibleCount, setVisibleCount] = useState(3);
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [showForm, setShowForm] = useState<boolean>(false);
+  const [title, setTitle] = useState<string>('');
+  const [message, setMessage] = useState<string>('');
+  const [role, setRole] = useState<string>('Admin');
+  const [sending, setSending] = useState<boolean>(false);
+  const [announcementSenders, setAnnouncementSenders] = useState<Record<string, string>>({});
+  const [adminUsername, setAdminUsername] = useState<string>('');
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
+  const [announcementToDelete, setAnnouncementToDelete] = useState<string>('');
 
-  const handleSeeAll = () => {
-    setVisibleCount(announcements.length);
+  const visibleAnnouncements = useMemo(() => announcements, [announcements]);
+
+  useEffect(() => {
+    // Fetch admin profile to get username
+    const fetchAdminProfile = async () => {
+      try {
+        const profile = await getProfile();
+        const username = profile?.user?.username || profile?.username || localStorage.getItem('username') || localStorage.getItem('display_name') || 'Admin';
+        setAdminUsername(username);
+        localStorage.setItem('username', username);
+      } catch (err) {
+        // Fallback to localStorage if API fails
+        const username = localStorage.getItem('username') || localStorage.getItem('display_name') || 'Admin';
+        setAdminUsername(username);
+      }
+    };
+    fetchAdminProfile();
+
+    // Load stored sender names FIRST
+    let loadedSenders: Record<string, string> = {};
+    try {
+      const stored = localStorage.getItem('announcement_senders');
+      if (stored) {
+        loadedSenders = JSON.parse(stored);
+        setAnnouncementSenders(loadedSenders);
+      }
+    } catch (_) {}
+    
+    // THEN fetch announcements with loaded senders
+    const loadAnnouncements = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const res = await getAnnouncements();
+        const data = Array.isArray(res) ? res : res?.results || [];
+        console.log('Initial load - fetched announcements:', data);
+        console.log('Initial load - stored senders:', loadedSenders);
+        // Merge with stored sender names in case backend didn't return them
+        const normalized = data.map((a: any) => {
+          const norm = normalizeAnnouncement(a);
+          const storedName = loadedSenders[norm.id];
+          console.log(`Initial load - Announcement ${norm.id}: backend="${norm.sender}", stored="${storedName}"`);
+          return {
+            ...norm,
+            sender: storedName || norm.sender,
+          };
+        });
+        setAnnouncements(normalized);
+      } catch (err: any) {
+        const msg = err?.response?.data?.error || err?.message || 'Failed to load announcements';
+        setError(msg);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadAnnouncements();
+  }, []);
+
+  const resetForm = () => {
+    setTitle('');
+    setMessage('');
+    setRole('Admin');
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!title.trim() || !message.trim()) {
+      setError('Title and message are required.');
+      return;
+    }
+    setSending(true);
+    setError(null);
+    try {
+      // Use the fetched admin username
+      const finalSenderName = adminUsername || localStorage.getItem('username') || localStorage.getItem('display_name') || 'Admin';
+      const response = await createAnnouncement({
+        title: title.trim(),
+        message: message.trim(),
+        name: finalSenderName,
+        sender: finalSenderName,
+        role,
+      });
+      
+      console.log('Create announcement response:', response);
+      
+      // Store the sender name with the announcement ID for later retrieval
+      // Try multiple ID formats from response
+      const announcementId = (response?.id || response?.data?.id || response?.announcement?.id || Date.now()).toString();
+      const newSenders = { ...announcementSenders, [announcementId]: finalSenderName };
+      setAnnouncementSenders(newSenders);
+      try {
+        localStorage.setItem('announcement_senders', JSON.stringify(newSenders));
+      } catch (_) {}
+      
+      // Add optimistically to show immediately
+      const newAnnouncement: Announcement = {
+        id: announcementId,
+        sender: finalSenderName,
+        role,
+        title: title.trim(),
+        message: message.trim(),
+        date: new Date().toLocaleDateString(),
+      };
+      setAnnouncements((prev) => [newAnnouncement, ...prev]);
+      resetForm();
+      setShowForm(false);
+      
+      // Refresh to sync with backend and apply stored names
+      try {
+        setLoading(true);
+        const res = await getAnnouncements();
+        const data = Array.isArray(res) ? res : res?.results || [];
+        console.log('Fetched announcements:', data);
+        const currentSenders: Record<string, string> = { ...announcementSenders, [announcementId]: finalSenderName };
+        const normalized = data.map((a: any) => {
+          const norm = normalizeAnnouncement(a);
+          // Always check localStorage for stored sender names
+          const storedName = currentSenders[norm.id];
+          console.log(`Announcement ${norm.id}: backend="${norm.sender}", stored="${storedName}"`);
+          return {
+            ...norm,
+            sender: storedName || norm.sender,
+          };
+        });
+        setAnnouncements(normalized);
+      } catch (_) {} finally {
+        setLoading(false);
+      }
+    } catch (err: any) {
+      const msg = err?.response?.data?.error || err?.message || 'Failed to send announcement';
+      setError(msg);
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const handleDeleteClick = (id: string) => {
+    setAnnouncementToDelete(id);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    try {
+      await deleteAnnouncement(announcementToDelete);
+      setAnnouncements((prev) => prev.filter((a) => a.id !== announcementToDelete));
+      // Also remove from localStorage
+      const newSenders = { ...announcementSenders };
+      delete newSenders[announcementToDelete];
+      setAnnouncementSenders(newSenders);
+      try {
+        localStorage.setItem('announcement_senders', JSON.stringify(newSenders));
+      } catch (_) {}
+      setIsDeleteModalOpen(false);
+      setAnnouncementToDelete('');
+    } catch (err: any) {
+      const msg = err?.response?.data?.error || err?.message || 'Failed to delete announcement';
+      setError(msg);
+      setIsDeleteModalOpen(false);
+      setAnnouncementToDelete('');
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setIsDeleteModalOpen(false);
+    setAnnouncementToDelete('');
   };
 
   return (
     <>
       <AnnouncementsTop />
       <div className={styles.container}>
-      <div className={styles.header}>
-        <div className={styles.titleWrap}>
+        <div className={styles.header}> 
           <div className={styles.titleRow}>
-            <Image src="/icons/announcement.svg" alt="Announcements" width={20} height={20} />
-            <h1 className={styles.title}>Recent Updates</h1>
-          </div>
-          <p className={styles.subtitle}>View all recent updates and important communications</p>
-        </div>
-      </div>
-
-      <div className={styles.announcementsWrapper}>
-        {announcements.slice(0, visibleCount).map((announcement) => (
-          <div key={announcement.id} className={styles.card}>
-            <div className={styles.cardContent}>
-              <div className={styles.row}>
-                <Image
-                  src="/icons/teachers.svg"
-                  alt={announcement.role}
-                  width={18}
-                  height={18}
-                  className={styles.icon}
-                />
-                <span className={styles.label}>{announcement.role}:</span>
-                <span className={styles.value}>{announcement.sender}</span>
-              </div>
-
-              <div className={styles.row}>
-                <Image
-                  src="/icons/levels.svg"
-                  alt="Title"
-                  width={18}
-                  height={18}
-                  className={styles.icon}
-                />
-                <span className={styles.label}>Title:</span>
-                <span className={styles.value}>{announcement.title}</span>
-              </div>
-
-              <div className={styles.row}>
-                <Image
-                  src="/icons/announcement.svg"
-                  alt="Message"
-                  width={18}
-                  height={18}
-                  className={styles.icon}
-                />
-                <span className={styles.label}>Message:</span>
-                <span className={styles.messageValue}>{announcement.message}</span>
+            <div className={styles.titleWrap}>
+              <div className={styles.titleRowInner}>
+                <Image src="/icons/announcement.svg" alt="Announcements" width={20} height={20} />
+                <h1 className={styles.title}>Announcements</h1>
               </div>
             </div>
-
-            <div className={styles.cardFooter}>
-              <span className={styles.dateLabel}>Date:</span>
-              <span className={styles.dateValue}>{announcement.date}</span>
-            </div>
+            <button className={styles.primaryBtn} onClick={() => setShowForm((v) => !v)}>
+              <Image src="/icons/add.svg" alt="Add" width={18} height={18} />
+              Add Announcement
+            </button>
           </div>
-        ))}
-      </div>
-
-      {visibleCount < announcements.length && (
-        <div className={styles.seeAllWrapper}>
-          <button onClick={handleSeeAll} className={styles.seeAllButton}>
-            See all
-            <span className={styles.arrow}>→</span>
-          </button>
+          {error && (
+            <div className={styles.errorBanner}>
+              <span>{error}</span>
+              <button onClick={() => setError(null)} aria-label="Dismiss">×</button>
+            </div>
+          )}
         </div>
-      )}
-    </div>
+
+        {showForm && (
+          <form className={styles.form} onSubmit={handleSubmit}>
+            <div className={styles.field}>
+              <label htmlFor="title">Title</label>
+              <input
+                id="title"
+                type="text"
+                placeholder="Title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                required
+              />
+            </div>
+            <div className={styles.field}>
+              <label htmlFor="message">Message</label>
+              <textarea
+                id="message"
+                placeholder="Write the announcement message"
+                rows={4}
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                required
+              />
+            </div>
+            <div className={styles.formActions}>
+              <button type="button" className={styles.secondaryBtn} onClick={() => { resetForm(); setShowForm(false); }}>
+                Cancel
+              </button>
+              <button type="submit" className={styles.primaryBtn} disabled={sending}>
+                {sending ? 'Sending…' : 'Send'}
+              </button>
+            </div>
+          </form>
+        )}
+
+        {loading ? (
+          <div style={{ padding: '16px 0' }}>Loading announcements…</div>
+        ) : (
+          <div className={styles.announcementsWrapper}>
+            {visibleAnnouncements.length === 0 && (
+              <div className={styles.emptyState}>No announcements yet.</div>
+            )}
+            {visibleAnnouncements.map((announcement) => (
+              <div key={announcement.id} className={styles.card}>
+                <div className={styles.cardContent}>
+                  <div className={styles.row}>
+                    <Image
+                      src="/icons/teachers.svg"
+                      alt={announcement.role}
+                      width={18}
+                      height={18}
+                      className={styles.icon}
+                    />
+                    <span className={styles.label}>{announcement.role}:</span>
+                    <span className={styles.value}>{announcement.sender}</span>
+                  </div>
+
+                  <div className={styles.row}>
+                    <Image
+                      src="/icons/levels.svg"
+                      alt="Title"
+                      width={18}
+                      height={18}
+                      className={styles.icon}
+                    />
+                    <span className={styles.label}>Title:</span>
+                    <span className={styles.value}>{announcement.title}</span>
+                  </div>
+
+                  <div className={styles.row}>
+                    <Image
+                      src="/icons/announcement.svg"
+                      alt="Message"
+                      width={18}
+                      height={18}
+                      className={styles.icon}
+                    />
+                    <span className={styles.label}>Message:</span>
+                    <span className={styles.messageValue}>{announcement.message}</span>
+                  </div>
+                </div>
+
+                <div className={styles.cardFooter}>
+                  <div>
+                    <span className={styles.dateLabel}>Date:</span>
+                    <span className={styles.dateValue}>{announcement.date}</span>
+                  </div>
+                  <button 
+                    className={styles.deleteBtn} 
+                    onClick={() => handleDeleteClick(announcement.id)}
+                    title="Delete announcement"
+                  >
+                    <Image src="/icons/delete.svg" alt="Delete" width={16} height={16} />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+      <ConfirmModal
+        open={isDeleteModalOpen}
+        title="Delete Announcement"
+        message="Are you sure you want to delete this announcement? This action cannot be undone."
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        onConfirm={handleDeleteConfirm}
+        onCancel={handleDeleteCancel}
+      />
     </>
   );
 }

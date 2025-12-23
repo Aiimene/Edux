@@ -18,7 +18,8 @@ async function testBackendConnection() {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
-      }
+      },
+      credentials: 'include'
     });
     console.log('Status:', response.status);
     console.log('Status Text:', response.statusText);
@@ -52,7 +53,8 @@ async function testCreateStudentMinimal() {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
+      credentials: 'include'
     });
     
     console.log('Status:', response.status);
@@ -95,7 +97,8 @@ async function testCreateStudentFull() {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
+      credentials: 'include'
     });
     
     console.log('Status:', response.status);
@@ -124,7 +127,8 @@ async function testGetStudents() {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
-      }
+      },
+      credentials: 'include'
     });
     
     console.log('Status:', response.status);

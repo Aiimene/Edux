@@ -1,29 +1,4 @@
-import axios from 'axios';
-
-// Align with backend members routes
-const API_BASE_URL = 'http://127.0.0.1:8000/api/members';
-
-// Create axios instance with default config
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  withCredentials: false,
-});
-
-// Add auth token to requests if available (support both authToken and access_token keys)
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('authToken') || localStorage.getItem('access_token');
-  console.log('API Interceptor - Token available:', !!token);
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-    console.log('Adding Authorization header to request:', config.url);
-  } else {
-    console.warn('No token found in localStorage for request:', config.url);
-  }
-  return config;
-});
+import { membersApi as api } from './apiConfig';
 
 // Get all parents
 export const getParents = async () => {
