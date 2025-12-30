@@ -23,6 +23,8 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
   const isTimetablesActive = pathname?.startsWith('/admin/academic/timetables');
   const isSessionsActive = pathname?.startsWith('/admin/academic/sessions');
   const isAnnouncementsActive = pathname?.startsWith('/admin/announcements');
+  const isAnalyticsActive = pathname?.startsWith('/admin/analytics');
+  const isAttendanceActive = pathname?.startsWith('/admin/attendance');
 
   return (
     <>
