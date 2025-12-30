@@ -16,19 +16,39 @@ function AdminLayoutContent({
   const { isOpen, isMobile, toggle, close } = useSidebar();
   const pathname = usePathname();
   
-  const isDashboard = pathname === '/admin/dashboard';
-  const isMembersPage = pathname.startsWith('/admin/members/students') || 
-                        pathname.startsWith('/admin/members/parents') || 
-                        pathname.startsWith('/admin/members/teachers');
-  const isAcademicPage = pathname.startsWith('/admin/academic');
+  // Determine which top bar component to use based on pathname
+  const renderTopBar = () => {
+    if (pathname === '/admin/dashboard') {
+      return <DashboardTop onMenuClick={toggle} />;
+    }
+    if (pathname.startsWith('/admin/members')) {
+      return <MembersTop onMenuClick={toggle} />;
+    }
+    // For other pages, use TopBar with appropriate title and icon
+    if (pathname.startsWith('/admin/academic')) {
+      return <TopBar title="Academic" icon="/icons/academic.svg" iconWidth={22} iconHeight={22} onMenuClick={toggle} />;
+    }
+    if (pathname.startsWith('/admin/settings')) {
+      return <TopBar title="Settings" icon="/icons/settings.svg" iconWidth={24} iconHeight={24} onMenuClick={toggle} />;
+    }
+    if (pathname.startsWith('/admin/attendance')) {
+      return <TopBar title="Attendance" icon="/icons/attendance.svg" iconWidth={24} iconHeight={24} onMenuClick={toggle} />;
+    }
+    if (pathname.startsWith('/admin/analytics')) {
+      return <TopBar title="Analytics" icon="/icons/analytics.svg" iconWidth={24} iconHeight={24} onMenuClick={toggle} />;
+    }
+    if (pathname.startsWith('/admin/announcements')) {
+      return <TopBar title="Announcements" icon="/icons/announcements.svg" iconWidth={24} iconHeight={24} onMenuClick={toggle} />;
+    }
+    // Default
+    return <DashboardTop onMenuClick={toggle} />;
+  };
 
   return (
     <div className={styles.container}>
       <Sidebar isOpen={isOpen} onClose={close} />
       <div className={`${styles.mainContent} ${isMobile && !isOpen ? styles.sidebarClosed : ''}`}>
-        {isDashboard && <DashboardTop onMenuClick={toggle} />}
-        {isMembersPage && <MembersTop onMenuClick={toggle} />}
-        {isAcademicPage && <TopBar title="Academic" icon="/icons/academic.svg" iconWidth={22} iconHeight={22} onMenuClick={toggle} />}
+        {renderTopBar()}
         <div className={styles.content}>
           {children}
         </div>

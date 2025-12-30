@@ -3,8 +3,6 @@
 import React from "react";
 import Image from "next/image";
 import enterpriseData from "../../../data/enterprise.json";
-import DashboardTop from "../../../components/dashboard/DashboardTop/DashboardTop";
-import { useSidebar } from "../../../contexts/SidebarContext";
 import styles from "./layout.module.css";
 
 export default function DashboardLayout({
@@ -12,11 +10,7 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { toggle } = useSidebar();
-
   return (
-    <>
-      <DashboardTop onMenuClick={toggle} />
     <div className={styles.container}>
       {/* Greeting Section */}
       <div className={styles.greetingSection}>
@@ -27,6 +21,5 @@ export default function DashboardLayout({
       <p className={styles.subtitle}>Track everything from one place</p>
       {children}
     </div>
-    </>
   );
 }

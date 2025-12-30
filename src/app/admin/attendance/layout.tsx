@@ -3,12 +3,10 @@
 import React, { createContext, useContext, useState } from "react";
 import Image from "next/image";
 import enterpriseData from "../../../data/enterprise.json";
-import DashboardTop from "../../../components/dashboard/DashboardTop/DashboardTop";
 import FilterBy from "../../../components/analytics/filters/FilterBy/FilterBy";
 import DateRangePicker from "../../../components/analytics/filters/DateRangePicker/DateRangePicker";
 import CurrentFilter from "../../../components/analytics/filters/CurrentFilter/CurrentFilter";
 import attendanceData from "../../../data/attendance.json";
-import { useSidebar } from "../../../contexts/SidebarContext";
 import styles from "./layout.module.css";
 
 type FilterState = {
@@ -40,7 +38,6 @@ export default function AttendanceLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { toggle } = useSidebar();
   const [filters, setFilters] = useState<FilterState>({
     level: 'All Levels',
     module: 'All Modules',
@@ -98,7 +95,6 @@ export default function AttendanceLayout({
 
   return (
     <FilterContext.Provider value={{ filters, setFilters }}>
-      <DashboardTop onMenuClick={toggle} />
       <div className={styles.container}>
         {/* Current Filter Section */}
         <div className={styles.currentFilterSection}>

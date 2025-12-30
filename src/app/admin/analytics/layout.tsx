@@ -3,12 +3,10 @@
 import React, { createContext, useContext, useState } from "react";
 import Image from "next/image";
 import enterpriseData from "../../../data/enterprise.json";
-import DashboardTop from "../../../components/dashboard/DashboardTop/DashboardTop";
 import FilterBy from "../../../components/analytics/filters/FilterBy/FilterBy";
 import DateRangePicker from "../../../components/analytics/filters/DateRangePicker/DateRangePicker";
 import CurrentFilter from "../../../components/analytics/filters/CurrentFilter/CurrentFilter";
 import analyticsData from "../../../data/analytics.json";
-import { useSidebar } from "../../../contexts/SidebarContext";
 import styles from "./layout.module.css";
 
 type FilterState = {
@@ -41,7 +39,6 @@ export default function AnalyticsLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { toggle } = useSidebar();
   const [filters, setFilters] = useState<FilterState>({
     level: 'All Levels',
     module: 'All Modules',
@@ -108,7 +105,6 @@ export default function AnalyticsLayout({
 
   return (
     <FilterContext.Provider value={{ filters, setFilters }}>
-      <DashboardTop onMenuClick={toggle} />
       <div className={styles.container}>
         {/* Greeting Section with Filters on the right */}
         <div className={styles.greetingAndFiltersContainer}>
