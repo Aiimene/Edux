@@ -9,6 +9,10 @@ import { getRoleBasedRedirect } from "@/lib/authUtils";
 const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "";
 
 export default function LoginPage() {
+  // Check if Google Client ID is configured
+  if (!GOOGLE_CLIENT_ID) {
+    console.error("Google Client ID is not configured. Please set NEXT_PUBLIC_GOOGLE_CLIENT_ID environment variable.");
+  }
   const [schoolName, setSchoolName] = useState("");
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
@@ -201,17 +205,31 @@ export default function LoginPage() {
                 <div className={styles.dividerLine}></div>
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
-                <GoogleLogin
-                  onSuccess={handleGoogleLogin}
-                  onError={() => setError('Google login failed')}
-                  useOneTap={false}
-                  theme="outline"
-                  size="large"
-                  text="continue_with"
-                  width="100%"
-                />
-              </div>
+              {GOOGLE_CLIENT_ID ? (
+                <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+                  <GoogleLogin
+                    onSuccess={handleGoogleLogin}
+                    onError={() => setError('Google login failed')}
+                    useOneTap={false}
+                    theme="outline"
+                    size="large"
+                    text="continue_with"
+                    width="100%"
+                  />
+                </div>
+              ) : (
+                <div style={{ 
+                  padding: '1rem', 
+                  backgroundColor: '#fff3cd', 
+                  border: '1px solid #ffc107', 
+                  borderRadius: '8px',
+                  textAlign: 'center',
+                  color: '#856404',
+                  width: '100%'
+                }}>
+                  <p>Google Sign-In is not configured. Please contact the administrator.</p>
+                </div>
+              )}
 
               <p>
                 Don't have an account? <Link href="/signup">Sign up</Link>

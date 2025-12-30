@@ -8,6 +8,10 @@ import styles from "../login/login.module.css";
 const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "";
 
 export default function RegisterPage() {
+  // Check if Google Client ID is configured
+  if (!GOOGLE_CLIENT_ID) {
+    console.error("Google Client ID is not configured. Please set NEXT_PUBLIC_GOOGLE_CLIENT_ID environment variable.");
+  }
   // Step 1: Email/Password
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -154,6 +158,8 @@ export default function RegisterPage() {
       window.location.href = '/admin/dashboard';
 
     } catch (err: any) {
+      console.error('Registration error:', err);
+      
       // Handle validation errors from backend
       if (err.data && typeof err.data === 'object') {
         const errorMessages = Object.entries(err.data)
@@ -164,8 +170,22 @@ export default function RegisterPage() {
           })
           .join('\n');
         setError(errorMessages);
+      } else if (err.message) {
+        setError(err.message);
+      } else if (err.response?.data) {
+        // Handle axios error response
+        const errorData = err.response.data;
+        if (typeof errorData === 'string') {
+          setError(errorData);
+        } else if (errorData.error) {
+          setError(errorData.error);
+        } else if (errorData.detail) {
+          setError(errorData.detail);
+        } else {
+          setError('Registration failed. Please check your information and try again.');
+        }
       } else {
-        setError(err.message || 'Registration failed. Please try again.');
+        setError('Registration failed. Please check your connection and try again.');
       }
     } finally {
       setLoading(false);
@@ -258,6 +278,9 @@ export default function RegisterPage() {
       window.location.href = '/admin/dashboard';
 
     } catch (err: any) {
+      console.error('Google registration error:', err);
+      
+      // Handle validation errors from backend
       if (err.data && typeof err.data === 'object') {
         const errorMessages = Object.entries(err.data)
           .map(([key, value]) => {
@@ -267,8 +290,22 @@ export default function RegisterPage() {
           })
           .join('\n');
         setError(errorMessages);
+      } else if (err.message) {
+        setError(err.message);
+      } else if (err.response?.data) {
+        // Handle axios error response
+        const errorData = err.response.data;
+        if (typeof errorData === 'string') {
+          setError(errorData);
+        } else if (errorData.error) {
+          setError(errorData.error);
+        } else if (errorData.detail) {
+          setError(errorData.detail);
+        } else {
+          setError('Registration failed. Please check your information and try again.');
+        }
       } else {
-        setError(err.message || 'Registration failed. Please try again.');
+        setError('Registration failed. Please check your connection and try again.');
       }
     } finally {
       setLoading(false);
@@ -348,16 +385,30 @@ export default function RegisterPage() {
                   <div className={styles.dividerLine}></div>
                 </div>
 
-                <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem' }}>
-                  <GoogleLogin
-                    onSuccess={handleGoogleSuccess}
-                    onError={() => setError('Google authentication failed')}
-                    useOneTap={false}
-                    theme="outline"
-                    size="large"
-                    text="signup_with"
-                  />
-                </div>
+                {GOOGLE_CLIENT_ID ? (
+                  <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem' }}>
+                    <GoogleLogin
+                      onSuccess={handleGoogleSuccess}
+                      onError={() => setError('Google authentication failed')}
+                      useOneTap={false}
+                      theme="outline"
+                      size="large"
+                      text="signup_with"
+                    />
+                  </div>
+                ) : (
+                  <div style={{ 
+                    padding: '1rem', 
+                    backgroundColor: '#fff3cd', 
+                    border: '1px solid #ffc107', 
+                    borderRadius: '8px',
+                    marginTop: '1rem',
+                    textAlign: 'center',
+                    color: '#856404'
+                  }}>
+                    <p>Google Sign-In is not configured. Please contact the administrator.</p>
+                  </div>
+                )}
 
                 <p>
                   Already have an account? <Link href="/login">Login</Link>

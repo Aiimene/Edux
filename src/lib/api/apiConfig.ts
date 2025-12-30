@@ -1,11 +1,14 @@
 import axios, { AxiosInstance, AxiosError } from 'axios';
 
+// Backend API base URL - uses environment variable or defaults to localhost
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+
 // Base URLs
 export const API_BASE_URLS = {
-  AUTH: 'http://localhost:8000/api/auth',
-  MEMBERS: 'http://localhost:8000/api/members',
-  DASHBOARD: 'http://localhost:8000/api/dashboard',
-  ACADEMIC: 'http://localhost:8000/api/academic',
+  AUTH: `${API_BASE}/auth`,
+  MEMBERS: `${API_BASE}/members`,
+  DASHBOARD: `${API_BASE}/dashboard`,
+  ACADEMIC: `${API_BASE}/academic`,
 } as const;
 
 export interface ApiError {
@@ -23,6 +26,15 @@ export const handleApiError = (error: any, context: string): ApiError => {
     if (axiosError.response) {
       const status = axiosError.response.status;
       const data = axiosError.response.data;
+
+      // For validation errors (400), return the actual error data
+      if (status === 400 && data) {
+        return {
+          message: 'Validation error',
+          status,
+          data,
+        };
+      }
 
       switch (status) {
         case 401:
@@ -50,8 +62,13 @@ export const handleApiError = (error: any, context: string): ApiError => {
             data,
           };
         default:
+          // Return the actual error message from the server if available
+          const errorMessage = (data as any)?.error || 
+                              (data as any)?.detail || 
+                              (data as any)?.message || 
+                              'An error occurred.';
           return {
-            message: (data as any)?.error || 'An error occurred.',
+            message: errorMessage,
             status,
             data,
           };
@@ -60,7 +77,7 @@ export const handleApiError = (error: any, context: string): ApiError => {
 
     if (axiosError.request) {
       return {
-        message: 'Network error. Please check your connection.',
+        message: 'Network error. Please check your connection and try again.',
       };
     }
   }
@@ -76,6 +93,7 @@ export const createApiInstance = (baseURL: string): AxiosInstance => {
     baseURL,
     headers: {
       'Content-Type': 'application/json',
+      'Accept': 'application/json',
     },
     withCredentials: true, // Automatically sends HttpOnly cookies
   });
