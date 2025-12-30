@@ -6,10 +6,15 @@ import SessionsList from '../../../../components/academic/SessionsList/SessionsL
 import AddSessionModal from '@/components/academic/AddSessionModal/AddSessionModal';
 import DashboardCard from '../../../../components/dashboard/DashboardCard/DashboardCard';
 import styles from './page.module.css';
-import enterpriseData from '../../../../data/enterprise.json';
+import { getSessions, createSession, updateSession, deleteSession } from '../../../../lib/api/sessions';
+import { getTeachers } from '../../../../lib/api/teachers';
+import { getCourses } from '../../../../lib/api/levels';
+import useLevels from '@/hooks/useLevels';
 
 export default function SessionsPage() {
-  const [sessions, setSessions] = useState<any[]>(enterpriseData.weeklySessions || []);
+  const [sessions, setSessions] = useState<any[]>([]);
+  const [teachers, setTeachers] = useState<any[]>([]);
+  const [courses, setCourses] = useState<any[]>([]);
   const [isSessionModalOpen, setIsSessionModalOpen] = useState(false);
   const [sessionModalMode, setSessionModalMode] = useState<'add' | 'edit'>('add');
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
@@ -18,9 +23,65 @@ export default function SessionsPage() {
   const [monthOpen, setMonthOpen] = useState(false);
   const monthRef = useRef<HTMLDivElement | null>(null);
   const dayInputRef = useRef<HTMLInputElement | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const { levels: dynamicLevels } = useLevels();
   const months = [
     'January','February','March','April','May','June','July','August','September','October','November','December'
   ];
+
+  const dayNumberToName = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  const dayNameToNumber: Record<string, number> = {
+    'Monday': 0,
+    'Tuesday': 1,
+    'Wednesday': 2,
+    'Thursday': 3,
+    'Friday': 4,
+    'Saturday': 5,
+    'Sunday': 6,
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const [sessionsRes, teachersRes, coursesRes] = await Promise.all([
+        getSessions(),
+        getTeachers(),
+        getCourses(),
+      ]);
+      const sessionsData = Array.isArray(sessionsRes) ? sessionsRes : (sessionsRes.results || []);
+      const teachersData = Array.isArray(teachersRes) ? teachersRes : (teachersRes.results || []);
+      const coursesData = Array.isArray(coursesRes) ? coursesRes : (coursesRes.results || []);
+      setTeachers(teachersData);
+      setCourses(coursesData);
+      const transformed = sessionsData.map((s: any) => ({
+        id: s.id?.toString() || '',
+        sessionName: s.name || '',
+        Module: s.name || '',
+        module: s.name || '',
+        teacher: s.teacher_name || '',
+        time: `${s.start_time || ''} - ${s.end_time || ''}`,
+        startTime: s.start_time || '',
+        endTime: s.end_time || '',
+        dayOfWeek: s.day_name || dayNumberToName[s.day_of_week] || '',
+        day_of_week: s.day_of_week,
+        status: s.status || 'active',
+        students_count: s.students_count || 0,
+      }));
+      setSessions(transformed);
+    } catch (err) {
+      console.error('Failed to load sessions:', err);
+      setError('Failed to load sessions. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     const onDocClick = (e: MouseEvent) => {
@@ -74,28 +135,60 @@ export default function SessionsPage() {
     setIsSessionModalOpen(true);
   };
 
-  const handleSaveSession = (payload: any) => {
-    const mapped = {
-      ...payload,
-      Module: payload.module,
-      level: payload.level,
-      teacher: payload.teacher,
-      date: payload.startDay && payload.endDay ? `${payload.startDay} - ${payload.endDay}` : payload.startDay,
-      time: payload.startTime && payload.endTime ? `${payload.startTime} - ${payload.endTime}` : payload.startTime,
-    };
-
-    setSessions((prev) => {
-      if (sessionModalMode === 'edit' && editingIndex !== null) {
-        const copy = [...prev];
-        copy[editingIndex] = { ...copy[editingIndex], ...mapped };
-        return copy;
+  const handleSaveSession = async (payload: any) => {
+    try {
+      setError(null);
+      const teacher = teachers.find((t: any) => (t.name || t.teacherName) === payload.teacher);
+      const course = courses.find((c: any) => c.name === payload.module);
+      if (!teacher) {
+        setError('Teacher not found. Please select a valid teacher.');
+        return;
       }
-      return [...prev, mapped];
-    });
+      if (!course) {
+        setError('Module not found. Please select a valid module.');
+        return;
+      }
+      const dayOfWeek = Array.isArray(payload.dayOfWeek)
+        ? dayNameToNumber[payload.dayOfWeek[0]] ?? 0
+        : dayNameToNumber[payload.dayOfWeek] ?? 0;
+      const sessionPayload = {
+        name: payload.sessionName || payload.module,
+        course_id: course.id,
+        teacher_id: teacher.id,
+        day_of_week: dayOfWeek,
+        start_time: payload.startTime,
+        end_time: payload.endTime,
+        status: 'active',
+      };
+      if (sessionModalMode === 'edit' && editingIndex !== null) {
+        const id = sessions[editingIndex]?.id;
+        await updateSession(id, sessionPayload);
+      } else {
+        await createSession(sessionPayload);
+      }
+      await fetchData();
+      setIsSessionModalOpen(false);
+    } catch (err: any) {
+      console.error('Error saving session:', err);
+      const msg = err?.response?.data?.error || err?.message || 'Failed to save session';
+      setError(msg);
+    }
   };
 
-  const handleDeleteSession = (index: number) => {
-    setSessions((prev) => prev.filter((_, i) => i !== index));
+  const handleDeleteSession = async (index: number) => {
+    setDeleteError(null);
+    const id = sessions[index]?.id;
+    if (!id) {
+      setDeleteError('Session ID not found');
+      return;
+    }
+    try {
+      await deleteSession(id);
+      await fetchData();
+    } catch (err: any) {
+      const msg = err?.message || 'Failed to delete session';
+      setDeleteError(msg);
+    }
   };
 
   const openDayPicker = () => {
@@ -111,45 +204,55 @@ export default function SessionsPage() {
 
   return (
     <div className={styles.pageWrap}>
-         <div className={styles.greetingSection}>
+      <div className={styles.greetingSection}>
         <p className={styles.greetingText}>Hello</p>
         <Image src="/icons/hello.svg" alt="hello" width={30} height={30} className={styles.greetingIcon} />
-        <p className={styles.enterpriseName}>{enterpriseData.name}</p>
+        <p className={styles.enterpriseName}>Elite School</p>
       </div>
       <p className={styles.subtitle}>Track everything from one place</p>
       {/* Stats Cards (same as dashboard, Total Sessions instead of Total Parents) */}
       
-      <div className={styles.statsContainer}>
-        {[
-          {
-            icon: 'monthly-profit',
-            label: 'Monthly Profit',
-            value: `${enterpriseData["Monthly Profit"]}DZD`,
-            percentage: `${enterpriseData["monthly profit percentage"]}%`,
-            iconSize: 40,
-          },
-          {
-            icon: 'students',
-            label: 'Total Students',
-            value: enterpriseData['number of students'],
-            percentage: `${enterpriseData['students percentage']}%`,
-          },
-          {
-            icon: 'teachers',
-            label: 'Total Teachers',
-            value: enterpriseData['number of teachers'],
-            percentage: `${enterpriseData['teachers percentage']}%`,
-          },
-          {
-            icon: 'timetables',
-            label: 'Total Sessions',
-            value: enterpriseData['number of sessions'] ?? (enterpriseData.weeklySessions ? enterpriseData.weeklySessions.length : 0),
-            percentage: undefined,
-          },
-        ].map((stat) => (
-          <DashboardCard key={String(stat.label)} {...stat} />
-        ))}
-      </div>
+      {loading && <div style={{ padding: '20px', textAlign: 'center' }}>Loading sessions...</div>}
+      {error && (
+        <div style={{
+          padding: '12px 16px',
+          marginBottom: '16px',
+          backgroundColor: '#fee',
+          border: '1px solid #fcc',
+          borderRadius: '8px',
+          color: '#c33',
+          fontSize: '14px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}>
+          <span>{error}</span>
+          <button
+            onClick={() => setError(null)}
+            style={{ background: 'none', border: 'none', color: '#c33', cursor: 'pointer', fontSize: '18px', fontWeight: 'bold' }}
+          >×</button>
+        </div>
+      )}
+      {deleteError && (
+        <div style={{
+          padding: '12px 16px',
+          marginBottom: '16px',
+          backgroundColor: '#fff3cd',
+          border: '1px solid #ffc107',
+          borderRadius: '8px',
+          color: '#856404',
+          fontSize: '14px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}>
+          <span>{deleteError}</span>
+          <button
+            onClick={() => setDeleteError(null)}
+            style={{ background: 'none', border: 'none', color: '#856404', cursor: 'pointer', fontSize: '18px', fontWeight: 'bold' }}
+          >×</button>
+        </div>
+      )}
    
      
 
@@ -157,20 +260,23 @@ export default function SessionsPage() {
         <div className={styles.leftControls}>
           <select className={styles.select} defaultValue="">
             <option value="">Module</option>
-            {enterpriseData.selectOptions?.modules?.map((m: string) => (
-              <option key={m} value={m}>{m}</option>
+            {courses.map((c: any) => (
+              <option key={c.id} value={c.name}>{c.name}</option>
             ))}
           </select>
 
           <select className={styles.select} defaultValue="">
             <option value="">Level</option>
-            {enterpriseData.selectOptions?.levels?.map((l: string) => (
-              <option key={l} value={l}>{l}</option>
+            {dynamicLevels.map((l) => (
+              <option key={l.id} value={l.name}>{l.name}</option>
             ))}
           </select>
 
           <select className={styles.select} defaultValue="">
             <option value="">Teacher</option>
+            {teachers.map((t: any) => (
+              <option key={t.id} value={t.name || t.teacherName}>{t.name || t.teacherName}</option>
+            ))}
           </select>
         </div>
 
@@ -213,7 +319,9 @@ export default function SessionsPage() {
         </div>
       </div>
 
-      <SessionsList sessions={sessions} onDelete={handleDeleteSession} onEdit={handleEditSession} />
+      {!loading && (
+        <SessionsList sessions={sessions} onDelete={handleDeleteSession} onEdit={handleEditSession} />
+      )}
 
       <AddSessionModal
         isOpen={isSessionModalOpen}

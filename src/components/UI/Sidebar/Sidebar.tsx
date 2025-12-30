@@ -6,6 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import styles from "./Sidebar.module.css";
 import enterpriseData from '../../../data/enterprise.json';
+import { logout } from "@/lib/authUtils";
 
 type SidebarProps = {
   isOpen?: boolean;
@@ -18,8 +19,10 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
   const isStudentsActive = pathname?.startsWith('/admin/members/students');
   const isTeachersActive = pathname?.startsWith('/admin/members/teachers');
   const isParentsActive = pathname?.startsWith('/admin/members/parents');
-  const isAnalyticsActive = pathname === '/admin/analytics';
-  const isAttendanceActive = pathname === '/admin/attendance';
+  const isLevelsActive = pathname?.startsWith('/admin/academic/levels');
+  const isTimetablesActive = pathname?.startsWith('/admin/academic/timetables');
+  const isSessionsActive = pathname?.startsWith('/admin/academic/sessions');
+  const isAnnouncementsActive = pathname?.startsWith('/admin/announcements');
 
   return (
     <>
@@ -76,29 +79,24 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
 {/* Academic Section */}
 <div className={`${styles.sectionTitle} ${styles.Mindented}`}>Academic</div>
 
-<Link href="#" className={`${styles.link} ${styles.indented}`}>
-  <Image src="/icons/modules.svg" alt="modules" width={20} height={20} />
-  <span>Modules</span>
-</Link>
-
         {/* Single Level link under Modules */}
-        <Link href="/admin/academic/levels" className={`${styles.link} ${styles.indented}`}>
+        <Link href="/admin/academic/levels" className={`${styles.link} ${styles.indented} ${isLevelsActive ? styles.active : ''}`}>
           <Image src="/icons/levels.svg" alt="level" width={26} height={24} />
           <span>Levels</span>
         </Link>
 
-<Link href="#" className={`${styles.link} ${styles.indented}`}>
+<Link href="/admin/academic/timetables" className={`${styles.link} ${styles.indented} ${isTimetablesActive ? styles.active : ''}`}>
   <Image src="/icons/timetables.svg" alt="timetables" width={20} height={20} />
   <span>Timetables</span>
 </Link>
 
-<Link href="/admin/academic/sessions" className={`${styles.link} ${styles.indented}`}>
+<Link href="/admin/academic/sessions" className={`${styles.link} ${styles.indented} ${isSessionsActive ? styles.active : ''}`}>
   <Image src="/icons/sessions.svg" alt="sessions" width={20} height={20} />
   <span>Sessions</span>
 </Link>
 
 
-                <Link href="#" className={styles.link}>
+                <Link href="/admin/announcements" className={`${styles.link} ${isAnnouncementsActive ? styles.active : ''}`}>
           <Image src="/icons/announcement.svg" alt="announcement" width={20} height={20} />
           <span>Announcement</span>
         </Link>
@@ -112,7 +110,7 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
           <span>Settings</span>
         </Link>
 
-        <Link href="#" className={styles.logout}>
+        <Link href="#" className={styles.logout} onClick={() => logout()}>
           <Image src="/icons/logout.svg" alt="logout" width={20} height={20} />
           <span>Logout</span>
         </Link>

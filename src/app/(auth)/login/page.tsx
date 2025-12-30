@@ -2,25 +2,11 @@
 import Link from "next/link";
 import { useState } from "react";
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
+import { authService, type LoginData, type GoogleLoginData } from "@/lib/api/auth.service";
 import styles from "./login.module.css";
+import { getRoleBasedRedirect } from "@/lib/authUtils";
 
 const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "";
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/auth";
-
-// Helper function to get redirect URL based on role
-const getRedirectUrl = (role: string): string => {
-  switch (role.toLowerCase()) {
-    case 'admin':
-    case 'teacher':
-      return '/admin/dashboard';
-    case 'parent':
-      return '/parent/dashboard';
-    case 'student':
-      return '/student/dashboard';
-    default:
-      return '/dashboard';
-  }
-};
 
 export default function LoginPage() {
   const [schoolName, setSchoolName] = useState("");
@@ -35,6 +21,7 @@ export default function LoginPage() {
     setError("");
     setLoading(true);
 
+    // Validation
     if (!schoolName.trim()) {
       setError("School name is required");
       setLoading(false);
@@ -54,97 +41,85 @@ export default function LoginPage() {
     }
 
     try {
-      const response = await fetch(`${API_URL}/login/`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          school_name: schoolName,
-          identifier,
-          password
-        })
-      });
+      // Use authService instead of direct fetch
+      const loginData: LoginData = {
+        school_name: schoolName,
+        identifier,
+        password
+      };
 
-      const data = await response.json();
+      const response = await authService.login(loginData);
 
-      if (response.ok) {
-        // Store tokens
-        localStorage.setItem('access_token', data.tokens.access);
-        localStorage.setItem('refresh_token', data.tokens.refresh);
-        localStorage.setItem('user_role', data.role);
-        localStorage.setItem('school_name', data.workspace.name);
-        
-        // Redirect based on role
-        const redirectUrl = getRedirectUrl(data.role);
-        window.location.href = redirectUrl;
-      } else {
-        setError(data.error || 'Login failed');
-      }
-    } catch (err) {
-      setError('Network error. Please try again.');
+      // Tokens are automatically stored in HTTP-only cookies
+      // We only need to store user metadata
+      localStorage.setItem('user_role', response.role || '');
+      localStorage.setItem('school_name', response.workspace.name);
+      localStorage.setItem('user_id', response.user.id.toString());
+      localStorage.setItem('username', response.user.username);
+      localStorage.setItem('workspace_display_name', response.workspace.display_name);
+
+      // Optional: Store full user data as JSON
+      localStorage.setItem('user_data', JSON.stringify({
+        user: response.user,
+        role: response.role,
+        profile: response.profile,
+        workspace: response.workspace
+      }));
+
+      // Redirect based on role
+      const redirectPath = getRoleBasedRedirect(response.role || '');
+      window.location.href = redirectPath;
+
+    } catch (err: any) {
+      // authService already formatted the error
+      setError(err.message || 'Login failed. Please check your credentials.');
     } finally {
       setLoading(false);
     }
   };
 
-  // Google login handler
-  // Google login handler
-const handleGoogleLogin = async (credentialResponse: any) => {
-  setError("");
-  setLoading(true);
+  const handleGoogleLogin = async (credentialResponse: any) => {
+    setError("");
+    setLoading(true);
 
-  if (!schoolName.trim()) {
-    setError("Please enter your school name first");
-    setLoading(false);
-    return;
-  }
-
-  try {
-
-    const response = await fetch(`${API_URL}/google/login/`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        access_token: credentialResponse.credential,
-        school_name: schoolName
-      })
-    });
-
-
-    // Get raw text first
-    const rawText = await response.text();
-
-
-    // Try to parse as JSON
-    let data;
-    try {
-      data = JSON.parse(rawText);
-    } catch (parseError) {
-      console.error("Failed to parse JSON:", parseError);
-      setError(`Server returned invalid response. Check console.`);
+    if (!schoolName.trim()) {
+      setError("Please enter your school name first");
       setLoading(false);
       return;
     }
 
-    if (response.ok) {
-      // Store tokens
-      localStorage.setItem('access_token', data.access);
-      localStorage.setItem('refresh_token', data.refresh);
-      localStorage.setItem('user_role', data.role);
-      localStorage.setItem('school_name', data.workspace.name);
-      
+    try {
+      const googleData: GoogleLoginData = {
+        access_token: credentialResponse.credential,
+        school_name: schoolName
+      };
+
+      const response = await authService.googleLogin(googleData);
+
+      // Store user metadata (tokens are in cookies)
+      localStorage.setItem('user_role', response.role || '');
+      localStorage.setItem('school_name', response.workspace.name);
+      localStorage.setItem('user_id', response.user.id.toString());
+      localStorage.setItem('username', response.user.username);
+      localStorage.setItem('workspace_display_name', response.workspace.display_name);
+
+      localStorage.setItem('user_data', JSON.stringify({
+        user: response.user,
+        role: response.role,
+        profile: response.profile,
+        workspace: response.workspace
+      }));
+
       // Redirect based on role
-      const redirectUrl = getRedirectUrl(data.role);
-      window.location.href = redirectUrl;
-    } else {
-      setError(data.error || 'Google login failed');
+      const redirectPath = getRoleBasedRedirect(response.role || '');
+      window.location.href = redirectPath;
+
+    } catch (err: any) {
+      setError(err.message || 'Google login failed');
+    } finally {
+      setLoading(false);
     }
-  } catch (err) {
-    console.error("Network error:", err);
-    setError('Network error. Please try again.');
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   return (
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>

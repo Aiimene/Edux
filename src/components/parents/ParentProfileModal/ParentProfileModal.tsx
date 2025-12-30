@@ -6,25 +6,19 @@ import enterpriseData from '@/data/enterprise.json';
 type ParentProfileModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  parentId: string;
+  parentData?: Partial<FormData>;
   onDelete?: () => void;
 };
 
-export default function ParentProfileModal({ isOpen, onClose, parentId, onDelete }: ParentProfileModalProps) {
+export default function ParentProfileModal({ isOpen, onClose, parentData, onDelete }: ParentProfileModalProps) {
   if (!isOpen) return null;
 
-  const parents = (enterpriseData as any).parents || [];
-  const found = parents.find((p: any) => String(p.id) === String(parentId) || p.parentName === parentId) || null;
-
-  const mappedInitial = found
+  const mappedInitial = parentData
     ? {
-        studentName: found.parentName ?? '',
-        email: found.email ?? '',
-        password: found.password ?? '',
-        phoneNumber: found.phoneNumber ?? '',
-        parentName: found.childName ?? '',
-        academicYear: found.academicYear ?? '',
-        feePayment: found.feesPayment ?? found.feePayment ?? '',
+        studentName: parentData.studentName ?? parentData.parentName ?? (parentData as any).name ?? '',
+        email: parentData.email ?? '',
+        password: parentData.password ?? '',
+        phoneNumber: parentData.phoneNumber ?? (parentData as any).phone_number ?? '',
       }
     : undefined;
 

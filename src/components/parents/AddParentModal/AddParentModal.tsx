@@ -5,7 +5,7 @@ import AddForm, { FormData } from '@/components/UI/AddForm/AddForm';
 type AddParentModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  initialData?: any;
+  initialData?: Partial<FormData>;
   mode?: 'add' | 'edit' | 'view';
   onSave?: (data: FormData) => void;
 };
@@ -13,13 +13,10 @@ type AddParentModalProps = {
 export default function AddParentModal({ isOpen, onClose, initialData, mode = 'add', onSave }: AddParentModalProps) {
   const mappedInitial = initialData
     ? {
-        studentName: initialData.parentName ?? '',
+        studentName: initialData.studentName ?? initialData.parentName ?? (initialData as any).name ?? '',
         email: initialData.email ?? '',
         password: initialData.password ?? '',
-        phoneNumber: initialData.phoneNumber ?? '',
-        parentName: initialData.childName ?? '',
-        academicYear: initialData.academicYear ?? '',
-        feePayment: initialData.feesPayment ?? initialData.feePayment ?? '',
+        phoneNumber: initialData.phoneNumber ?? (initialData as any).phone_number ?? '',
       }
     : undefined;
 

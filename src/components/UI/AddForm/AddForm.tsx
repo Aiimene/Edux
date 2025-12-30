@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import './AddForm.css';
 import Select, { components } from 'react-select';
-import enterprise from '@/data/enterprise.json';
+import useLevels from '@/hooks/useLevels';
 import ConfirmModal from '@/components/UI/ConfirmModal/ConfirmModal';
 
 const DropdownIndicator = (props: any) => (
@@ -124,7 +124,6 @@ export default function AddForm({
   }, [initialData, isOpen, mode]);
 
   type SelectOptions = {
-    levels: string[];
     modules: string[];
     sessions: Array<string | number>;
     genders?: string[];
@@ -145,10 +144,11 @@ export default function AddForm({
     setAddAmountVisible(false);
   };
 
-  const selectOptions = ((enterprise as any).selectOptions as SelectOptions | undefined);
-
-  const levels = selectOptions?.levels ?? [];
-  const availableModules = selectOptions?.modules ?? [];
+  const selectOptions = (undefined as unknown as SelectOptions | undefined);
+  const { levels: dynamicLevels } = useLevels();
+  // Modules depend on selected level
+  const selectedLevel = dynamicLevels.find(l => l.name === formData.level);
+  const availableModules = (selectedLevel?.modules ?? []).map(m => m.name);
   const availableSessions = (selectOptions?.sessions ?? []).map(String);
   const genders = ['male', 'female'];
 
@@ -165,7 +165,12 @@ export default function AddForm({
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    // When level changes, reset modules to those belonging to the new level
+    if (name === 'level') {
+      setFormData({ ...formData, level: value, modules: [] });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
     setErrors(prev => {
       const { [name]: _, ...rest } = prev;
       return rest;
@@ -206,7 +211,7 @@ export default function AddForm({
   };
 
   const genderOptions = genders.map(g => ({ value: g, label: g.charAt(0).toUpperCase() + g.slice(1) }));
-  const levelOptions = levels.map(l => ({ value: l, label: l }));
+  const levelOptions = dynamicLevels.map(l => ({ value: l.name, label: l.name }));
 
   const portalTarget = typeof window !== 'undefined' ? document.body : null;
 
@@ -308,6 +313,15 @@ export default function AddForm({
       return Object.keys(e).length === 0;
     }
 
+    if (entityLabel === 'Teacher') {
+      if (!formData.studentName || !String(formData.studentName).trim()) e.studentName = 'Teacher name is required';
+      if (!formData.email || !String(formData.email).trim() || !isEmail(String(formData.email))) e.email = 'Valid email is required';
+      if (!formData.password || String(formData.password).length < 8) e.password = 'Password must be at least 8 characters';
+      if (!formData.phoneNumber || !String(formData.phoneNumber).trim()) e.phoneNumber = 'Phone number is required';
+      setErrors(e);
+      return Object.keys(e).length === 0;
+    }
+
     if (!formData.studentName || !String(formData.studentName).trim()) e.studentName = 'Student name is required';
     if (!formData.email || !String(formData.email).trim() || !isEmail(String(formData.email))) e.email = 'Valid email is required';
     if (!formData.password || String(formData.password).length < 8) e.password = 'Password must be at least 8 characters';
@@ -325,9 +339,6 @@ export default function AddForm({
       if (!formData.email || !String(formData.email).trim() || !isEmail(String(formData.email))) e.email = 'Valid email is required';
       if (!formData.password || String(formData.password).length < 8) e.password = 'Password must be at least 8 characters';
       if (!formData.phoneNumber || !String(formData.phoneNumber).trim()) e.phoneNumber = 'Phone number is required';
-      if (!formData.parentName || !String(formData.parentName).trim()) e.parentName = 'Child name is required';
-      if (!formData.academicYear || String(formData.academicYear).trim() === '') e.academicYear = 'Academic year is required';
-      if (!formData.feePayment || String(formData.feePayment).trim() === '') e.feePayment = 'Fee payment is required';
       setErrors(e);
       return e;
     }
@@ -338,16 +349,17 @@ export default function AddForm({
     if (!formData.dateOfBirth || String(formData.dateOfBirth).trim() === '') e.dateOfBirth = 'Date of birth is required';
     if (!formData.phoneNumber || !String(formData.phoneNumber).trim()) e.phoneNumber = 'Phone number is required';
     if (!formData.gender || String(formData.gender).trim() === '') e.gender = 'Gender is required';
-    if (!formData.level || String(formData.level).trim() === '') e.level = 'Level is required';
-    if (!formData.modules || (Array.isArray(formData.modules) && formData.modules.length === 0)) e.modules = 'At least one module is required';
-    if (!formData.sessions || (Array.isArray(formData.sessions) && formData.sessions.length === 0)) e.sessions = 'At least one session is required';
-    if (!formData.academicYear || String(formData.academicYear).trim() === '') e.academicYear = 'Academic year is required';
-    if (entityLabel !== 'Teacher') {
-      if (!formData.feePayment || String(formData.feePayment).trim() === '') e.feePayment = 'Fee payment is required';
+    if (entityLabel === 'Teacher') {
+      if (!formData.studentName || !String(formData.studentName).trim()) e.studentName = 'Teacher name is required';
+      if (!formData.email || !String(formData.email).trim() || !isEmail(String(formData.email))) e.email = 'Valid email is required';
+      if (!formData.password || String(formData.password).length < 8) e.password = 'Password must be at least 8 characters';
+      if (!formData.phoneNumber || !String(formData.phoneNumber).trim()) e.phoneNumber = 'Phone number is required';
     } else {
-      if (!formData.enrollmentDate || String(formData.enrollmentDate).trim() === '') e.enrollmentDate = 'Enrollment date is required';
-      if (!formData.paymentMethod || String(formData.paymentMethod).trim() === '') e.paymentMethod = 'Payment method is required';
-      if (!formData.paymentStatus || String(formData.paymentStatus).trim() === '') e.paymentStatus = 'Payment status is required';
+      if (!formData.level || String(formData.level).trim() === '') e.level = 'Level is required';
+      if (!formData.modules || (Array.isArray(formData.modules) && formData.modules.length === 0)) e.modules = 'At least one module is required';
+      if (!formData.sessions || (Array.isArray(formData.sessions) && formData.sessions.length === 0)) e.sessions = 'At least one session is required';
+      if (!formData.academicYear || String(formData.academicYear).trim() === '') e.academicYear = 'Academic year is required';
+      if (!formData.feePayment || String(formData.feePayment).trim() === '') e.feePayment = 'Fee payment is required';
     }
     setErrors(e);
     return e;
@@ -400,11 +412,12 @@ export default function AddForm({
       return;
     }
 
-    if (mode === 'edit' && onSave) {
-      onSave(formData);
-    } else if (mode === 'add') {
+    // Call onSave for both add and edit modes
+    if (onSave) {
       console.log('Form submitted:', formData);
+      onSave(formData);
     }
+    
     resetForm();
     onClose();
   };
