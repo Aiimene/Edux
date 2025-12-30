@@ -27,7 +27,10 @@ const SessionCard: React.FC<{ session: Session; onRequestDelete?: () => void; on
         <Image src="/icons/sessions.svg" alt="session" width={20} height={20} />
         <div className={styles.cardText}>
           <div className={styles.cardTitle}>{session.Module} - {session.teacher}</div>
-          <div className={styles.cardMeta}>{session.date} · {session.time}</div>
+          <div className={styles.cardMeta}>
+            {session.dayOfWeek ? <span className={styles.cardDay}>{session.dayOfWeek}</span> : null}
+            {session.time ? <span> · {session.time}</span> : null}
+          </div>
         </div>
       </div>
       <div className={styles.cardActions}>

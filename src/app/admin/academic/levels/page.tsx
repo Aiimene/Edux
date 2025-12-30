@@ -5,7 +5,8 @@ import Image from 'next/image';
 import LevelCard from '@/components/academic/LevelCard/LevelCard';
 import AddLevelModal from '@/components/academic/AddLevelModal/AddLevelModal';
 import styles from './page.module.css';
-import { getLevels, createLevel, updateLevel, deleteLevel, addModuleToLevel, deleteModule } from '@/api/levels';
+import { getLevels, createLevel, updateLevel, deleteLevel, addModuleToLevel, deleteModule } from '@/lib/api/levels';
+import { getStudents } from '@/lib/api/students';
 
 type Module = {
   id: string;
@@ -37,15 +38,43 @@ export default function LevelsPage() {
     try {
       setLoading(true);
       setError(null);
-      const levelsRes = await getLevels();
+      const [levelsRes, studentsRes] = await Promise.all([
+        getLevels(),
+        // If students endpoint fails, continue with empty list
+        getStudents().catch(() => [] as any[]),
+      ]);
+
       const levelsData = Array.isArray(levelsRes) ? levelsRes : (levelsRes.results || []);
+      const studentsData = Array.isArray(studentsRes) ? studentsRes : (studentsRes?.results || []);
+
+      // Build student count map by level id/name
+      const countById: Record<string, number> = {};
+      const countByName: Record<string, number> = {};
+      studentsData.forEach((s: any) => {
+        const levelId = s?.level?.id ?? s?.level_id ?? s?.level?.level_id;
+        const levelName = s?.level?.name ?? s?.level_name ?? s?.level;
+        if (levelId) {
+          const key = levelId.toString();
+          countById[key] = (countById[key] || 0) + 1;
+        } else if (levelName) {
+          const key = levelName.toString();
+          countByName[key] = (countByName[key] || 0) + 1;
+        }
+      });
+
       // Build global module name list for placeholder purposes
-      const transformed: Level[] = levelsData.map((l: any) => ({
-        id: l.id?.toString() || '',
-        name: l.name || '',
-        modules: (l.modules || []).map((m: any) => ({ id: m.id?.toString() || '', name: m.name || '' })),
-        students: l.students_count || 0,
-      }));
+      const transformed: Level[] = levelsData.map((l: any) => {
+        const id = l.id?.toString() || '';
+        const name = l.name || '';
+        const fallbackCount = l.students_count || 0;
+        const students = countById[id] ?? countByName[name] ?? fallbackCount;
+        return {
+          id,
+          name,
+          modules: (l.modules || []).map((m: any) => ({ id: m.id?.toString() || '', name: m.name || '' })),
+          students,
+        };
+      });
       const moduleNames = [...new Set(transformed.flatMap(l => l.modules.map(m => m.name)))].sort();
       setAllModules(moduleNames);
       setLevels(transformed);

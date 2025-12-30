@@ -5,7 +5,7 @@ import './AddForm.css';
 import Select, { components } from 'react-select';
 import useLevels from '@/hooks/useLevels';
 import ConfirmModal from '@/components/UI/ConfirmModal/ConfirmModal';
-import { getSessions } from '@/api/sessions';
+import { getSessions } from '@/lib/api/sessions';
 
 const DropdownIndicator = (props: any) => (
   <components.DropdownIndicator {...props}>
@@ -33,6 +33,7 @@ export type FormData = {
   children: string[];
   modules: string[];
   academicYear: string;
+  days?: string[]; // NEW: for multi-day support
 };
 
 type AddFormProps = {
@@ -60,6 +61,16 @@ export default function AddForm({
   const [addAmountVisible, setAddAmountVisible] = useState(false);
   const [addAmount, setAddAmount] = useState('');
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const allowFeeAdjust = mode === 'edit';
+
+  const EyeIcon = ({ visible }: { visible: boolean }) => (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M2 12s4.5-7 10-7 10 7 10 7-4.5 7-10 7-10-7-10-7Z" stroke="#111827" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+      <circle cx="12" cy="12" r="3.2" stroke="#111827" strokeWidth="1.8"/>
+      {visible ? null : <path d="M4 4l16 16" stroke="#111827" strokeWidth="1.8" strokeLinecap="round"/>}
+    </svg>
+  );
   const [formData, setFormData] = useState<FormData>(() => ({
     studentName: initialData?.studentName ?? '',
     email: initialData?.email ?? '',
@@ -78,7 +89,26 @@ export default function AddForm({
     children: Array.isArray(initialData?.children) ? initialData.children : [],
     modules: initialData?.modules ?? [],
     academicYear: initialData?.academicYear ?? '',
+    days: Array.isArray(initialData?.days) ? initialData.days : [], // NEW
   }));
+  // Days of the week options
+  const daysOfWeekOptions = [
+    { value: 'Monday', label: 'Monday' },
+    { value: 'Tuesday', label: 'Tuesday' },
+    { value: 'Wednesday', label: 'Wednesday' },
+    { value: 'Thursday', label: 'Thursday' },
+    { value: 'Friday', label: 'Friday' },
+    { value: 'Saturday', label: 'Saturday' },
+    { value: 'Sunday', label: 'Sunday' },
+  ];
+  const handleDaysChange = (selected: any) => {
+    setFormData({
+      ...formData,
+      days: selected ? selected.map((opt: any) => opt.value) : [],
+    });
+  };
+  // ...existing code...
+  // When submitting the form, ensure to include formData.days (array) in your payload for sessions.
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [sessionsData, setSessionsData] = useState<Array<{ id: string; name: string; module: string; level: string; day: string; start: string; end: string }>>([]);
@@ -189,13 +219,16 @@ export default function AddForm({
   };
   const { levels: dynamicLevels } = useLevels();
   const normalize = (v: string) => (v || '').toString().trim().toLowerCase();
-  // Modules depend on selected level(s)
+  // Modules: show all at first, filter by level if selected
+  const allModules = Array.from(new Set(dynamicLevels.flatMap(l => l.modules.map(m => m.name))));
   const selectedLevel = dynamicLevels.find(l => l.name === formData.level);
   const selectedLevelsForTeacher = dynamicLevels.filter(l => (formData.levels || []).includes(l.name));
   const availableModules = (
     entityLabel === 'Teacher'
       ? Array.from(new Set(selectedLevelsForTeacher.flatMap(l => l.modules.map(m => m.name))))
-      : (selectedLevel?.modules ?? []).map(m => m.name)
+      : formData.level
+        ? (selectedLevel?.modules ?? []).map(m => m.name)
+        : allModules
   );
 
   const filteredSessions = useMemo(() => {
@@ -653,6 +686,9 @@ export default function AddForm({
 
   if (!isOpen) return null;
 
+  const step1Class = currentStep === 1 ? 'activeStep' : currentStep > 1 ? 'completedStep' : '';
+  const step2Class = currentStep === 2 ? 'activeStep' : currentStep > 2 ? 'completedStep' : '';
+
   return (
     <div className="overlay" onClick={handleClose}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
@@ -664,13 +700,13 @@ export default function AddForm({
           <button className="closeButton" onClick={handleClose}>×</button>
         </div>
         {!hideAcademic && (
-          <div className="stepIndicator">
-            <div className={`step ${currentStep === 1 ? 'activeStep' : 'completedStep'}`}>
+          <div className="steps" style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', marginTop: 20 }}>
+            <div className={`step ${step1Class}`} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <span className="stepNumber">1</span>
               <span className="stepLabel">Personal Information</span>
             </div>
-            <div className={`stepLine ${currentStep === 2 ? 'active' : ''}`}></div>
-            <div className={`step ${currentStep === 2 ? 'activeStep' : ''}`}>
+            <div className={`stepLine ${currentStep >= 2 ? 'active' : ''}`}></div>
+            <div className={`step ${step2Class}`} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <span className="stepNumber">2</span>
               <span className="stepLabel">Academic Information</span>
             </div>
@@ -711,6 +747,7 @@ export default function AddForm({
                             value={formData.email}
                             onChange={handleChange}
                             disabled={mode === 'view'}
+                            autoComplete="off"
                             className={`input ${errors.email ? 'inputError' : ''}`}
                             placeholder="Enter email"
                           />
@@ -719,17 +756,39 @@ export default function AddForm({
                       </div>
                       <div className="formGroup">
                         <label className="label">Password</label>
-                        <div className="inputWrapper">
+                        <div className="inputWrapper" style={{ position: 'relative' }}>
                           <Image src="/icons/fingerprint.svg" alt="Password" width={20} height={20} className="inputIcon" />
                           <input
-                            type="password"
+                            type={showPassword ? 'text' : 'password'}
                             name="password"
                             value={formData.password}
                             onChange={handleChange}
                             disabled={mode === 'view'}
+                            autoComplete="new-password"
                             className={`input ${errors.password ? 'inputError' : ''}`}
                             placeholder="Enter password"
                           />
+                          <button
+                            type="button"
+                            aria-label={showPassword ? 'Hide password' : 'Show password'}
+                            aria-pressed={showPassword}
+                            onClick={() => setShowPassword((v) => !v)}
+                            style={{
+                              position: 'absolute',
+                              right: 12,
+                              top: '50%',
+                              transform: 'translateY(-50%)',
+                              background: 'transparent',
+                              border: 'none',
+                              cursor: 'pointer',
+                              padding: 4,
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              justifyContent: 'center'
+                            }}
+                          >
+                            <EyeIcon visible={showPassword} />
+                          </button>
                           {errors.password && <div className="errorText">{errors.password}</div>}
                         </div>
                       </div>
@@ -744,10 +803,10 @@ export default function AddForm({
                           display: 'flex',
                           flexWrap: 'wrap',
                           gap: '8px',
-                          alignItems: 'flex-start',
+                          alignItems: 'center',
                           minHeight: 48,
                         }}>
-                          <Image src="/icons/students.svg" alt="Children" width={20} height={20} style={{ marginTop: '12px', flexShrink: 0 }} />
+                          <Image src="/icons/students.svg" alt="Children" width={18} height={18} style={{ marginTop: -2, marginRight: 6, flexShrink: 0 }} />
                           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', flex: 1, alignItems: 'center' }}>
                             {(formData.children || []).map((child, index) => (
                               <div key={index} style={{
@@ -870,26 +929,28 @@ export default function AddForm({
                             value={formData.feePayment}
                             onChange={handleChange}
                             disabled={mode === 'view'}
-                            className={`input ${errors.feePayment ? 'inputError' : ''} hasInlineAction`}
+                            className={`input ${errors.feePayment ? 'inputError' : ''} ${allowFeeAdjust ? 'hasInlineAction' : ''}`}
                             placeholder="Enter fee payment"
                           />
-                          <div className="addAmountInline">
-                            {!addAmountVisible ? (
-                              <button type="button" className="plusSmallButton" onClick={() => setAddAmountVisible(true)} aria-label="Add amount">+</button>
-                            ) : (
-                              <div className="addAmountControlsInline">
-                                <input
-                                  type="number"
-                                  value={addAmount}
-                                  onChange={(e) => setAddAmount(e.target.value)}
-                                  className="smallAddInput"
-                                  placeholder="0"
-                                />
-                                <button type="button" className="addConfirmButton" onClick={handleAddAmountConfirm} aria-label="Confirm add">OK</button>
-                                <button type="button" className="addCancelButton" onClick={handleAddAmountCancel} aria-label="Cancel add">✕</button>
-                              </div>
-                            )}
-                          </div>
+                          {allowFeeAdjust && (
+                            <div className="addAmountInline">
+                              {!addAmountVisible ? (
+                                <button type="button" className="plusSmallButton" onClick={() => setAddAmountVisible(true)} aria-label="Add amount">+</button>
+                              ) : (
+                                <div className="addAmountControlsInline">
+                                  <input
+                                    type="number"
+                                    value={addAmount}
+                                    onChange={(e) => setAddAmount(e.target.value)}
+                                    className="smallAddInput"
+                                    placeholder="0"
+                                  />
+                                  <button type="button" className="addConfirmButton" onClick={handleAddAmountConfirm} aria-label="Confirm add">OK</button>
+                                  <button type="button" className="addCancelButton" onClick={handleAddAmountCancel} aria-label="Cancel add">✕</button>
+                                </div>
+                              )}
+                            </div>
+                          )}
                         </div>
                         {errors.feePayment && <div className="errorText">{errors.feePayment}</div>}
                       </div>
@@ -925,6 +986,7 @@ export default function AddForm({
                         value={formData.email}
                         onChange={handleChange}
                         disabled={mode === 'view'}
+                        autoComplete="off"
                         className={`input ${errors.email ? 'inputError' : ''}`}
                         placeholder="Enter email"
                       />
@@ -933,17 +995,39 @@ export default function AddForm({
                   </div>
                   <div className="formGroup">
                     <label className="label">Password</label>
-                    <div className="inputWrapper">
+                    <div className="inputWrapper" style={{ position: 'relative' }}>
                       <Image src="/icons/fingerprint.svg" alt="Password" width={20} height={20} className="inputIcon" />
                       <input
-                        type="password"
+                        type={showPassword ? 'text' : 'password'}
                         name="password"
                         value={formData.password}
                         onChange={handleChange}
                         disabled={mode === 'view'}
+                        autoComplete="new-password"
                         className={`input ${errors.password ? 'inputError' : ''}`}
                         placeholder="Enter password"
                       />
+                      <button
+                        type="button"
+                        aria-label={showPassword ? 'Hide password' : 'Show password'}
+                        aria-pressed={showPassword}
+                        onClick={() => setShowPassword((v) => !v)}
+                        style={{
+                          position: 'absolute',
+                          right: 12,
+                          top: '50%',
+                          transform: 'translateY(-50%)',
+                          background: 'transparent',
+                          border: 'none',
+                          cursor: 'pointer',
+                          padding: 4,
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'center'
+                        }}
+                      >
+                        <EyeIcon visible={showPassword} />
+                      </button>
                       {errors.password && <div className="errorText">{errors.password}</div>}
                     </div>
                   </div>
@@ -976,26 +1060,28 @@ export default function AddForm({
                           value={formData.feePayment}
                           onChange={handleChange}
                           disabled={mode === 'view'}
-                          className={`input ${errors.feePayment ? 'inputError' : ''} hasInlineAction`}
+                          className={`input ${errors.feePayment ? 'inputError' : ''} ${allowFeeAdjust ? 'hasInlineAction' : ''}`}
                           placeholder="Enter fee payment"
                         />
-                        <div className="addAmountInline">
-                          {!addAmountVisible ? (
-                            <button type="button" className="plusSmallButton" onClick={() => setAddAmountVisible(true)} aria-label="Add amount">+</button>
-                          ) : (
-                            <div className="addAmountControlsInline">
-                              <input
-                                type="number"
-                                value={addAmount}
-                                onChange={(e) => setAddAmount(e.target.value)}
-                                className="smallAddInput"
-                                placeholder="0"
-                              />
-                              <button type="button" className="addConfirmButton" onClick={handleAddAmountConfirm} aria-label="Confirm add">OK</button>
-                              <button type="button" className="addCancelButton" onClick={handleAddAmountCancel} aria-label="Cancel add">✕</button>
-                            </div>
-                          )}
-                        </div>
+                        {allowFeeAdjust && (
+                          <div className="addAmountInline">
+                            {!addAmountVisible ? (
+                              <button type="button" className="plusSmallButton" onClick={() => setAddAmountVisible(true)} aria-label="Add amount">+</button>
+                            ) : (
+                              <div className="addAmountControlsInline">
+                                <input
+                                  type="number"
+                                  value={addAmount}
+                                  onChange={(e) => setAddAmount(e.target.value)}
+                                  className="smallAddInput"
+                                  placeholder="0"
+                                />
+                                <button type="button" className="addConfirmButton" onClick={handleAddAmountConfirm} aria-label="Confirm add">OK</button>
+                                <button type="button" className="addCancelButton" onClick={handleAddAmountCancel} aria-label="Cancel add">✕</button>
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
                       {errors.feePayment && <div className="errorText">{errors.feePayment}</div>}
                     </div>

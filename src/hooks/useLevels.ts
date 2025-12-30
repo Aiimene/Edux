@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from 'react';
-import { getLevels } from '@/api/levels';
+import { getLevels } from '@/lib/api/levels';
 
 export type ModuleItem = { id: string; name: string };
 export type LevelItem = { id: string; name: string; modules: ModuleItem[] };

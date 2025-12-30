@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import Select, { components } from 'react-select';
 import styles from './AddSessionModal.module.css';
-import { getTeachers } from '@/api/teachers';
+import { getTeachers } from '@/lib/api/teachers';
 import useLevels from '@/hooks/useLevels';
 import Image from 'next/image';
 

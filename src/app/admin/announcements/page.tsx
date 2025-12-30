@@ -4,8 +4,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import styles from "./page.module.css";
 import AnnouncementsTop from "@/components/academic/AnnouncementsTop/AnnouncementsTop";
-import { getAnnouncements, createAnnouncement, deleteAnnouncement } from "@/api/announcements";
-import { getProfile } from "@/api/auth";
+import { getAnnouncements, createAnnouncement, deleteAnnouncement } from "@/lib/api/announcements";
+import { authService } from "@/lib/api/auth.service";
 import ConfirmModal from "@/components/UI/ConfirmModal/ConfirmModal";
 
 type Announcement = {
@@ -21,7 +21,7 @@ const normalizeAnnouncement = (a: any): Announcement => {
   const created = a?.created_at || a?.date || a?.updated_at || '';
   return {
     id: (a?.id ?? Math.random().toString(36).slice(2)) + '',
-    sender: a?.name || a?.sender || a?.created_by?.name || a?.author || 'Unknown',
+    sender: a?.name || a?.sender || a?.created_by?.name || a?.author || '',
     role: a?.role || a?.created_by?.role || 'Admin',
     title: a?.title || a?.subject || '',
     message: a?.message || a?.body || a?.content || '',
@@ -49,7 +49,7 @@ export default function AnnouncementsPage() {
     // Fetch admin profile to get username
     const fetchAdminProfile = async () => {
       try {
-        const profile = await getProfile();
+        const profile = await authService.getProfile();
         const username = profile?.user?.username || profile?.username || localStorage.getItem('username') || localStorage.getItem('display_name') || 'Admin';
         setAdminUsername(username);
         localStorage.setItem('username', username);
@@ -115,69 +115,57 @@ export default function AnnouncementsPage() {
       return;
     }
     setSending(true);
-    setError(null);
     try {
-      // Use the fetched admin username
-      const finalSenderName = adminUsername || localStorage.getItem('username') || localStorage.getItem('display_name') || 'Admin';
+      // Create announcement via API
       const response = await createAnnouncement({
         title: title.trim(),
         message: message.trim(),
-        name: finalSenderName,
-        sender: finalSenderName,
+        name: adminUsername,
+        sender: adminUsername,
         role,
       });
-      
-      console.log('Create announcement response:', response);
-      
-      // Store the sender name with the announcement ID for later retrieval
-      // Try multiple ID formats from response
+      // Use returned ID or fallback
       const announcementId = (response?.id || response?.data?.id || response?.announcement?.id || Date.now()).toString();
-      const newSenders = { ...announcementSenders, [announcementId]: finalSenderName };
-      setAnnouncementSenders(newSenders);
-      try {
-        localStorage.setItem('announcement_senders', JSON.stringify(newSenders));
-      } catch (_) {}
-      
-      // Add optimistically to show immediately
+      // Add optimistically
       const newAnnouncement: Announcement = {
         id: announcementId,
-        sender: finalSenderName,
+        sender: adminUsername,
         role,
         title: title.trim(),
         message: message.trim(),
         date: new Date().toLocaleDateString(),
       };
-      setAnnouncements((prev) => [newAnnouncement, ...prev]);
+      setAnnouncements((prev: Announcement[]) => [newAnnouncement, ...prev]);
+      // Store sender for this announcement
+      const newSenders = { ...announcementSenders, [announcementId]: adminUsername };
+      setAnnouncementSenders(newSenders);
+      try {
+        localStorage.setItem('announcement_senders', JSON.stringify(newSenders));
+      } catch (_) {}
       resetForm();
       setShowForm(false);
-      
       // Refresh to sync with backend and apply stored names
+      setLoading(true);
       try {
-        setLoading(true);
         const res = await getAnnouncements();
         const data = Array.isArray(res) ? res : res?.results || [];
-        console.log('Fetched announcements:', data);
-        const currentSenders: Record<string, string> = { ...announcementSenders, [announcementId]: finalSenderName };
+        const currentSenders: Record<string, string> = { ...announcementSenders, [announcementId]: adminUsername };
         const normalized = data.map((a: any) => {
           const norm = normalizeAnnouncement(a);
-          // Always check localStorage for stored sender names
           const storedName = currentSenders[norm.id];
-          console.log(`Announcement ${norm.id}: backend="${norm.sender}", stored="${storedName}"`);
           return {
             ...norm,
             sender: storedName || norm.sender,
           };
         });
         setAnnouncements(normalized);
-      } catch (_) {} finally {
-        setLoading(false);
-      }
+      } catch (_) {}
+      setLoading(false);
     } catch (err: any) {
       const msg = err?.response?.data?.error || err?.message || 'Failed to send announcement';
       setError(msg);
-    } finally {
-      setSending(false);
     }
+    setSending(false);
   };
 
   const handleDeleteClick = (id: string) => {
@@ -213,21 +201,13 @@ export default function AnnouncementsPage() {
 
   return (
     <>
-      <AnnouncementsTop />
       <div className={styles.container}>
+        <AnnouncementsTop />
         <div className={styles.header}> 
-          <div className={styles.titleRow}>
-            <div className={styles.titleWrap}>
-              <div className={styles.titleRowInner}>
-                <Image src="/icons/announcement.svg" alt="Announcements" width={20} height={20} />
-                <h1 className={styles.title}>Announcements</h1>
-              </div>
-            </div>
-            <button className={styles.primaryBtn} onClick={() => setShowForm((v) => !v)}>
-              <Image src="/icons/add.svg" alt="Add" width={18} height={18} />
-              Add Announcement
-            </button>
-          </div>
+          <button className={styles.primaryBtn} onClick={() => setShowForm((v) => !v)}>
+            <Image src="/icons/add.svg" alt="Add" width={18} height={18} />
+            Add Announcement
+          </button>
           {error && (
             <div className={styles.errorBanner}>
               <span>{error}</span>

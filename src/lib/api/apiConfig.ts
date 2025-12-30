@@ -80,6 +80,18 @@ export const createApiInstance = (baseURL: string): AxiosInstance => {
     withCredentials: true, // Automatically sends HttpOnly cookies
   });
 
+  // Attach Authorization header from localStorage tokens when available
+  api.interceptors.request.use((config) => {
+    try {
+      const token =
+        (typeof window !== 'undefined' && (localStorage.getItem('access_token') || localStorage.getItem('authToken'))) || '';
+      if (token) {
+        config.headers = config.headers || {};
+        (config.headers as any)['Authorization'] = `Bearer ${token}`;
+      }
+    } catch (_) {}
+    return config;
+  });
 
   api.interceptors.response.use(
     (response) => response,
@@ -89,14 +101,15 @@ export const createApiInstance = (baseURL: string): AxiosInstance => {
       // Handle 401 Unauthorized (token expired)
       if (error.response?.status === 401 && !originalRequest._retry) {
         originalRequest._retry = true;
-
         try {
+          // Prefer cookie-based refresh; fallback to stored refresh token
+          const refresh =
+            (typeof window !== 'undefined' && (localStorage.getItem('refresh_token') || localStorage.getItem('refreshToken'))) || undefined;
           await axios.post(
             `${API_BASE_URLS.AUTH}/token/refresh/`,
-            {},
+            refresh ? { refresh } : {},
             { withCredentials: true }
           );
-
           return api(originalRequest);
         } catch (refreshError) {
           

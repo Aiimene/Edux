@@ -6,9 +6,9 @@ import SessionsList from '../../../../components/academic/SessionsList/SessionsL
 import AddSessionModal from '@/components/academic/AddSessionModal/AddSessionModal';
 import DashboardCard from '../../../../components/dashboard/DashboardCard/DashboardCard';
 import styles from './page.module.css';
-import { getSessions, createSession, updateSession, deleteSession } from '@/api/sessions';
-import { getTeachers } from '@/api/teachers';
-import { getCourses } from '@/api/levels';
+import { getSessions, createSession, updateSession, deleteSession } from '@/lib/api/sessions';
+import { getTeachers } from '@/lib/api/teachers';
+import { getCourses } from '@/lib/api/levels';
 import useLevels from '@/hooks/useLevels';
 import enterpriseData from '@/data/enterprise.json';
 
@@ -76,7 +76,12 @@ export default function SessionsPage() {
         // Level derived from API if present
         level: s.level_name || s.course?.level?.name || s.level?.name || '',
         Level: s.level_name || s.course?.level?.name || s.level?.name || '',
-        teacher: s.teacher_name || s.teacher?.name || '',
+        teacher:
+          s.teacher_name ||
+          s.teacher?.name ||
+          s.teacher?.user?.username ||
+          schoolName ||
+          '',
         time: `${s.start_time || ''} - ${s.end_time || ''}`,
         startTime: s.start_time || '',
         endTime: s.end_time || '',
@@ -182,34 +187,38 @@ export default function SessionsPage() {
         setError('Module not found. Please select a valid module.');
         return;
       }
-      const dayOfWeek = Array.isArray(payload.dayOfWeek)
-        ? dayNameToNumber[payload.dayOfWeek[0]] ?? 0
-        : dayNameToNumber[payload.dayOfWeek] ?? 0;
-      const daysOfWeek = Array.isArray(payload.dayOfWeek)
-        ? payload.dayOfWeek
-            .map((d: string) => dayNameToNumber[d])
-            .filter((n: number | undefined) => typeof n === 'number')
-        : undefined;
-
-      const sessionPayload: any = {
-        name: payload.sessionName || payload.module,
-        course: course?.id ?? payload.module,
-        teacher: teacher.id,
-        start_time: payload.startTime,
-        end_time: payload.endTime,
-        status: 'active',
-      };
-      // Always include day_of_week to satisfy serializers that require it
-      sessionPayload.day_of_week = dayOfWeek;
-      // Additionally include days_of_week when multiple days are selected
-      if (daysOfWeek && daysOfWeek.length > 0) {
-        sessionPayload.days_of_week = daysOfWeek as number[];
-      }
+      // If multiple days, create a session for each day (backend expects this)
+      const days = Array.isArray(payload.dayOfWeek) ? payload.dayOfWeek : [payload.dayOfWeek];
+      const validDays = days.filter(Boolean);
       if (sessionModalMode === 'edit' && editingIndex !== null) {
+        // Only allow editing one session at a time
+        const dayOfWeek = dayNameToNumber[validDays[0]] ?? 0;
+        const sessionPayload: any = {
+          name: payload.sessionName || payload.module,
+          course: course?.id ?? payload.module,
+          teacher: teacher.id,
+          start_time: payload.startTime,
+          end_time: payload.endTime,
+          status: 'active',
+          day_of_week: dayOfWeek,
+        };
         const id = sessions[editingIndex]?.id;
         await updateSession(id, sessionPayload);
       } else {
-        await createSession(sessionPayload);
+        // Create a session for each selected day
+        for (const day of validDays) {
+          const dayOfWeek = dayNameToNumber[day] ?? 0;
+          const sessionPayload: any = {
+            name: payload.sessionName || payload.module,
+            course: course?.id ?? payload.module,
+            teacher: teacher.id,
+            start_time: payload.startTime,
+            end_time: payload.endTime,
+            status: 'active',
+            day_of_week: dayOfWeek,
+          };
+          await createSession(sessionPayload);
+        }
       }
       await fetchData();
       setIsSessionModalOpen(false);
@@ -363,20 +372,25 @@ export default function SessionsPage() {
         </div>
       </div>
 
+
       {!loading && (
         <SessionsList
-          sessions={sessions.filter((s: any) => {
-            let ok = true;
-            if (filterModule) ok = ok && (s.module === filterModule || s.Module === filterModule);
-            if (filterLevel) ok = ok && (s.level === filterLevel || s.Level === filterLevel);
-            if (filterTeacher) ok = ok && (s.teacher === filterTeacher);
-            if (filterDate) {
-              const d = new Date(filterDate);
-              const weekday = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][d.getDay()];
-              ok = ok && (s.dayOfWeek === weekday);
-            }
-            return ok;
-          })}
+          sessions={
+            filterLevel
+              ? sessions.filter((s: any) => {
+                  let ok = true;
+                  if (filterModule) ok = ok && (s.module === filterModule || s.Module === filterModule);
+                  if (filterLevel) ok = ok && (s.level === filterLevel || s.Level === filterLevel);
+                  if (filterTeacher) ok = ok && (s.teacher === filterTeacher);
+                  if (filterDate) {
+                    const d = new Date(filterDate);
+                    const weekday = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][d.getDay()];
+                    ok = ok && (s.dayOfWeek === weekday);
+                  }
+                  return ok;
+                })
+              : sessions // Show all if no level filter
+          }
           onDelete={handleDeleteSession}
           onEdit={handleEditSession}
         />

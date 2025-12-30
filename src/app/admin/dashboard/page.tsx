@@ -1,39 +1,95 @@
+"use client";
 import DashboardCard from '../../../components/dashboard/DashboardCard/DashboardCard';
 import Chart from '../../../components/dashboard/Chart/Chart';
 import RankingList from '../../../components/dashboard/RankingList/RankingList';
 import RemainingWeeklySessions from '../../../components/dashboard/RemainingWeeklySessions/RemainingWeeklySession';
-import enterpriseData from '../../../data/enterprise.json';
+import { useEffect, useState } from 'react';
+import { getDashboardOverview, getClassesRanking, getStudentsEvolvement, getTeachersRanking, getWeeklySessions } from '../../../lib/api/dashboard';
+import { getStudents } from '../../../lib/api/students';
+import { getTeachers } from '../../../lib/api/teachers';
 import styles from './page.module.css';
 
 export default function DashboardPage() {
-  const stats = [
-    { 
-      icon: 'monthly-profit', 
-      label: 'Monthly Profit', 
-      value: `${enterpriseData["Monthly Profit"]}DZD`, 
-      percentage: `${enterpriseData["monthly profit percentage"]}%`,
-      iconSize: 40 // Adjust this value to make the icon bigger or smaller
+  const [overview, setOverview] = useState<any>(null);
+  const [classesRanking, setClassesRanking] = useState<any>(null);
+  const [studentsEvolvement, setStudentsEvolvement] = useState<any>(null);
+  const [teachersRanking, setTeachersRanking] = useState<any>(null);
+  const [weeklySessions, setWeeklySessions] = useState<any>(null);
+  const [studentsCount, setStudentsCount] = useState<number | null>(null);
+  const [teachersCount, setTeachersCount] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchAll() {
+      try {
+        const [overviewData, classesRankingData, studentsEvolvementData, teachersRankingData, weeklySessionsData, studentsData, teachersData] = await Promise.all([
+          getDashboardOverview(),
+          getClassesRanking(),
+          getStudentsEvolvement(),
+          getTeachersRanking(),
+          getWeeklySessions(),
+          getStudents(),
+          getTeachers()
+        ]);
+        setOverview(overviewData);
+        setClassesRanking(classesRankingData);
+        setStudentsEvolvement(studentsEvolvementData);
+        setTeachersRanking(teachersRankingData);
+        setWeeklySessions(weeklySessionsData);
+        setStudentsCount(
+          typeof studentsData?.count === 'number'
+            ? studentsData.count
+            : Array.isArray(studentsData)
+              ? studentsData.length
+              : (studentsData?.results?.length ?? 0)
+        );
+        setTeachersCount(
+          typeof teachersData?.count === 'number'
+            ? teachersData.count
+            : Array.isArray(teachersData)
+              ? teachersData.length
+              : (teachersData?.results?.length ?? 0)
+        );
+      } catch (err) {
+        setError('Failed to load dashboard data');
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchAll();
+  }, []);
+
+  const stats = overview ? [
+    {
+      icon: 'monthly-profit',
+      label: 'Monthly Profit',
+      value: `${overview.monthly_profit ?? 0} DZD`,
+      percentage: `${overview.monthly_profit_percentage ?? 0}%`,
+      iconSize: 40
     },
-    { 
-      icon: 'students', 
-      label: 'Total Students', 
-      value: enterpriseData["number of students"], 
-      percentage: `${enterpriseData["students percentage"]}%` 
+    {
+      icon: 'students',
+      label: 'Total Students',
+      value: studentsCount !== null ? studentsCount : (overview.number_of_students ?? 0),
+      percentage: `${overview.students_percentage ?? 0}%`
     },
-    { 
-      icon: 'teachers', 
-      label: 'Total Teachers', 
-      value: enterpriseData["number of teachers"], 
-      percentage: `${enterpriseData["teachers percentage"]}%` 
+    {
+      icon: 'teachers',
+      label: 'Total Teachers',
+      value: teachersCount !== null ? teachersCount : (overview.number_of_teachers ?? 0),
+      percentage: `${overview.teachers_percentage ?? 0}%`
     },
-    { 
-      icon: 'total_parents', 
-      label: 'Total Parents', 
-      value: enterpriseData["number of parents"], 
-      percentage: `${enterpriseData["parents percentage"]}%` 
+    {
+      icon: 'total_parents',
+      label: 'Total Parents',
+      value: overview.number_of_parents ?? 0,
+      percentage: `${overview.parents_percentage ?? 0}%`
     },
-  
-  ];
+  ] : [];
+
+  if (loading) return <div>Loading dashboard...</div>;
+  if (error) return <div>{error}</div>;
 
   return (
     <>
@@ -46,18 +102,22 @@ export default function DashboardPage() {
 
       {/* Charts Section */}
       <div className={styles.chartsContainer}>
-        <Chart
-          type="bar"
-          data={enterpriseData.classesRanking}
-          title="Classes Ranking"
-          seeDetailsUrl="/dashboard/classes"
-        />
-        <Chart
-          type="line"
-          data={enterpriseData.studentsEvolvement}
-          title="Students Evolvement"
-          seeDetailsUrl="/dashboard/students"
-        />
+        {classesRanking && (
+          <Chart
+            type="bar"
+            data={classesRanking}
+            title="Classes Ranking"
+            seeDetailsUrl="/dashboard/classes"
+          />
+        )}
+        {studentsEvolvement && (
+          <Chart
+            type="line"
+            data={studentsEvolvement}
+            title="Students Evolvement"
+            seeDetailsUrl="/dashboard/students"
+          />
+        )}
       </div>
 
       {/* Teacher Ranking and Sessions */}
@@ -66,17 +126,17 @@ export default function DashboardPage() {
           <RankingList
             title="Teachers Ranking"
             icon="/icons/teachers_ranking.svg"
-            teachers={enterpriseData.teachersRanking}
+            teachers={teachersRanking || []}
           />
         </div>
         <div>
           <RemainingWeeklySessions
             title="Remaining weekly sessions"
             icon="/icons/remaining_weekly_sessions.svg"
-            sessions={enterpriseData.weeklySessions}
-            remainingSessionsCount={enterpriseData.remainingSessionsCount}
-            remainingSessionsHours={enterpriseData.remainingSessionsHours}
-            remainingSessionsDays={enterpriseData.remainingSessionsDays}
+            sessions={weeklySessions?.sessions || []}
+            remainingSessionsCount={weeklySessions?.remainingSessionsCount ?? 0}
+            remainingSessionsHours={weeklySessions?.remainingSessionsHours ?? 0}
+            remainingSessionsDays={weeklySessions?.remainingSessionsDays ?? 0}
           />
         </div>
       </div>

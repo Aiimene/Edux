@@ -91,12 +91,7 @@ export default function LevelCard({
           </div>
         </div>
 
-        {level.students !== undefined && (
-          <div className={styles.info}>
-            <Image src="/icons/students.svg" alt="Students" width={16} height={16} />
-            <span>{level.students} Students</span>
-          </div>
-        )}
+          {/* Student count removed as requested */}
 
         <div className={styles.modulesSection}>
           <div className={styles.modulesHeader}>

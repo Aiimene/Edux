@@ -8,7 +8,7 @@ import AddStudentModal from '../../../../../components/students/AddStudentModal/
 import EditStudentModal from '../../../../../components/students/EditStudentModal/EditStudentModal';
 import StudentProfileModal from '../../../../../components/students/StudentProfileModal/StudentProfileModal';
 import ConfirmModal from '../../../../../components/UI/ConfirmModal/ConfirmModal';
-import { getStudents, deleteStudent, createStudent, updateStudent, getStudentById } from '../../../../../api/students';
+import { getStudents, deleteStudent, createStudent, updateStudent, getStudentById } from '@/lib/api/students';
 import { FormData } from '../../../../../components/UI/AddForm/AddForm';
 import styles from './page.module.css';
 
@@ -453,6 +453,7 @@ export default function StudentListPage() {
       setStudents((prev) => [...prev, optimisticStudent]);
       
       setIsAddModalOpen(false);
+  
     } catch (err: any) {
       // Try to recover by refreshing list; if it succeeds, hide the error
       let recovered = false;

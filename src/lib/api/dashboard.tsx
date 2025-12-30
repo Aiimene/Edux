@@ -1,13 +1,9 @@
-import axios from 'axios';
-
-const API_BASE_URL = 'http://127.0.0.1:8000/api/dashboard';
+import { dashboardApi as api } from './apiConfig';
 
 // Dashboard overview
 export const getDashboardOverview = async (month?: number, year?: number) => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/overview/`, {
-      params: { month, year },
-    });
+    const response = await api.get('/overview/', { params: { month, year } });
     return response.data;
   } catch (error) {
     console.error('Failed to fetch dashboard overview:', error);
@@ -18,7 +14,7 @@ export const getDashboardOverview = async (month?: number, year?: number) => {
 // Classes ranking
 export const getClassesRanking = async (months?: number[], year?: number) => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/classes-ranking/`, {
+    const response = await api.get('/classes-ranking/', {
       params: { months: months?.join(','), year },
     });
     return response.data;
@@ -31,7 +27,7 @@ export const getClassesRanking = async (months?: number[], year?: number) => {
 // Students evolvement
 export const getStudentsEvolvement = async (months?: number[], year?: number) => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/students-evolvement/`, {
+    const response = await api.get('/students-evolvement/', {
       params: { months: months?.join(','), year },
     });
     return response.data;
@@ -44,9 +40,7 @@ export const getStudentsEvolvement = async (months?: number[], year?: number) =>
 // Teachers ranking
 export const getTeachersRanking = async (month?: number, year?: number) => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/teachers-ranking/`, {
-      params: { month, year },
-    });
+    const response = await api.get('/teachers-ranking/', { params: { month, year } });
     return response.data;
   } catch (error) {
     console.error('Failed to fetch teachers ranking:', error);
@@ -57,7 +51,7 @@ export const getTeachersRanking = async (month?: number, year?: number) => {
 // Weekly sessions
 export const getWeeklySessions = async () => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/weekly-sessions/`);
+    const response = await api.get('/weekly-sessions/');
     return response.data;
   } catch (error) {
     console.error('Failed to fetch weekly sessions:', error);

@@ -6,7 +6,7 @@ import AddParentModal from '@/components/parents/AddParentModal/AddParentModal';
 import EditParentModal from '@/components/parents/EditParentModal/EditParentModal';
 import ParentProfileModal from '@/components/parents/ParentProfileModal/ParentProfileModal';
 import ConfirmModal from '@/components/UI/ConfirmModal/ConfirmModal';
-import { getParents, getParentById, createParent, updateParent, deleteParent } from '@/api/parents';
+import { getParents, getParentById, createParent, updateParent, deleteParent } from '@/lib/api/parents';
 import styles from './page.module.css';
 import Image from 'next/image';
 import DashboardCard from '@/components/dashboard/DashboardCard/DashboardCard';

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import styles from "./page.module.css";
-import { getSessions } from "@/api/sessions";
+import { getSessions } from "@/lib/api/sessions";
 
 type TimetableSession = {
   id: string;

@@ -8,7 +8,7 @@ import AddTeacherModal from '../../../../../components/teachers/AddTeacherModal/
 import EditTeacherModal from '../../../../../components/teachers/EditTeacherModal/EditTeacherModal';
 import TeacherProfileModal from '../../../../../components/teachers/TeacherProfileModal/TeacherProfileModal';
 import ConfirmModal from '../../../../../components/UI/ConfirmModal/ConfirmModal';
-import { getTeachers, deleteTeacher, createTeacher, updateTeacher } from '../../../../../api/teachers';
+import { getTeachers, deleteTeacher, createTeacher, updateTeacher } from '@/lib/api/teachers';
 import { FormData } from '../../../../../components/UI/AddForm/AddForm';
 import styles from './page.module.css';
 

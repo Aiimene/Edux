@@ -1,28 +1,4 @@
-import axios from 'axios';
-
-const API_BASE_URL = 'http://127.0.0.1:8000/api/academic';
-
-// Create axios instance with default config
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  withCredentials: false,
-});
-
-// Add JWT token to every request if available (support both authToken and access_token keys)
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('authToken') || localStorage.getItem('access_token');
-  console.log('API Interceptor - Token available:', !!token);
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-    console.log('Adding Authorization header to request:', config.url);
-  } else {
-    console.warn('No token found in localStorage for request:', config.url);
-  }
-  return config;
-});
+import { academicApi as api } from './apiConfig';
 
 // Sessions
 export const getSessions = async (filters?: { status?: string; teacher?: string; day?: string }) => {
@@ -61,8 +37,25 @@ export const createSession = async (sessionData: any) => {
     const response = await api.post('/sessions/', sessionData);
     return response.data;
   } catch (error) {
-    console.error('Failed to create session:', error);
-    throw error;
+    const status = (error as any)?.response?.status;
+    const data = (error as any)?.response?.data;
+    let message = 'Failed to create session';
+    if (data?.error) {
+      message = data.error;
+    } else if (data && typeof data === 'object') {
+      const parts: string[] = [];
+      for (const key of Object.keys(data)) {
+        const val = Array.isArray(data[key]) ? data[key].join(', ') : String(data[key]);
+        parts.push(`${key}: ${val}`);
+      }
+      if (parts.length) message = parts.join(' | ');
+    } else if ((error as any)?.message) {
+      message = (error as any).message;
+    }
+    const friendlyError = new Error(message);
+    // @ts-expect-error attach status
+    friendlyError.status = status;
+    throw friendlyError;
   }
 };
 
@@ -71,8 +64,25 @@ export const updateSession = async (id: string, sessionData: any) => {
     const response = await api.patch(`/sessions/${id}/`, sessionData);
     return response.data;
   } catch (error) {
-    console.error(`Failed to update session ${id}:`, error);
-    throw error;
+    const status = (error as any)?.response?.status;
+    const data = (error as any)?.response?.data;
+    let message = 'Failed to update session';
+    if (data?.error) {
+      message = data.error;
+    } else if (data && typeof data === 'object') {
+      const parts: string[] = [];
+      for (const key of Object.keys(data)) {
+        const val = Array.isArray(data[key]) ? data[key].join(', ') : String(data[key]);
+        parts.push(`${key}: ${val}`);
+      }
+      if (parts.length) message = parts.join(' | ');
+    } else if ((error as any)?.message) {
+      message = (error as any).message;
+    }
+    const friendlyError = new Error(message);
+    // @ts-expect-error attach status
+    friendlyError.status = status;
+    throw friendlyError;
   }
 };
 
