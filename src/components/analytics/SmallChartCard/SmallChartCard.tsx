@@ -26,18 +26,40 @@ type SmallChartCardProps = {
 };
 
 const SmallChartCard: React.FC<SmallChartCardProps> = ({ icon, label, value, chartData }) => {
+  // Validate chartData is provided and has required structure
+  if (!chartData || !chartData.labels || !chartData.datasets || !Array.isArray(chartData.datasets)) {
+    console.error('SmallChartCard: Invalid chartData prop:', { icon, label, chartData });
+    return (
+      <div className={styles.card}>
+        <div className={styles.header}>
+          <img src={`/icons/${icon}.svg`} alt={label} width={20} height={20} />
+          <span className={styles.label}>{label}</span>
+        </div>
+        <div className={styles.value}>{value || 'N/A'}</div>
+        <div style={{ padding: '20px', textAlign: 'center', color: '#999', fontSize: '12px' }}>
+          No chart data available
+        </div>
+      </div>
+    );
+  }
+
   const chartDataFormatted = {
-    labels: chartData.labels,
+    labels: chartData.labels || [],
     datasets: chartData.datasets.map((dataset) => ({
-      label: dataset.label,
-      data: dataset.data,
-      borderColor: dataset.borderColor,
+      label: dataset.label || '',
+      data: Array.isArray(dataset.data) ? dataset.data : [],
+      borderColor: dataset.borderColor || '#222',
       backgroundColor: dataset.borderColor === '#222' ? '#222' : '#7AB2F980',
       fill: false,
       tension: 0.1,
       ...(dataset.borderDash && { borderDash: dataset.borderDash }),
     })),
   };
+
+  console.log(`SmallChartCard [${label}]: Rendering chart with data:`, {
+    labels: chartDataFormatted.labels,
+    datasets: chartDataFormatted.datasets.map(d => ({ label: d.label, dataLength: d.data.length, data: d.data }))
+  });
 
   return (
     <div className={styles.card}>

@@ -112,15 +112,44 @@ export default function AnalyticsPage() {
         const response = await getAnalytics(analyticsFilters);
         
         // Debug: Log the response to verify it's coming from backend
-        console.log('Analytics API Response:', response);
+        console.log('Analytics API Response:', JSON.stringify(response, null, 2));
         console.log('Revenue Chart Data:', response?.revenue?.chart);
+        console.log('Revenue Chart Datasets:', response?.revenue?.chart?.datasets);
         console.log('Small Charts Data:', response?.smallCharts);
         
-        // Ensure we have valid data structure
-        if (response && response.revenue && response.revenue.chart && response.smallCharts) {
-          setData(response);
+        // Validate and ensure we have valid data structure from backend
+        if (response && response.revenue && response.revenue.chart) {
+          // Verify chart data has datasets with data arrays
+          const revenueChartValid = response.revenue.chart.datasets && 
+            Array.isArray(response.revenue.chart.datasets) &&
+            response.revenue.chart.datasets.length > 0 &&
+            response.revenue.chart.datasets[0].data &&
+            Array.isArray(response.revenue.chart.datasets[0].data);
+          
+          const smallChartsValid = response.smallCharts &&
+            Array.isArray(response.smallCharts) &&
+            response.smallCharts.length > 0 &&
+            response.smallCharts.every(chart => 
+              chart.chart && 
+              chart.chart.datasets && 
+              Array.isArray(chart.chart.datasets) &&
+              chart.chart.datasets.length > 0
+            );
+          
+          if (revenueChartValid && smallChartsValid) {
+            console.log('✅ Valid chart data received from backend');
+            setData(response);
+          } else {
+            console.error('❌ Invalid chart data structure:', {
+              revenueChartValid,
+              smallChartsValid,
+              revenueChart: response.revenue?.chart,
+              smallCharts: response.smallCharts
+            });
+            setError('Invalid chart data structure received from server.');
+          }
         } else {
-          console.error('Invalid response structure:', response);
+          console.error('❌ Invalid response structure:', response);
           setError('Invalid data structure received from server.');
         }
       } catch (err: any) {
