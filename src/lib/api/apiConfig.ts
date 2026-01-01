@@ -1,7 +1,7 @@
 import axios, { AxiosInstance, AxiosError } from 'axios';
 
 // Backend API base URL - uses environment variable or defaults to localhost
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ;
 
 // Base URLs
 export const API_BASE_URLS = {
@@ -9,6 +9,7 @@ export const API_BASE_URLS = {
   MEMBERS: `${API_BASE}/members`,
   DASHBOARD: `${API_BASE}/dashboard`,
   ACADEMIC: `${API_BASE}/academic`,
+  SETTINGS: `${API_BASE}/settings`,
 } as const;
 
 export interface ApiError {
@@ -23,7 +24,20 @@ export const handleApiError = (error: any, context: string): ApiError => {
   if (axios.isAxiosError(error)) {
     const axiosError = error as AxiosError;
 
-    if (axiosError.response) {
+    if (axiosError.response) {Most Likely Problem:
+    The timetables page (src/app/admin/academic/timetables/page.tsx) has a useEffect that depends on filters, which updates the options, causing an infinite loop of API calls.
+    Quick Fix Options:
+    Option 1: Disable problematic pages (fastest)
+    cd /home/edux-manager/htdocs/edux-manager.online/frontend/src/app/admin
+    mv attendance/page.tsx attendance/page.tsx.disabled
+    mv academic/timetables/page.tsx academic/timetables/page.tsx.disabled
+    mv announcements/page.tsx announcements/page.tsx.disabled
+    cd /home/edux-manager/htdocs/edux-manager.online/frontend/src/app/adminmv attendance/page.tsx attendance/page.tsx.disabledmv academic/timetables/page.tsx academic/timetables/page.tsx.disabledmv announcements/page.tsx announcements/page.tsx.disabled
+    Option 2: Delete new API files
+    cd /home/edux-manager/htdocs/edux-manager.online/frontend
+    rm -f src/lib/api/settings.ts src/lib/api/attendance.ts src/lib/api/announcements.ts src/lib/api/timetables.ts
+    cd /home/edux-manager/htdocs/edux-manager.online/frontendrm -f src/lib/api/settings.ts src/lib/api/attendance.ts src/lib/api/announcements.ts src/lib/api/timetables.ts
+    
       const status = axiosError.response.status;
       const data = axiosError.response.data;
 
@@ -87,7 +101,7 @@ export const handleApiError = (error: any, context: string): ApiError => {
   };
 };
 
-// Create API Instance (HTTP-only Cookies)
+// Create API Instance (HTTP-only Cookies + JWT Token Support)
 export const createApiInstance = (baseURL: string): AxiosInstance => {
   const api = axios.create({
     baseURL,
@@ -97,6 +111,26 @@ export const createApiInstance = (baseURL: string): AxiosInstance => {
     },
     withCredentials: true, // Automatically sends HttpOnly cookies
   });
+
+  // Request interceptor to add JWT token if available
+  api.interceptors.request.use(
+    (config) => {
+      // Check for JWT token in localStorage
+      if (typeof window !== 'undefined') {
+        const token = localStorage.getItem('access_token') || 
+                     localStorage.getItem('authToken') ||
+                     localStorage.getItem('token');
+        
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
+      }
+      return config;
+    },
+    (error) => {
+      return Promise.reject(error);
+    }
+  );
 
 
   api.interceptors.response.use(
@@ -137,6 +171,7 @@ export const authApi = createApiInstance(API_BASE_URLS.AUTH);
 export const membersApi = createApiInstance(API_BASE_URLS.MEMBERS);
 export const dashboardApi = createApiInstance(API_BASE_URLS.DASHBOARD);
 export const academicApi = createApiInstance(API_BASE_URLS.ACADEMIC);
+export const settingsApi = createApiInstance(API_BASE_URLS.SETTINGS);
 
 export const api = {
   // GET request

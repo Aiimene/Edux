@@ -54,8 +54,19 @@ export default function LoginPage() {
 
       const response = await authService.login(loginData);
 
-      // Tokens are automatically stored in HTTP-only cookies
-      // We only need to store user metadata
+      // Store JWT token if provided in response (some backends return tokens)
+      // Tokens are also automatically stored in HTTP-only cookies
+      if ((response as any).access_token) {
+        localStorage.setItem('access_token', (response as any).access_token);
+      }
+      if ((response as any).refresh_token) {
+        localStorage.setItem('refresh_token', (response as any).refresh_token);
+      }
+      if ((response as any).token) {
+        localStorage.setItem('token', (response as any).token);
+      }
+
+      // Store user metadata
       localStorage.setItem('user_role', response.role || '');
       localStorage.setItem('school_name', response.workspace.name);
       localStorage.setItem('user_id', response.user.id.toString());

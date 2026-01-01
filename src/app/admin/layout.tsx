@@ -6,6 +6,7 @@ import DashboardTop from "../../components/dashboard/DashboardTop/DashboardTop";
 import MembersTop from "../../components/members/MembersTop/MembersTop";
 import TopBar from "../../components/layout/TopBar/TopBar";
 import { SidebarProvider, useSidebar } from "../../contexts/SidebarContext";
+import AdminGuard from "../../components/auth/AdminGuard";
 import styles from "./layout.module.css";
 
 function AdminLayoutContent({
@@ -63,8 +64,10 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <SidebarProvider>
-      <AdminLayoutContent>{children}</AdminLayoutContent>
-    </SidebarProvider>
+    <AdminGuard>
+      <SidebarProvider>
+        <AdminLayoutContent>{children}</AdminLayoutContent>
+      </SidebarProvider>
+    </AdminGuard>
   );
 }

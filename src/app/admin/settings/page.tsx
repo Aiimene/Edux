@@ -1,18 +1,20 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import SettingsTabs from '../../../components/settings/SettingsTabs/SettingsTabs';
 import GeneralTab from '../../../components/settings/GeneralTab/GeneralTab';
 import UserRoleTab from '../../../components/settings/UserRoleTab/UserRoleTab';
 import BillingTab from '../../../components/settings/BillingTab/BillingTab';
 import SecurityTab from '../../../components/settings/SecurityTab/SecurityTab';
 import SupportTab from '../../../components/settings/SupportTab/SupportTab';
+import { getGeneralSettings } from '../../../lib/api/settings';
 import styles from './page.module.css';
 
 type TabType = 'general' | 'user-role' | 'billing' | 'security' | 'support';
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState<TabType>('general');
+  const [loading, setLoading] = useState(true);
 
   // General Tab State
   const [schoolData, setSchoolData] = useState({
@@ -32,6 +34,36 @@ export default function SettingsPage() {
 
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  // Load settings on mount
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        setLoading(true);
+        const settings = await getGeneralSettings();
+        if (settings) {
+          setSchoolData({
+            schoolName: settings.school_name || '',
+            schoolEmail: settings.school_email || '',
+            address: settings.address || '',
+            timezone: settings.timezone || 'UTC',
+            language: settings.language || 'English',
+            logo: settings.logo || null,
+          });
+          setInterfaceData({
+            darkMode: settings.dark_mode || false,
+            accentColor: settings.accent_color || 'Default',
+            sidebarLayout: settings.sidebar_layout || 'Default',
+          });
+        }
+      } catch (error) {
+        console.error('Failed to load settings:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadSettings();
+  }, []);
 
   const handleTabChange = (tab: TabType) => {
     setActiveTab(tab);
@@ -69,15 +101,18 @@ export default function SettingsPage() {
     }
 
     try {
-      // TODO: Replace with actual API call
-      // await fetch('/api/settings/general', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ schoolData, interfaceData }),
-      // });
-
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const { updateGeneralSettings } = await import('../../../lib/api/settings');
+      await updateGeneralSettings({
+        school_name: schoolData.schoolName,
+        school_email: schoolData.schoolEmail,
+        address: schoolData.address,
+        timezone: schoolData.timezone,
+        language: schoolData.language,
+        logo: schoolData.logo || undefined,
+        dark_mode: interfaceData.darkMode,
+        accent_color: interfaceData.accentColor,
+        sidebar_layout: interfaceData.sidebarLayout,
+      });
 
       setSaveMessage({ type: 'success', text: 'Settings saved successfully!' });
       
@@ -85,8 +120,9 @@ export default function SettingsPage() {
       setTimeout(() => {
         setSaveMessage(null);
       }, 3000);
-    } catch (error) {
-      setSaveMessage({ type: 'error', text: 'Failed to save settings. Please try again.' });
+    } catch (error: any) {
+      const errorMessage = error?.message || 'Failed to save settings. Please try again.';
+      setSaveMessage({ type: 'error', text: errorMessage });
     } finally {
       setIsSaving(false);
     }

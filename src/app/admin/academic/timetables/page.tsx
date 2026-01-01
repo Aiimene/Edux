@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import styles from "./page.module.css";
+import { getTimetable } from "@/lib/api/timetables";
 
 type Session = {
   id: string;
@@ -24,29 +25,64 @@ const timeSlots = [
   { label: "16:00 - 18:00", start: "16:00", end: "18:00" },
 ];
 
-const sessions: Session[] = [
-  { id: "1", module: "Mathematics", level: "Level 1", teacher: "Alice Gray", day: "Monday", start: "08:00", end: "10:00", room: "A1" },
-  { id: "2", module: "Physics", level: "Level 2", teacher: "John Carter", day: "Monday", start: "10:00", end: "12:00", room: "B2" },
-  { id: "3", module: "Chemistry", level: "Level 1", teacher: "Nora Hayes", day: "Tuesday", start: "12:00", end: "14:00", room: "Lab 1" },
-  { id: "4", module: "English", level: "Level 3", teacher: "Emma Stone", day: "Wednesday", start: "14:00", end: "16:00", room: "C1" },
-  { id: "5", module: "Mathematics", level: "Level 2", teacher: "Alice Gray", day: "Thursday", start: "08:00", end: "10:00", room: "A2" },
-  { id: "6", module: "History", level: "Level 1", teacher: "Michael Lee", day: "Friday", start: "10:00", end: "12:00", room: "D1" },
-  { id: "7", module: "Physics", level: "Level 3", teacher: "John Carter", day: "Friday", start: "14:00", end: "16:00", room: "B1" },
-  { id: "8", module: "Biology", level: "Level 2", teacher: "Sophia Kim", day: "Tuesday", start: "08:00", end: "10:00", room: "Lab 2" },
-  { id: "9", module: "Design", level: "Level 4", teacher: "Luis Perez", day: "Wednesday", start: "10:00", end: "12:00", room: "Studio" },
-  { id: "10", module: "Mathematics", level: "Level 1", teacher: "Alice Gray", day: "Monday", start: "08:00", end: "10:00", room: "A3" },
-];
+const dayNumberToName: Record<number, string> = {
+  0: "Monday",
+  1: "Tuesday",
+  2: "Wednesday",
+  3: "Thursday",
+  4: "Friday",
+  5: "Saturday",
+  6: "Sunday",
+};
 
 const uniqueValues = (arr: string[]) => Array.from(new Set(arr));
 
 export default function TimetablePage() {
+  const [sessions, setSessions] = useState<Session[]>([]);
   const [moduleFilter, setModuleFilter] = useState("All");
   const [levelFilter, setLevelFilter] = useState("All");
   const [teacherFilter, setTeacherFilter] = useState("All");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const moduleOptions = useMemo(() => ["All", ...uniqueValues(sessions.map((s) => s.module))], []);
-  const levelOptions = useMemo(() => ["All", ...uniqueValues(sessions.map((s) => s.level))], []);
-  const teacherOptions = useMemo(() => ["All", ...uniqueValues(sessions.map((s) => s.teacher))], []);
+  useEffect(() => {
+    const fetchTimetable = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await getTimetable({
+          level: levelFilter !== "All" ? levelFilter : undefined,
+          module: moduleFilter !== "All" ? moduleFilter : undefined,
+          teacher: teacherFilter !== "All" ? teacherFilter : undefined,
+        });
+        
+        const timetableData = response.timetable || response.sessions || response || [];
+        const transformed: Session[] = timetableData.map((s: any) => ({
+          id: s.id?.toString() || '',
+          module: s.module?.name || s.course?.name || s.module || '',
+          level: s.level?.name || s.course?.level?.name || s.level || '',
+          teacher: s.teacher?.name || s.teacher || '',
+          day: dayNumberToName[s.day_of_week] || s.day || '',
+          start: s.start_time || s.start || '',
+          end: s.end_time || s.end || '',
+          room: s.room || 'N/A',
+        }));
+        
+        setSessions(transformed);
+      } catch (err: any) {
+        console.error('Failed to fetch timetable:', err);
+        setError(err.message || 'Failed to load timetable.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTimetable();
+  }, [moduleFilter, levelFilter, teacherFilter]);
+
+  const moduleOptions = useMemo(() => ["All", ...uniqueValues(sessions.map((s) => s.module))], [sessions]);
+  const levelOptions = useMemo(() => ["All", ...uniqueValues(sessions.map((s) => s.level))], [sessions]);
+  const teacherOptions = useMemo(() => ["All", ...uniqueValues(sessions.map((s) => s.teacher))], [sessions]);
 
   const filteredSessions = useMemo(() => {
     return sessions.filter((session) => {
@@ -55,7 +91,26 @@ export default function TimetablePage() {
       const teacherOk = teacherFilter === "All" || session.teacher === teacherFilter;
       return moduleOk && levelOk && teacherOk;
     });
-  }, [moduleFilter, levelFilter, teacherFilter]);
+  }, [sessions, moduleFilter, levelFilter, teacherFilter]);
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80vh' }}>
+        <div className={styles.spinner}></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div style={{ textAlign: 'center', padding: '2rem' }}>
+        <p style={{ color: 'red' }}>Error: {error}</p>
+        <button onClick={() => window.location.reload()} style={{ marginTop: '1rem', padding: '0.5rem 1rem' }}>
+          Retry
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.container}>

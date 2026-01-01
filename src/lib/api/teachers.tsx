@@ -1,112 +1,55 @@
-import axios from 'axios';
-
-const API_BASE_URL = 'http://127.0.0.1:8000/api/members';
-
-// Create axios instance with default config
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  withCredentials: false,
-});
-
-// Add JWT token to every request if available (support both authToken and access_token keys)
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('authToken') || localStorage.getItem('access_token');
-  console.log('API Interceptor - Token available:', !!token);
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-    console.log('Adding Authorization header to request:', config.url);
-  } else {
-    console.warn('No token found in localStorage for request:', config.url);
-  }
-  return config;
-});
+import { membersApi, handleApiError } from './apiConfig';
 
 // Get all teachers
 export const getTeachers = async () => {
   try {
-    const response = await api.get('/teachers/');
+    const response = await membersApi.get('/teachers/');
     return response.data;
   } catch (error) {
-    console.error('Failed to fetch teachers:', error);
-    throw error;
+    throw handleApiError(error, 'getTeachers');
   }
 };
 
 // Get a single teacher
 export const getTeacherById = async (id: string) => {
   try {
-    const response = await api.get(`/teachers/${id}/`);
+    const response = await membersApi.get(`/teachers/${id}/`);
     return response.data;
   } catch (error) {
-    console.error(`Failed to fetch teacher ${id}:`, error);
-    throw error;
+    throw handleApiError(error, 'getTeacherById');
   }
 };
 
 // Create teacher
 export const createTeacher = async (teacherData: any) => {
   try {
-    const response = await api.post('/teachers/', teacherData);
+    const response = await membersApi.post('/teachers/', teacherData);
     return response.data;
   } catch (error) {
-    console.error('Failed to create teacher:', error);
-    throw error;
+    throw handleApiError(error, 'createTeacher');
   }
 };
 
 // Update teacher
 export const updateTeacher = async (id: string, teacherData: any) => {
   try {
-    const response = await api.patch(`/teachers/${id}/`, teacherData);
+    const response = await membersApi.patch(`/teachers/${id}/`, teacherData);
     return response.data;
   } catch (error) {
-    console.error(`Failed to update teacher ${id}:`, error);
-    throw error;
+    throw handleApiError(error, 'updateTeacher');
   }
 };
 
 // Delete teacher
 export const deleteTeacher = async (id: string) => {
   try {
-    const response = await api.delete(`/teachers/${id}/`);
+    const response = await membersApi.delete(`/teachers/${id}/`);
     return response.data;
   } catch (error: any) {
-    // Normalize backend HTML/500 errors into a user-friendly message
-    const status = error?.response?.status;
-    const isHtml = error?.response?.headers?.['content-type']?.includes('text/html');
-    
     // If resource is already gone, consider it a successful no-op
-    if (status === 404) {
-      return { ok: true, status };
+    if (error?.status === 404) {
+      return { ok: true, status: 404 };
     }
-
-    // Extract structured backend validation errors (e.g., active classes, enrolled students)
-    const backendError = error?.response?.data?.error;
-    const activeClasses = error?.response?.data?.active_classes;
-    const enrolledStudents = error?.response?.data?.enrolled_students;
-
-    let message = 'Failed to delete teacher.';
-    
-    if (backendError) {
-      message = backendError;
-      if (activeClasses) message += ` (Active classes: ${activeClasses})`;
-      if (enrolledStudents) message += ` (Enrolled students: ${enrolledStudents})`;
-    } else if (status && status >= 500) {
-      message = `Delete failed on the server (${status}). Please try again later.`;
-    } else if (isHtml) {
-      message = 'Delete failed because the server returned an unexpected response.';
-    } else if (error?.message) {
-      message = error.message;
-    }
-
-    console.error(`Failed to delete teacher ${id}:`, error);
-    const friendlyError = new Error(message);
-    // Preserve status for callers that need it
-    // @ts-expect-error augmenting error with status for downstream checks
-    friendlyError.status = status;
-    throw friendlyError;
+    throw handleApiError(error, 'deleteTeacher');
   }
 };

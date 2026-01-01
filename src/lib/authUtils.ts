@@ -10,6 +10,11 @@ export const clearAuthData = () => {
   localStorage.removeItem('username');
   localStorage.removeItem('workspace_display_name');
   localStorage.removeItem('user_data');
+  // Clear JWT tokens
+  localStorage.removeItem('access_token');
+  localStorage.removeItem('refresh_token');
+  localStorage.removeItem('authToken');
+  localStorage.removeItem('token');
 };
 
 
@@ -79,4 +84,28 @@ export const getRoleBasedRedirect = (role: string): string => {
     default:
       return '/dashboard';
   }
+};
+
+/**
+ * Store JWT access token manually
+ * Useful when token is obtained from external source
+ */
+export const setAccessToken = (token: string): void => {
+  localStorage.setItem('access_token', token);
+};
+
+/**
+ * Get stored JWT access token
+ */
+export const getAccessToken = (): string | null => {
+  return localStorage.getItem('access_token') || 
+         localStorage.getItem('authToken') ||
+         localStorage.getItem('token');
+};
+
+/**
+ * Check if user has a valid token stored
+ */
+export const hasToken = (): boolean => {
+  return !!getAccessToken();
 };

@@ -2,12 +2,19 @@
 
 import React, { createContext, useContext, useState } from "react";
 import Image from "next/image";
-import enterpriseData from "../../../data/enterprise.json";
+import { getSchoolName } from "../../../lib/authUtils";
 import FilterBy from "../../../components/analytics/filters/FilterBy/FilterBy";
 import DateRangePicker from "../../../components/analytics/filters/DateRangePicker/DateRangePicker";
 import CurrentFilter from "../../../components/analytics/filters/CurrentFilter/CurrentFilter";
-import analyticsData from "../../../data/analytics.json";
 import styles from "./layout.module.css";
+
+// Static filter options - these could be fetched from backend in the future
+const FILTER_OPTIONS = {
+  levels: ["All Levels", "Elementary", "Middle School", "High School"],
+  modules: ["All Modules", "Module 1", "Module 2", "Module 3", "Module 4", "Module 5"],
+  subjects: ["All Subjects", "Mathematics", "Science", "English", "Arabic"],
+  teachers: ["All Teachers", "Hmida Teacher", "Ahmed Teacher", "Sara Teacher", "Mohamed Teacher", "Fatima Teacher"],
+};
 
 type FilterState = {
   level: string;
@@ -111,31 +118,31 @@ export default function AnalyticsLayout({
           <div className={styles.greetingSection}>
             <p className={styles.greetingText}>Hello</p>
             <Image src="/icons/hello.svg" alt="hello" width={45} height={45} className={styles.greetingIcon} />
-            <p className={styles.enterpriseName}>{enterpriseData.name}</p>
+            <p className={styles.enterpriseName}>{getSchoolName() || 'Your School'}</p>
           </div>
           
           {/* Filters Section - Right of Welcome */}
           <div className={styles.filtersSection}>
             <FilterBy
-              options={analyticsData.filters.levels}
+              options={FILTER_OPTIONS.levels}
               selectedOption={filters.level}
               onSelect={handleLevelChange}
               label="Level"
             />
             <FilterBy
-              options={analyticsData.filters.modules}
+              options={FILTER_OPTIONS.modules}
               selectedOption={filters.module}
               onSelect={handleModuleChange}
               label="Module"
             />
             <FilterBy
-              options={analyticsData.filters.subjects}
+              options={FILTER_OPTIONS.subjects}
               selectedOption={filters.subject}
               onSelect={handleSubjectChange}
               label="Subject"
             />
             <FilterBy
-              options={analyticsData.filters.teachers}
+              options={FILTER_OPTIONS.teachers}
               selectedOption={filters.teacher}
               onSelect={handleTeacherChange}
               label="Teacher"
