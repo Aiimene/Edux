@@ -19,6 +19,7 @@
 
 .content {
   padding: 20px;
+  padding-top: 100px;
   flex-grow: 1;
   width: 100%;
   overflow-x: hidden;
@@ -33,6 +34,7 @@
 
   .content {
     padding: 15px;
+    padding-top: 95px;
     margin-right: 15px;
   }
 }
@@ -44,6 +46,7 @@
 
   .content {
     padding: 10px;
+    padding-top: 90px;
     margin-right: 10px;
   }
 }
