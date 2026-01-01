@@ -110,7 +110,19 @@ export default function AnalyticsPage() {
         };
 
         const response = await getAnalytics(analyticsFilters);
-        setData(response);
+        
+        // Debug: Log the response to verify it's coming from backend
+        console.log('Analytics API Response:', response);
+        console.log('Revenue Chart Data:', response?.revenue?.chart);
+        console.log('Small Charts Data:', response?.smallCharts);
+        
+        // Ensure we have valid data structure
+        if (response && response.revenue && response.revenue.chart && response.smallCharts) {
+          setData(response);
+        } else {
+          console.error('Invalid response structure:', response);
+          setError('Invalid data structure received from server.');
+        }
       } catch (err: any) {
         console.error('Failed to fetch analytics data:', err);
         setError(err.message || 'Failed to load analytics data. Please try again.');
