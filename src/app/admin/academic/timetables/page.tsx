@@ -6,6 +6,7 @@ import { getSessions } from "@/lib/api/sessions";
 
 type TimetableSession = {
   id: string;
+  sessionName: string;
   module: string;
   level: string;
   teacher: string;
@@ -52,6 +53,7 @@ export default function TimetablePage() {
         for (const s of data) {
           const base = {
             id: (s.id ?? "").toString(),
+            sessionName: s.name || s.session_name || "",
             module: s.course_name || s.module_name || s.course?.name || s.module?.name || "",
             level: s.level_name || s.course?.level?.name || s.level?.name || "",
             teacher: s.teacher_name || s.teacher?.name || "",
@@ -123,8 +125,8 @@ export default function TimetablePage() {
   }, [filteredSessions]);
 
   const sessionFitsSlot = (session: TimetableSession, slot: { start: string; end: string }) => {
-    // Overlap if session starts before slot end and ends after slot start
-    return toMinutes(session.start) < toMinutes(slot.end) && toMinutes(session.end) > toMinutes(slot.start);
+    // Only show session in the slot that exactly matches its time range
+    return session.start === slot.start && session.end === slot.end;
   };
 
   return (
@@ -227,7 +229,7 @@ export default function TimetablePage() {
                                 className={overlap ? `${styles.sessionCard} ${styles.sessionCardOverlap}` : styles.sessionCard}
                               >
                                 <div className={styles.sessionTop}>
-                                  <span className={styles.sessionModule}>{session.module}</span>
+                                  <span className={styles.sessionModule}>{session.sessionName || session.module}</span>
                                   {session.room ? <span className={styles.sessionRoom}>{session.room}</span> : null}
                                 </div>
                                 <div className={styles.sessionMeta}>

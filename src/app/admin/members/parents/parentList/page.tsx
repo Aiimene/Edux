@@ -3,7 +3,6 @@
 import { useState, useRef, useEffect } from 'react';
 import MembersTable, { Column } from '@/components/members/MembersTable/MembersTable';
 import AddParentModal from '@/components/parents/AddParentModal/AddParentModal';
-import EditParentModal from '@/components/parents/EditParentModal/EditParentModal';
 import ParentProfileModal from '@/components/parents/ParentProfileModal/ParentProfileModal';
 import ConfirmModal from '@/components/UI/ConfirmModal/ConfirmModal';
 import { getParents, getParentById, createParent, updateParent, deleteParent } from '@/lib/api/parents';
@@ -66,30 +65,30 @@ export default function ParentListPage() {
       const response = await getParents();
       const apiData = Array.isArray(response) ? response : response?.results || [];
       const normalized: Parent[] = apiData.map((p: any) => {
-        const childrenNames = Array.isArray(p.children)
-          ? p.children.map((c: any) => c?.name || c?.student_name || c).filter(Boolean).join(', ')
-          : p.children_names?.join?.(', ') || '';
-        const childrenArray = Array.isArray(p.children)
+        // Always extract from backend structure
+        const user = p.user || {};
+        const childrenArr = Array.isArray(p.children)
           ? p.children.map((c: any) => c?.name || c?.student_name || c).filter(Boolean)
           : p.children_names || [];
+        const childrenNames = childrenArr.join(', ');
         const base: Parent = {
           id: p.id,
           parentName: p.name ?? '',
-          email: p.user?.email ?? '',
-          phoneNumber: p.user?.phone_number ?? '',
+          email: user.email ?? '',
+          phoneNumber: user.phone_number ?? '',
           childrenCount: p.children_count ?? 0,
           childName: childrenNames || '',
-          children: childrenArray,
+          children: childrenArr,
         };
         const ov = parentOverrides[String(base.id)];
-        if (!ov) return base;
+        // Only override if the value is not undefined or empty string/null
         return {
           ...base,
-          parentName: ov.parentName !== undefined ? ov.parentName : base.parentName,
-          email: ov.email !== undefined ? ov.email : base.email,
-          phoneNumber: ov.phoneNumber !== undefined ? ov.phoneNumber : base.phoneNumber,
-          childName: ov.childName !== undefined ? ov.childName : base.childName,
-          children: ov.children !== undefined ? ov.children : base.children,
+          ...(ov && Object.keys(ov).reduce((acc, key) => {
+            const v = ov[key];
+            if (v !== undefined && v !== null && v !== '') acc[key] = v;
+            return acc;
+          }, {} as Partial<Parent>)),
         } as Parent;
       });
       setParents(normalized);
@@ -100,6 +99,7 @@ export default function ParentListPage() {
       setLoading(false);
     }
   };
+
   const handleAddClick = () => {
     setSelectedParentData(null);
     setIsAddModalOpen(true);
@@ -112,11 +112,52 @@ export default function ParentListPage() {
       const childrenArray = Array.isArray(detail.children)
         ? detail.children.map((c: any) => c?.name || c?.student_name || c).filter(Boolean)
         : detail.children_names || [];
+      // Aggregate feePayment and academicYear from children if not present, and merge with localStorage
+      let feePayment = '';
+      let academicYear = '';
+      let password = '';
+      let localChildren = childrenArray;
+      try {
+        const local = JSON.parse(localStorage.getItem('parent_extra_fields') || '{}');
+        const localFields = local[parentId] || {};
+        if (localFields.feePayment) feePayment = localFields.feePayment;
+        if (localFields.academicYear) academicYear = localFields.academicYear;
+        if (localFields.password) password = localFields.password;
+        if (Array.isArray(localFields.children) && localFields.children.length > 0) localChildren = localFields.children;
+      } catch (e) { console.error('Failed to load extra parent fields', e); }
+      if (!feePayment && Array.isArray(detail.children) && detail.children.length > 0) {
+        // Sum total_owed for all children for feePayment
+        const totalOwed = detail.children.reduce((sum: number, child: any) => sum + (parseFloat(child.total_owed || '0') || 0), 0);
+        feePayment = totalOwed ? String(totalOwed) : '';
+      }
+      if (!academicYear && Array.isArray(detail.children) && detail.children.length > 0) {
+        // Find the most common academicYear among children
+        const yearCounts: Record<string, number> = {};
+        detail.children.forEach((child: any) => {
+          const year = child.academicYear || child.academic_year;
+          if (year) yearCounts[year] = (yearCounts[year] || 0) + 1;
+        });
+        academicYear = Object.entries(yearCounts).sort((a, b) => (b[1] as number) - (a[1] as number))[0]?.[0] || '';
+      }
       const mapped = {
         studentName: detail.name ?? '',
+        parentName: detail.name ?? '',
         email: detail.user?.email ?? '',
+        password,
         phoneNumber: detail.user?.phone_number ?? '',
-        children: childrenArray,
+        children: localChildren,
+        academicYear,
+        feePayment,
+        dateOfBirth: detail.date_of_birth ?? '',
+        level: detail.level ?? '',
+        levels: Array.isArray(detail.levels) ? detail.levels : [],
+        sessions: Array.isArray(detail.sessions) ? detail.sessions : [],
+        enrollmentDate: detail.enrollment_date ?? '',
+        paymentMethod: detail.payment_method ? String(detail.payment_method).toLowerCase() : '',
+        paymentStatus: detail.payment_status ? String(detail.payment_status).toLowerCase() : '',
+        gender: detail.gender ?? '',
+        modules: Array.isArray(detail.modules) ? detail.modules : [],
+        days: Array.isArray(detail.days) ? detail.days : [],
       };
       setSelectedParentData(mapped);
       if (open === 'edit') setIsEditModalOpen(true);
@@ -127,9 +168,7 @@ export default function ParentListPage() {
     }
   };
 
-  const handleEditClick = (parentId: string) => {
-    loadParentDetails(parentId, 'edit');
-  };
+
 
   const handleProfileClick = (parentId: string) => {
     loadParentDetails(parentId, 'profile');
@@ -148,60 +187,59 @@ export default function ParentListPage() {
       setIsDeleteModalOpen(false);
       setParentToDelete('');
     } catch (err: any) {
-      console.error('Error deleting parent:', err);
-      
-      let errorMsg = 'Failed to delete parent.';
-      if (err?.response?.data?.error) {
-        errorMsg = err.response.data.error;
-        if (err.response.data.children_count) {
-          errorMsg += ` Children count: ${err.response.data.children_count}`;
-        }
-      } else if (err?.message) {
-        errorMsg = err.message;
-      }
-      
-      setDeleteError(errorMsg);
-      setIsDeleteModalOpen(false);
-      setParentToDelete('');
+      const msg = err?.response?.data?.error || err?.message || 'Failed to delete parent';
+      setDeleteError(msg);
     }
   };
 
   const handleDeleteCancel = () => {
     setIsDeleteModalOpen(false);
     setParentToDelete('');
+    setDeleteError(null);
   };
 
-  const handleDeleteFromModal = () => {
-    handleDeleteClick(selectedParentId);
+  const handleDeleteFromModal = (parentId: string) => {
     setIsEditModalOpen(false);
     setIsProfileModalOpen(false);
+    handleDeleteClick(parentId);
   };
 
   const handleSaveParent = async (data: any) => {
-    console.log('=== ADD PARENT STARTED ===');
-    console.log('Form data received:', data);
     try {
-      const payload = {
+      const payload: any = {
         name: data.studentName,
-        username: data.email ? data.email.split('@')[0] : data.studentName.replace(/\s+/g, '').toLowerCase(),
-        password: data.password,
         email: data.email || undefined,
         phone_number: data.phoneNumber || undefined,
       };
-      console.log('Payload to send:', payload);
+      if (data.password) payload.password = data.password;
+
       const response = await createParent(payload);
-      console.log('Parent created successfully:', response);
-      const newId = (response?.id || response?.data?.id || Date.now()).toString();
-      const override: Partial<Parent> = {
-        parentName: payload.name,
-        email: payload.email || '',
-        phoneNumber: payload.phone_number || '',
+      const newId = String(response?.id || response?.data?.id || Date.now());
+
+      // Store extra fields in localStorage
+      try {
+        const local = JSON.parse(localStorage.getItem('parent_extra_fields') || '{}');
+        local[newId] = {
+          feePayment: data.feePayment || '',
+          password: data.password || '',
+          academicYear: data.academicYear || '',
+          children: data.children || [],
+        };
+        localStorage.setItem('parent_extra_fields', JSON.stringify(local));
+      } catch (e) {
+        console.error('Failed to store extra parent fields', e);
+      }
+
+      const override = {
+        parentName: data.studentName,
+        email: data.email || '',
+        phoneNumber: data.phoneNumber || '',
         childName: (data.children || []).join(', ') || '',
         children: data.children || [],
       };
       const nextOverrides = { ...parentOverrides, [newId]: { ...parentOverrides[newId], ...override } };
       persistOverrides(nextOverrides);
-      
+
       setParents((prev) => [...prev, {
         id: newId,
         parentName: data.studentName,
@@ -211,13 +249,13 @@ export default function ParentListPage() {
         childName: (data.children || []).join(', ') || '',
         children: data.children || [],
       }]);
-      
+
       setIsAddModalOpen(false);
     } catch (err: any) {
       console.error('=== ADD PARENT ERROR ===');
       console.error('Full error:', err);
       console.error('Response data:', err?.response?.data);
-      
+
       // Parse detailed error messages from backend
       let errorMsg = 'Failed to create parent';
       if (err?.response?.data) {
@@ -228,7 +266,7 @@ export default function ParentListPage() {
             .filter(([key]) => key !== 'error' && key !== 'detail')
             .map(([field, msgs]) => `${field}: ${Array.isArray(msgs) ? msgs.join(', ') : msgs}`)
             .join('\n');
-          
+
           if (fieldErrors) {
             errorMsg = fieldErrors;
           } else if (data.error || data.detail) {
@@ -240,27 +278,12 @@ export default function ParentListPage() {
       } else if (err?.message) {
         errorMsg = err.message;
       }
-      
+
       alert('Error creating parent:\n' + errorMsg);
     }
   };
 
-  const handleUpdateParent = async (data: any) => {
-    try {
-      const payload: any = {
-        name: data.studentName,
-        email: data.email || undefined,
-        phone_number: data.phoneNumber || undefined,
-      };
-      if (data.password) payload.password = data.password;
-      await updateParent(selectedParentId, payload);
-      await fetchParents();
-      setIsEditModalOpen(false);
-    } catch (err: any) {
-      const msg = err?.response?.data?.error || err?.response?.data?.detail || err?.message || 'Failed to update parent';
-      alert(msg);
-    }
-  };
+
 
   // Define table columns for parents (align with backend list serializer)
   const columns: Column<Parent>[] = [
@@ -270,7 +293,6 @@ export default function ParentListPage() {
     { key: 'phoneNumber', label: 'Phone' },
     { key: 'childName', label: 'Children' },
   ];
-
 
   const parentStats = [
     {
@@ -347,9 +369,9 @@ export default function ParentListPage() {
       if (raw === undefined || raw === null) return false;
       return raw.toString().toLowerCase().includes(activeFilter.value);
     });
+
   return (
     <div className={styles.container}>
-      
       <div className={styles.content}>
         {loading && <div style={{padding: '20px', textAlign: 'center'}}>Loading parents...</div>}
         {error && (
@@ -376,43 +398,11 @@ export default function ParentListPage() {
                 fontSize: '18px',
                 fontWeight: 'bold'
               }}
-            >×</button>
+            >
+              ×
+            </button>
           </div>
         )}
-        {deleteError && (
-          <div style={{
-            padding: '12px 16px',
-            marginBottom: '16px',
-            backgroundColor: '#fff3cd',
-            border: '1px solid #ffc107',
-            borderRadius: '8px',
-            color: '#856404',
-            fontSize: '14px',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center'
-          }}>
-            <span>{deleteError}</span>
-            <button
-              onClick={() => setDeleteError(null)}
-              style={{
-                background: 'none',
-                border: 'none',
-                color: '#856404',
-                cursor: 'pointer',
-                fontSize: '18px',
-                fontWeight: 'bold'
-              }}
-            >×</button>
-          </div>
-        )}
-        
-
-        <div className={styles.cardsRow}>
-          {parentStats.map((stat) => (
-            <DashboardCard key={stat.label} {...stat} />
-          ))}
-        </div>
 
         {/* Search and Filter Section */}
         <div className={styles.searchSection}>
@@ -448,7 +438,6 @@ export default function ParentListPage() {
                 <div className={styles.popup}>
                   <div className={styles.popupContent}>
                     {!selectedFilterFeature ? (
-                      // Only parent-related columns
                       columns.map((column) => (
                         <button key={column.key} className={styles.popupItem} onClick={() => handleFilterFeatureSelect(column.key)}>
                           {column.label}
@@ -480,15 +469,11 @@ export default function ParentListPage() {
           </div>
         </div>
 
-        {loading && <div className={styles.loading}>Loading parents...</div>}
-        {error && <div className={styles.error}>{error}</div>}
-
         {!loading && (
           <div className={styles.listContainer}>
             <MembersTable
               data={visibleParents}
               columns={columns}
-              onEdit={handleEditClick}
               onViewProfile={handleProfileClick}
               onDelete={handleDeleteClick}
               getId={(row) => String((row as any).id ?? row.parentName)}
@@ -508,13 +493,6 @@ export default function ParentListPage() {
         onClose={() => setIsAddModalOpen(false)}
         onSave={handleSaveParent}
       />
-      <EditParentModal 
-        isOpen={isEditModalOpen} 
-        onClose={() => setIsEditModalOpen(false)}
-        initialData={selectedParentData}
-        onSave={handleUpdateParent}
-        onDelete={handleDeleteFromModal}
-      />
       <ParentProfileModal 
         isOpen={isProfileModalOpen} 
         onClose={() => setIsProfileModalOpen(false)}
@@ -533,4 +511,3 @@ export default function ParentListPage() {
     </div>
   );
 }
-

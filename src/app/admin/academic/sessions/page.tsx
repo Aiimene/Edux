@@ -67,29 +67,57 @@ export default function SessionsPage() {
       const coursesData = Array.isArray(coursesRes) ? coursesRes : (coursesRes.results || []);
       setTeachers(teachersData);
       setCourses(coursesData);
-      const transformed = sessionsData.map((s: any) => ({
-        id: s.id?.toString() || '',
-        sessionName: s.name || '',
-        // Prefer explicit course/module names from API, fallback safely
-        module: s.course_name || s.module_name || s.course?.name || s.module?.name || '',
-        Module: s.course_name || s.module_name || s.course?.name || s.module?.name || '',
-        // Level derived from API if present
-        level: s.level_name || s.course?.level?.name || s.level?.name || '',
-        Level: s.level_name || s.course?.level?.name || s.level?.name || '',
-        teacher:
-          s.teacher_name ||
-          s.teacher?.name ||
-          s.teacher?.user?.username ||
-          schoolName ||
-          '',
-        time: `${s.start_time || ''} - ${s.end_time || ''}`,
-        startTime: s.start_time || '',
-        endTime: s.end_time || '',
-        dayOfWeek: s.day_name || dayNumberToName[s.day_of_week] || '',
-        day_of_week: s.day_of_week,
-        status: s.status || 'active',
-        students_count: s.students_count || 0,
-      }));
+      const transformed = sessionsData.map((s: any) => {
+        // Try to get module name from various sources
+        let moduleName = s.course_name || s.module_name || s.course?.name || s.module?.name || '';
+        
+        // If module name is empty or looks like an ID, try to resolve it
+        if (!moduleName || /^\d+$/.test(moduleName)) {
+          const moduleId = s.course_id || s.module_id || s.course?.id || s.module?.id || (parseInt(moduleName) || null);
+          if (moduleId) {
+            // Try to find in courses
+            const courseMatch = coursesData.find((c: any) => c.id?.toString() === moduleId?.toString());
+            if (courseMatch) {
+              moduleName = courseMatch.name || '';
+            } else {
+              // Try to find in dynamic levels
+              for (const level of dynamicLevels) {
+                const mod = level.modules?.find((m: any) => m.id?.toString() === moduleId?.toString());
+                if (mod) {
+                  moduleName = mod.name || '';
+                  break;
+                }
+              }
+            }
+          }
+        }
+        
+        return {
+          id: s.id?.toString() || '',
+          sessionName: s.name || '',
+          // Use resolved module name
+          module: moduleName || s.course_name || s.module_name || s.course?.name || s.module?.name || '',
+          Module: moduleName || s.course_name || s.module_name || s.course?.name || s.module?.name || '',
+          // Level derived from API if present
+          level: s.level_name || s.course?.level?.name || s.level?.name || '',
+          Level: s.level_name || s.course?.level?.name || s.level?.name || '',
+          teacher:
+            s.teacher_name ||
+            s.teacher?.name ||
+            s.teacher?.user?.username ||
+            schoolName ||
+            '',
+          time: `${s.start_time || ''} - ${s.end_time || ''}`,
+          startTime: s.start_time || '',
+          endTime: s.end_time || '',
+          startDay: s.start_date || s.start_day || s.date_start || '',
+          endDay: s.end_date || s.end_day || s.date_end || '',
+          dayOfWeek: s.day_name || dayNumberToName[s.day_of_week] || '',
+          day_of_week: s.day_of_week,
+          status: s.status || 'active',
+          students_count: s.students_count || 0,
+        };
+      });
       setSessions(transformed);
     } catch (err) {
       console.error('Failed to load sessions:', err);
@@ -199,6 +227,8 @@ export default function SessionsPage() {
           teacher: teacher.id,
           start_time: payload.startTime,
           end_time: payload.endTime,
+          start_date: payload.startDay,
+          end_date: payload.endDay,
           status: 'active',
           day_of_week: dayOfWeek,
         };
@@ -214,6 +244,8 @@ export default function SessionsPage() {
             teacher: teacher.id,
             start_time: payload.startTime,
             end_time: payload.endTime,
+            start_date: payload.startDay,
+            end_date: payload.endDay,
             status: 'active',
             day_of_week: dayOfWeek,
           };

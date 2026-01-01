@@ -15,6 +15,57 @@ const DropdownIndicator = (props: any) => (
   </components.DropdownIndicator>
 );
 
+// Helper function to normalize date to YYYY-MM-DD format
+const normalizeDateToYMD = (dateStr: any): string => {
+  if (!dateStr) return '';
+  if (typeof dateStr !== 'string') return '';
+  
+  // If already in YYYY-MM-DD format, return as is
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return dateStr;
+  
+  // Try to parse various date formats
+  let date: Date | null = null;
+  
+  // Try DD/MM/YYYY format
+  if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateStr)) {
+    const [day, month, year] = dateStr.split('/');
+    date = new Date(`${year}-${month}-${day}`);
+  }
+  // Try ISO format with T
+  else if (/^\d{4}-\d{2}-\d{2}T/.test(dateStr)) {
+    date = new Date(dateStr);
+  }
+  // Try other ISO formats
+  else {
+    date = new Date(dateStr);
+  }
+  
+  if (date && !isNaN(date.getTime())) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+  
+  return '';
+};
+
+// Helper function to normalize time to HH:MM format
+const normalizeTimeToHHMM = (timeStr: any): string => {
+  if (!timeStr) return '';
+  if (typeof timeStr !== 'string') return '';
+  
+  // If already in HH:MM format, validate and return
+  if (/^\d{2}:\d{2}$/.test(timeStr)) return timeStr;
+  
+  // If in HH:MM:SS format, extract HH:MM
+  if (/^\d{2}:\d{2}:\d{2}/.test(timeStr)) {
+    return timeStr.substring(0, 5);
+  }
+  
+  return '';
+};
+
 type SessionForm = {
   sessionName: string;
   module: string;
@@ -57,7 +108,14 @@ export default function AddSessionModal({ isOpen, onClose, onSave, initialData, 
 
   useEffect(() => {
     if (isOpen) {
-      setForm({ ...defaultForm, ...initialData });
+      const normalizedData = initialData ? {
+        ...initialData,
+        startDay: normalizeDateToYMD(initialData.startDay),
+        endDay: normalizeDateToYMD(initialData.endDay),
+        startTime: normalizeTimeToHHMM(initialData.startTime),
+        endTime: normalizeTimeToHHMM(initialData.endTime),
+      } : {};
+      setForm({ ...defaultForm, ...normalizedData });
       (async () => {
         try {
           setTeachersLoading(true);
@@ -77,8 +135,20 @@ export default function AddSessionModal({ isOpen, onClose, onSave, initialData, 
 
   const levels = useMemo(() => dynamicLevels.map(l => l.name), [dynamicLevels]);
   const modules = useMemo(() => {
-    const lev = dynamicLevels.find(l => l.name === form.level);
-    return (lev?.modules ?? []);
+    if (form.level) {
+      // If a level is selected, show only modules from that level
+      const lev = dynamicLevels.find(l => l.name === form.level);
+      return (lev?.modules ?? []);
+    } else {
+      // If no level is selected, show all modules from all levels
+      const allModules = new Map<string, any>();
+      dynamicLevels.forEach(level => {
+        (level.modules ?? []).forEach(module => {
+          allModules.set(String(module.id), module);
+        });
+      });
+      return Array.from(allModules.values());
+    }
   }, [dynamicLevels, form.level]);
   const teacherName = (t: any): string => (
     t?.name || t?.teacherName || t?.full_name || [t?.user?.first_name, t?.user?.last_name].filter(Boolean).join(' ') || ''

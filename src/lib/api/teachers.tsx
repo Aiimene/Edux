@@ -27,9 +27,30 @@ export const createTeacher = async (teacherData: any) => {
   try {
     const response = await api.post('/teachers/', teacherData);
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
     console.error('Failed to create teacher:', error);
-    throw error;
+    
+    // Extract detailed error message from backend
+    const backendError = error?.response?.data?.error || 
+                        error?.response?.data?.detail || 
+                        error?.response?.data?.message;
+    
+    let message = 'Failed to create teacher.';
+    
+    if (backendError) {
+      message = backendError;
+    } else if (error?.response?.status === 400) {
+      message = 'Invalid teacher data. Please check all fields and try again.';
+    } else if (error?.response?.status === 403) {
+      message = 'You do not have permission to create teachers.';
+    } else if (error?.message) {
+      message = error.message;
+    }
+    
+    const friendlyError = new Error(message);
+    // @ts-expect-error augmenting error with response for downstream checks
+    friendlyError.response = error?.response;
+    throw friendlyError;
   }
 };
 

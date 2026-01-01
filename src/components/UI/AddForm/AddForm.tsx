@@ -233,7 +233,7 @@ export default function AddForm({
 
   const filteredSessions = useMemo(() => {
     const targetLevel = normalize(formData.level);
-    const targetModules = (formData.modules || []).map(normalize).filter(Boolean);
+    const targetModules = Array.isArray(formData.modules) ? formData.modules.map(normalize).filter(Boolean) : [];
     return sessionsData.filter((s) => {
       const levelMatch = targetLevel ? normalize(s.level) === targetLevel : true;
       const moduleMatch = targetModules.length ? targetModules.includes(normalize(s.module)) : true;

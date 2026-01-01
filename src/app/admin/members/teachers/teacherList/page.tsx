@@ -86,27 +86,23 @@ export default function TeacherListPage() {
         const paymentMethod = t.payment_method || t.paymentMethod || t.payment?.method || '';
         const paymentStatus = t.payment_status || t.paymentStatus || t.payment?.status || '';
 
-        const base: Teacher = {
+        // Merge with localStorage data for complete information
+        const ov = teacherOverrides[id];
+        const mergedData = ov ? { ...t, ...ov } : t;
+
+        const base: Teacher & { _fullData?: any } = {
           id,
-          teacherName: t.name || t.teacherName || t.full_name || '',
-          level: levelName,
-          modules: modulesList.length ? modulesList.join(', ') : '',
-          sessions: t.sessions_count ?? 0,
-          email: t.email || t.user?.email || '',
-          paymentMethod,
-          paymentStatus,
+          teacherName: mergedData.name || mergedData.teacherName || mergedData.full_name || '',
+          level: ov?.level || levelName,
+          modules: ov?.modules || (modulesList.length ? modulesList.join(', ') : ''),
+          sessions: mergedData.sessions_count ?? 0,
+          email: ov?.email || mergedData.email || mergedData.user?.email || '',
+          paymentMethod: ov?.paymentMethod || paymentMethod,
+          paymentStatus: ov?.paymentStatus || paymentStatus,
+          _fullData: mergedData, // Store merged data for editing
         };
 
-        const ov = teacherOverrides[id];
-        if (!ov) return base;
-        return {
-          ...base,
-          level: ov.level !== undefined ? ov.level : base.level,
-          modules: ov.modules !== undefined ? ov.modules : base.modules,
-          email: ov.email !== undefined ? ov.email : base.email,
-          paymentMethod: ov.paymentMethod !== undefined ? ov.paymentMethod : base.paymentMethod,
-          paymentStatus: ov.paymentStatus !== undefined ? ov.paymentStatus : base.paymentStatus,
-        } as Teacher;
+        return base as Teacher;
       });
       
       setTeachers(transformedTeachers);
@@ -206,6 +202,10 @@ export default function TeacherListPage() {
         password: data.password,
         email: data.email || undefined,
         phone_number: data.phoneNumber || undefined,
+        gender: data.gender || undefined,
+        date_of_birth: data.dateOfBirth || undefined,
+        enrollment_date: data.enrollmentDate || undefined,
+        academic_year: data.academicYear || undefined,
         // Optional associations
         levels: Array.isArray(data.levels) ? data.levels : (data.level ? [data.level] : []),
         modules: Array.isArray(data.modules) ? data.modules : [],
@@ -215,14 +215,23 @@ export default function TeacherListPage() {
 
       const res = await createTeacher(teacherPayload);
       const newId = (res?.id || res?.data?.id || Date.now()).toString();
-      const override: Partial<Teacher> = {
+      const override: any = {
+        id: newId,
+        name: data.studentName,
         level: teacherPayload.levels?.[0] || '',
         modules: teacherPayload.modules?.join(', ') || '',
         paymentMethod: teacherPayload.payment_method || '',
         paymentStatus: teacherPayload.payment_status || '',
         email: teacherPayload.email || '',
+        phone_number: data.phoneNumber || '',
+        gender: data.gender || '',
+        date_of_birth: data.dateOfBirth || '',
+        enrollment_date: data.enrollmentDate || '',
+        academic_year: data.academicYear || '',
+        levels: teacherPayload.levels || [],
+        modules_list: teacherPayload.modules || [],
       };
-      const nextOverrides = { ...teacherOverrides, [newId]: { ...teacherOverrides[newId], ...override } };
+      const nextOverrides = { ...teacherOverrides, [newId]: override };
       persistOverrides(nextOverrides);
 
       // Optimistic row
@@ -235,6 +244,14 @@ export default function TeacherListPage() {
         email: teacherPayload.email || '',
         paymentMethod: data.paymentMethod || '',
         paymentStatus: data.paymentStatus || '',
+        _fullData: {
+          ...res,
+          phone_number: data.phoneNumber,
+          gender: data.gender,
+          date_of_birth: data.dateOfBirth,
+          enrollment_date: data.enrollmentDate,
+          academic_year: data.academicYear,
+        },
       }]);
 
       setIsAddModalOpen(false);
@@ -251,11 +268,40 @@ export default function TeacherListPage() {
         name: data.studentName,
         email: data.email,
         phone_number: data.phoneNumber,
+        gender: data.gender,
+        date_of_birth: data.dateOfBirth,
+        enrollment_date: data.enrollmentDate,
+        academic_year: data.academicYear,
+        levels: Array.isArray(data.levels) ? data.levels : (data.level ? [data.level] : []),
+        modules: Array.isArray(data.modules) ? data.modules : [],
+        payment_method: data.paymentMethod,
+        payment_status: data.paymentStatus,
       };
 
       if (data.password) teacherPayload.password = data.password;
 
       await updateTeacher(selectedTeacherId, teacherPayload);
+      
+      // Update localStorage with new data
+      const override: any = {
+        id: selectedTeacherId,
+        name: data.studentName,
+        level: teacherPayload.levels?.[0] || '',
+        modules: teacherPayload.modules?.join(', ') || '',
+        paymentMethod: data.paymentMethod || '',
+        paymentStatus: data.paymentStatus || '',
+        email: data.email || '',
+        phone_number: data.phoneNumber || '',
+        gender: data.gender || '',
+        date_of_birth: data.dateOfBirth || '',
+        enrollment_date: data.enrollmentDate || '',
+        academic_year: data.academicYear || '',
+        levels: teacherPayload.levels || [],
+        modules_list: teacherPayload.modules || [],
+      };
+      const nextOverrides = { ...teacherOverrides, [selectedTeacherId]: override };
+      persistOverrides(nextOverrides);
+      
       await fetchTeachers();
       setIsEditModalOpen(false);
     } catch (err) {
@@ -488,14 +534,50 @@ export default function TeacherListPage() {
       <EditTeacherModal
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
-        initialData={selectedTeacherRow}
+        initialData={selectedTeacherRow ? {
+          id: selectedTeacherRow.id,
+          studentName: selectedTeacherRow.teacherName || selectedTeacherRow._fullData?.name || '',
+          email: selectedTeacherRow.email || selectedTeacherRow._fullData?.email || selectedTeacherRow._fullData?.user?.email || '',
+          phoneNumber: selectedTeacherRow._fullData?.phone_number || selectedTeacherRow._fullData?.phone || '',
+          dateOfBirth: selectedTeacherRow._fullData?.date_of_birth || selectedTeacherRow._fullData?.birth_date || '',
+          gender: selectedTeacherRow._fullData?.gender || '',
+          level: selectedTeacherRow.level || '',
+          levels: Array.isArray(selectedTeacherRow._fullData?.levels) 
+            ? selectedTeacherRow._fullData.levels.map((l: any) => l?.name || l).filter(Boolean)
+            : [],
+          modules: Array.isArray(selectedTeacherRow._fullData?.modules)
+            ? selectedTeacherRow._fullData.modules.map((m: any) => m?.name || m).filter(Boolean)
+            : (selectedTeacherRow.modules ? selectedTeacherRow.modules.split(', ').filter(Boolean) : []),
+          paymentMethod: selectedTeacherRow.paymentMethod || selectedTeacherRow._fullData?.payment_method || '',
+          paymentStatus: selectedTeacherRow.paymentStatus || selectedTeacherRow._fullData?.payment_status || '',
+          enrollmentDate: selectedTeacherRow._fullData?.enrollment_date || selectedTeacherRow._fullData?.date_joined || '',
+          academicYear: selectedTeacherRow._fullData?.academic_year || '',
+        } : undefined}
         onDelete={handleDeleteFromModal}
         onSave={handleUpdateTeacher}
       />
       <TeacherProfileModal
         isOpen={isProfileModalOpen}
         onClose={() => setIsProfileModalOpen(false)}
-        initialData={selectedTeacherRow}
+        initialData={selectedTeacherRow ? {
+          id: selectedTeacherRow.id,
+          studentName: selectedTeacherRow.teacherName || selectedTeacherRow._fullData?.name || '',
+          email: selectedTeacherRow.email || selectedTeacherRow._fullData?.email || selectedTeacherRow._fullData?.user?.email || '',
+          phoneNumber: selectedTeacherRow._fullData?.phone_number || selectedTeacherRow._fullData?.phone || '',
+          dateOfBirth: selectedTeacherRow._fullData?.date_of_birth || selectedTeacherRow._fullData?.birth_date || '',
+          gender: selectedTeacherRow._fullData?.gender || '',
+          level: selectedTeacherRow.level || '',
+          levels: Array.isArray(selectedTeacherRow._fullData?.levels) 
+            ? selectedTeacherRow._fullData.levels.map((l: any) => l?.name || l).filter(Boolean)
+            : [],
+          modules: Array.isArray(selectedTeacherRow._fullData?.modules)
+            ? selectedTeacherRow._fullData.modules.map((m: any) => m?.name || m).filter(Boolean)
+            : (selectedTeacherRow.modules ? selectedTeacherRow.modules.split(', ').filter(Boolean) : []),
+          paymentMethod: selectedTeacherRow.paymentMethod || selectedTeacherRow._fullData?.payment_method || '',
+          paymentStatus: selectedTeacherRow.paymentStatus || selectedTeacherRow._fullData?.payment_status || '',
+          enrollmentDate: selectedTeacherRow._fullData?.enrollment_date || selectedTeacherRow._fullData?.date_joined || '',
+          academicYear: selectedTeacherRow._fullData?.academic_year || '',
+        } : undefined}
         onDelete={handleDeleteFromModal}
       />
       <ConfirmModal
