@@ -122,16 +122,35 @@ export default function AnalyticsPage() {
         // CRITICAL: Verify data is not dummy/test data
         const revenueData = response?.revenue?.chart?.datasets?.[0]?.data;
         if (revenueData && Array.isArray(revenueData)) {
-          // Check for dummy patterns (2,4,6,8 or 1,3,5,7 patterns)
-          const isDummyPattern = JSON.stringify(revenueData) === JSON.stringify([2, 4, 6, 8, 6]) ||
-                                 JSON.stringify(revenueData) === JSON.stringify([1, 3, 5, 7, 5]) ||
-                                 JSON.stringify(revenueData.slice(0, 4)) === JSON.stringify([2, 4, 6, 8]);
+          // Check for dummy patterns (2,4,6,8 or 1,3,5,7 patterns) - but only if it's exactly this pattern
+          // Allow zeros (no data) but reject obvious test patterns
+          const isDummyPattern = (revenueData.length === 5 && 
+                                  (JSON.stringify(revenueData) === JSON.stringify([2, 4, 6, 8, 6]) ||
+                                   JSON.stringify(revenueData) === JSON.stringify([1, 3, 5, 7, 5]))) ||
+                                 (revenueData.length === 8 && 
+                                  JSON.stringify(revenueData.slice(0, 4)) === JSON.stringify([2, 4, 6, 8]));
           
           if (isDummyPattern) {
             console.error('❌ DUMMY DATA DETECTED! Backend is returning test data instead of real data!');
             console.error('Revenue data:', revenueData);
             setError('Backend is returning dummy/test data. Please check backend analytics service.');
             return;
+          }
+        }
+        
+        // Also check small charts for dummy patterns
+        if (response?.smallCharts && Array.isArray(response.smallCharts)) {
+          for (const chart of response.smallCharts) {
+            const chartData = chart?.chart?.datasets?.[0]?.data;
+            if (chartData && Array.isArray(chartData) && chartData.length === 5) {
+              if (JSON.stringify(chartData) === JSON.stringify([2, 4, 6, 8, 6]) ||
+                  JSON.stringify(chartData) === JSON.stringify([1, 3, 5, 7, 5])) {
+                console.error(`❌ DUMMY DATA DETECTED in ${chart.label} chart!`);
+                console.error('Chart data:', chartData);
+                setError(`Backend is returning dummy/test data in ${chart.label} chart. Please check backend analytics service.`);
+                return;
+              }
+            }
           }
         }
         
