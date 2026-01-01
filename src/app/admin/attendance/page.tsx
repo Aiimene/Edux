@@ -74,8 +74,9 @@ export default function AttendancePage() {
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80vh' }}>
+      <div className={styles.loadingContainer}>
         <div className={styles.spinner}></div>
+        <p>Loading attendance data...</p>
       </div>
     );
   }
