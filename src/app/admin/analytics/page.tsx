@@ -129,7 +129,7 @@ export default function AnalyticsPage() {
           const smallChartsValid = response.smallCharts &&
             Array.isArray(response.smallCharts) &&
             response.smallCharts.length > 0 &&
-            response.smallCharts.every(chart => 
+            response.smallCharts.every((chart: any) => 
               chart.chart && 
               chart.chart.datasets && 
               Array.isArray(chart.chart.datasets) &&
