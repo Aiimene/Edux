@@ -71,26 +71,31 @@ export const getAnalytics = async (filters?: {
   endDate?: string;
 }) => {
   try {
-    const params: any = {};
+    const params: Record<string, string> = {};
     
-    // Only include non-"All" filters
-    if (filters?.level && filters.level !== 'All Levels' && filters.level !== 'All') {
-      params.level = filters.level;
+    // Only include non-empty, non-"All" filters (matching backend expectations)
+    if (filters?.level && filters.level.trim() !== '' && 
+        filters.level !== 'All Levels' && filters.level !== 'All') {
+      params.level = filters.level.trim();
     }
-    if (filters?.module && filters.module !== 'All Modules' && filters.module !== 'All') {
-      params.module = filters.module;
+    if (filters?.module && filters.module.trim() !== '' && 
+        filters.module !== 'All Modules' && filters.module !== 'All') {
+      params.module = filters.module.trim();
     }
-    if (filters?.subject && filters.subject !== 'All Subjects' && filters.subject !== 'All') {
-      params.subject = filters.subject;
+    if (filters?.subject && filters.subject.trim() !== '' && 
+        filters.subject !== 'All Subjects' && filters.subject !== 'All') {
+      params.subject = filters.subject.trim();
     }
-    if (filters?.teacher && filters.teacher !== 'All Teachers' && filters.teacher !== 'All') {
-      params.teacher = filters.teacher;
+    if (filters?.teacher && filters.teacher.trim() !== '' && 
+        filters.teacher !== 'All Teachers' && filters.teacher !== 'All') {
+      params.teacher = filters.teacher.trim();
     }
-    if (filters?.startDate) {
-      params.startDate = filters.startDate;
+    // Date format: YYYY-MM-DD (backend expects this format)
+    if (filters?.startDate && filters.startDate.trim() !== '') {
+      params.startDate = filters.startDate.trim();
     }
-    if (filters?.endDate) {
-      params.endDate = filters.endDate;
+    if (filters?.endDate && filters.endDate.trim() !== '') {
+      params.endDate = filters.endDate.trim();
     }
 
     const response = await dashboardApi.get('/analytics/', { params });
