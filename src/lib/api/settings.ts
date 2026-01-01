@@ -4,42 +4,52 @@ import { settingsApi, handleApiError } from './apiConfig';
 export const getGeneralSettings = async () => {
   try {
     const response = await settingsApi.get('/general/');
-    return response.data;
+    // Backend returns nested structure: { schoolData: {...}, interfaceData: {...} }
+    const data = response.data;
+    if (data.schoolData && data.interfaceData) {
+      return {
+        schoolName: data.schoolData.schoolName || '',
+        schoolEmail: data.schoolData.schoolEmail || '',
+        address: data.schoolData.address || '',
+        timezone: data.schoolData.timezone || 'UTC',
+        language: data.schoolData.language || 'English',
+        logo: data.schoolData.logo || null,
+        darkMode: data.interfaceData.darkMode || false,
+        accentColor: data.interfaceData.accentColor || 'Default',
+        sidebarLayout: data.interfaceData.sidebarLayout || 'Default',
+      };
+    }
+    return data;
   } catch (error) {
     throw handleApiError(error, 'getGeneralSettings');
   }
 };
 
 export const updateGeneralSettings = async (data: {
-  school_name?: string;
-  school_email?: string;
+  schoolName?: string;
+  schoolEmail?: string;
   address?: string;
   timezone?: string;
   language?: string;
-  logo?: File | string;
-  dark_mode?: boolean;
-  accent_color?: string;
-  sidebar_layout?: string;
+  logo?: string | null;
+  darkMode?: boolean;
+  accentColor?: string;
+  sidebarLayout?: string;
 }) => {
   try {
-    const formData = new FormData();
-    if (data.school_name) formData.append('school_name', data.school_name);
-    if (data.school_email) formData.append('school_email', data.school_email);
-    if (data.address) formData.append('address', data.address);
-    if (data.timezone) formData.append('timezone', data.timezone);
-    if (data.language) formData.append('language', data.language);
-    if (data.logo && typeof data.logo !== 'string') {
-      formData.append('logo', data.logo);
-    }
-    if (data.dark_mode !== undefined) formData.append('dark_mode', String(data.dark_mode));
-    if (data.accent_color) formData.append('accent_color', data.accent_color);
-    if (data.sidebar_layout) formData.append('sidebar_layout', data.sidebar_layout);
+    // Backend expects camelCase fields in JSON format (POST request)
+    const payload: any = {};
+    if (data.schoolName !== undefined) payload.schoolName = data.schoolName;
+    if (data.schoolEmail !== undefined) payload.schoolEmail = data.schoolEmail;
+    if (data.address !== undefined) payload.address = data.address;
+    if (data.timezone !== undefined) payload.timezone = data.timezone;
+    if (data.language !== undefined) payload.language = data.language;
+    if (data.logo !== undefined) payload.logo = data.logo;
+    if (data.darkMode !== undefined) payload.darkMode = data.darkMode;
+    if (data.accentColor !== undefined) payload.accentColor = data.accentColor;
+    if (data.sidebarLayout !== undefined) payload.sidebarLayout = data.sidebarLayout;
 
-    const response = await settingsApi.patch('/general/', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    const response = await settingsApi.post('/general/', payload);
     return response.data;
   } catch (error) {
     throw handleApiError(error, 'updateGeneralSettings');
@@ -50,31 +60,33 @@ export const updateGeneralSettings = async (data: {
 export const getUsers = async () => {
   try {
     const response = await settingsApi.get('/users/');
-    return response.data;
+    // Backend returns: { users: [{ id, name, email, role, status }] }
+    return response.data.users || [];
   } catch (error) {
     throw handleApiError(error, 'getUsers');
   }
 };
 
-export const getUserById = async (userId: number) => {
-  try {
-    const response = await settingsApi.get(`/users/${userId}/`);
-    return response.data;
-  } catch (error) {
-    throw handleApiError(error, 'getUserById');
-  }
-};
-
 export const createUser = async (userData: {
+  name: string;
+  email?: string;
   username: string;
-  email: string;
-  password: string;
-  role: 'admin' | 'teacher' | 'student' | 'parent';
-  first_name?: string;
-  last_name?: string;
+  role: 'Admin' | 'Teacher' | 'Student' | 'Parent';
+  status?: 'Active' | 'Inactive';
+  password?: string;
 }) => {
   try {
-    const response = await settingsApi.post('/users/', userData);
+    // Backend expects: { name, email (optional), username, role, status (optional), password (optional) }
+    const payload: any = {
+      name: userData.name,
+      username: userData.username,
+      role: userData.role,
+    };
+    if (userData.email !== undefined) payload.email = userData.email;
+    if (userData.status !== undefined) payload.status = userData.status;
+    if (userData.password !== undefined) payload.password = userData.password;
+
+    const response = await settingsApi.post('/users/', payload);
     return response.data;
   } catch (error) {
     throw handleApiError(error, 'createUser');
@@ -82,14 +94,21 @@ export const createUser = async (userData: {
 };
 
 export const updateUser = async (userId: number, userData: {
-  username?: string;
+  name: string;
   email?: string;
-  password?: string;
-  first_name?: string;
-  last_name?: string;
+  role: 'Admin' | 'Teacher' | 'Student' | 'Parent';
+  status: 'Active' | 'Inactive';
 }) => {
   try {
-    const response = await settingsApi.patch(`/users/${userId}/`, userData);
+    // Backend expects PUT with: { name, email (optional), role, status }
+    const payload: any = {
+      name: userData.name,
+      role: userData.role,
+      status: userData.status,
+    };
+    if (userData.email !== undefined) payload.email = userData.email;
+
+    const response = await settingsApi.put(`/users/${userId}/`, payload);
     return response.data;
   } catch (error) {
     throw handleApiError(error, 'updateUser');

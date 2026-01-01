@@ -43,17 +43,17 @@ export default function SettingsPage() {
         const settings = await getGeneralSettings();
         if (settings) {
           setSchoolData({
-            schoolName: settings.school_name || '',
-            schoolEmail: settings.school_email || '',
+            schoolName: settings.schoolName || '',
+            schoolEmail: settings.schoolEmail || '',
             address: settings.address || '',
             timezone: settings.timezone || 'UTC',
             language: settings.language || 'English',
             logo: settings.logo || null,
           });
           setInterfaceData({
-            darkMode: settings.dark_mode || false,
-            accentColor: settings.accent_color || 'Default',
-            sidebarLayout: settings.sidebar_layout || 'Default',
+            darkMode: settings.darkMode || false,
+            accentColor: settings.accentColor || 'Default',
+            sidebarLayout: settings.sidebarLayout || 'Default',
           });
         }
       } catch (error) {
@@ -73,15 +73,9 @@ export default function SettingsPage() {
     setIsSaving(true);
     setSaveMessage(null);
 
-    // Validate required fields
+    // Validate required fields (matching backend requirements)
     if (!schoolData.schoolName.trim()) {
       setSaveMessage({ type: 'error', text: 'School name is required' });
-      setIsSaving(false);
-      return;
-    }
-
-    if (!schoolData.schoolEmail.trim()) {
-      setSaveMessage({ type: 'error', text: 'School email is required' });
       setIsSaving(false);
       return;
     }
@@ -92,26 +86,28 @@ export default function SettingsPage() {
       return;
     }
 
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(schoolData.schoolEmail)) {
-      setSaveMessage({ type: 'error', text: 'Please enter a valid email address' });
-      setIsSaving(false);
-      return;
+    // Validate email format only if email is provided (backend allows blank email)
+    if (schoolData.schoolEmail.trim()) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(schoolData.schoolEmail)) {
+        setSaveMessage({ type: 'error', text: 'Please enter a valid email address' });
+        setIsSaving(false);
+        return;
+      }
     }
 
     try {
       const { updateGeneralSettings } = await import('../../../lib/api/settings');
       await updateGeneralSettings({
-        school_name: schoolData.schoolName,
-        school_email: schoolData.schoolEmail,
+        schoolName: schoolData.schoolName,
+        schoolEmail: schoolData.schoolEmail,
         address: schoolData.address,
         timezone: schoolData.timezone,
         language: schoolData.language,
-        logo: schoolData.logo || undefined,
-        dark_mode: interfaceData.darkMode,
-        accent_color: interfaceData.accentColor,
-        sidebar_layout: interfaceData.sidebarLayout,
+        logo: schoolData.logo || null,
+        darkMode: interfaceData.darkMode,
+        accentColor: interfaceData.accentColor,
+        sidebarLayout: interfaceData.sidebarLayout,
       });
 
       setSaveMessage({ type: 'success', text: 'Settings saved successfully!' });

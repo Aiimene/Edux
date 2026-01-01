@@ -248,6 +248,22 @@ class AuthService {
     }
   }
 
+  /**
+   * Change password (when user is already authenticated)
+   * Uses dj-rest-auth standard endpoint
+   */
+  async changePassword(data: {
+    old_password: string;
+    new_password1: string;
+    new_password2: string;
+  }): Promise<{ detail: string }> {
+    try {
+      const response = await authApi.post('/password/change/', data);
+      return response.data;
+    } catch (error) {
+      throw handleApiError(error, 'Change Password');
+    }
+  }
 
    // Check if user is authenticated
 

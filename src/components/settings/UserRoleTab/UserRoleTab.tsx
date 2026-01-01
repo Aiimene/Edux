@@ -1,138 +1,149 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import UserManagement, { type User } from '../UserManagement/UserManagement';
-import RoleManagement, { type Role } from '../RoleManagement/RoleManagement';
+import { getUsers, createUser, updateUser, deleteUser } from '../../../lib/api/settings';
 import styles from './UserRoleTab.module.css';
 
-const initialUsers: User[] = [
-  {
-    id: '1',
-    name: '3achoui',
-    email: '3achoui@gmail.com',
-    role: 'Admin',
-    status: 'Active',
-  },
-];
-
-const initialRoles: Role[] = [
-  {
-    id: '1',
-    name: 'Administration',
-    permissions: [
-      { id: '1', name: 'View Dashboard', checked: true },
-      { id: '2', name: 'Manage Users', checked: true },
-      { id: '3', name: 'Manage Roles', checked: true },
-      { id: '4', name: 'View Analytics', checked: true },
-      { id: '5', name: 'Manage Settings', checked: true },
-      { id: '6', name: 'View Reports', checked: true },
-    ],
-  },
-  {
-    id: '2',
-    name: 'Teacher',
-    permissions: [
-      { id: '1', name: 'View Dashboard', checked: true },
-      { id: '2', name: 'Manage Students', checked: true },
-      { id: '3', name: 'View Attendance', checked: true },
-      { id: '4', name: 'View Analytics', checked: false },
-      { id: '5', name: 'Manage Sessions', checked: true },
-      { id: '6', name: 'View Reports', checked: false },
-    ],
-  },
-  {
-    id: '3',
-    name: 'Student',
-    permissions: [
-      { id: '1', name: 'View Dashboard', checked: true },
-      { id: '2', name: 'View Attendance', checked: true },
-      { id: '3', name: 'View Grades', checked: true },
-      { id: '4', name: 'View Schedule', checked: true },
-      { id: '5', name: 'View Materials', checked: false },
-      { id: '6', name: 'Submit Assignments', checked: true },
-    ],
-  },
-  {
-    id: '4',
-    name: 'Wlid Khalti baghi ychouf brk',
-    permissions: [
-      { id: '1', name: 'View Dashboard', checked: true },
-      { id: '2', name: 'View Attendance', checked: true },
-      { id: '3', name: 'View Grades', checked: true },
-      { id: '4', name: 'View Schedule', checked: true },
-      { id: '5', name: 'View Materials', checked: true },
-      { id: '6', name: 'Submit Assignments', checked: true },
-    ],
-  },
-];
-
 export default function UserRoleTab() {
-  const [users, setUsers] = useState<User[]>(initialUsers);
-  const [roles, setRoles] = useState<Role[]>(initialRoles);
-  const [isSaving, setIsSaving] = useState(false);
-  const [saveMessage, setSaveMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-  const initialUsersRef = useRef<User[]>(JSON.parse(JSON.stringify(initialUsers)));
-  const initialRolesRef = useRef<Role[]>(JSON.parse(JSON.stringify(initialRoles)));
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const hasChanges = () => {
-    const usersChanged = JSON.stringify(users) !== JSON.stringify(initialUsersRef.current);
-    const rolesChanged = JSON.stringify(roles) !== JSON.stringify(initialRolesRef.current);
-    return usersChanged || rolesChanged;
+  // Load users from backend
+  useEffect(() => {
+    const loadUsers = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const usersData = await getUsers();
+        // Convert backend format to frontend format
+        const formattedUsers: User[] = usersData.map((user: any) => ({
+          id: String(user.id),
+          name: user.name || '',
+          email: user.email || '',
+          role: user.role || '',
+          status: user.status === 'Active' ? 'Active' : 'Inactive',
+        }));
+        setUsers(formattedUsers);
+      } catch (err: any) {
+        console.error('Failed to load users:', err);
+        setError(err.message || 'Failed to load users');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadUsers();
+  }, []);
+
+  const handleUsersChange = (updatedUsers: User[]) => {
+    setUsers(updatedUsers);
   };
 
-  const handleSave = async () => {
-    setIsSaving(true);
-    setSaveMessage(null);
-
+  // Handle create user (called from UserManagement)
+  const handleCreateUser = async (userData: {
+    name: string;
+    email?: string;
+    username: string;
+    role: 'Admin' | 'Teacher' | 'Student' | 'Parent';
+    status?: 'Active' | 'Inactive';
+    password?: string;
+  }) => {
     try {
-      // TODO: Replace with actual API call
-      // await fetch('/api/settings/user-role', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ users, roles }),
-      // });
-
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // Update initial state after successful save
-      initialUsersRef.current = JSON.parse(JSON.stringify(users));
-      initialRolesRef.current = JSON.parse(JSON.stringify(roles));
-
-      setSaveMessage({ type: 'success', text: 'Changes saved successfully!' });
-      
-      // Clear message after 3 seconds
-      setTimeout(() => {
-        setSaveMessage(null);
-      }, 3000);
+      const response = await createUser(userData);
+      // Reload users to get the updated list
+      const usersData = await getUsers();
+      const formattedUsers: User[] = usersData.map((user: any) => ({
+        id: String(user.id),
+        name: user.name || '',
+        email: user.email || '',
+        role: user.role || '',
+        status: user.status === 'Active' ? 'Active' : 'Inactive',
+      }));
+      setUsers(formattedUsers);
+      return response;
     } catch (error) {
-      setSaveMessage({ type: 'error', text: 'Failed to save changes. Please try again.' });
-    } finally {
-      setIsSaving(false);
+      throw error;
     }
   };
 
-  return (
-    <div className={styles.container}>
-      {hasChanges() && (
-        <div className={styles.saveSection}>
-          {saveMessage && (
-            <div className={`${styles.message} ${styles[saveMessage.type]}`}>
-              {saveMessage.text}
-            </div>
-          )}
-          <button
-            className={styles.saveButton}
-            onClick={handleSave}
-            disabled={isSaving}
-          >
-            {isSaving ? 'Saving...' : 'Save Changes'}
+  // Handle update user (called from UserManagement)
+  const handleUpdateUser = async (userId: number, userData: {
+    name: string;
+    email?: string;
+    role: 'Admin' | 'Teacher' | 'Student' | 'Parent';
+    status: 'Active' | 'Inactive';
+  }) => {
+    try {
+      const response = await updateUser(userId, userData);
+      // Reload users to get the updated list
+      const usersData = await getUsers();
+      const formattedUsers: User[] = usersData.map((user: any) => ({
+        id: String(user.id),
+        name: user.name || '',
+        email: user.email || '',
+        role: user.role || '',
+        status: user.status === 'Active' ? 'Active' : 'Inactive',
+      }));
+      setUsers(formattedUsers);
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  // Handle delete user (called from UserManagement)
+  const handleDeleteUser = async (userId: number) => {
+    try {
+      await deleteUser(userId);
+      // Reload users to get the updated list
+      const usersData = await getUsers();
+      const formattedUsers: User[] = usersData.map((user: any) => ({
+        id: String(user.id),
+        name: user.name || '',
+        email: user.email || '',
+        role: user.role || '',
+        status: user.status === 'Active' ? 'Active' : 'Inactive',
+      }));
+      setUsers(formattedUsers);
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className={styles.container}>
+        <div style={{ textAlign: 'center', padding: '2rem' }}>
+          <p>Loading users...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={styles.container}>
+        <div style={{ textAlign: 'center', padding: '2rem' }}>
+          <p style={{ color: 'red' }}>Error: {error}</p>
+          <button onClick={() => window.location.reload()} style={{ marginTop: '1rem', padding: '0.5rem 1rem' }}>
+            Retry
           </button>
         </div>
-      )}
+      </div>
+    );
+  }
 
-      <UserManagement users={users} onUsersChange={setUsers} />
-      <RoleManagement roles={roles} onRolesChange={setRoles} />
+  return (
+    <div className={styles.container}>
+      <UserManagement 
+        users={users} 
+        onUsersChange={handleUsersChange}
+        onCreateUser={handleCreateUser}
+        onUpdateUser={handleUpdateUser}
+        onDeleteUser={handleDeleteUser}
+      />
     </div>
   );
 }

@@ -219,3 +219,140 @@
   }
 }
 
+/* Modal Styles */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modalContent {
+  background: #fff;
+  border-radius: 20px;
+  padding: 32px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.modalHeader h2 {
+  font-size: 28px;
+  font-weight: 400;
+  color: #000;
+  margin: 0;
+}
+
+.modalClose {
+  background: none;
+  border: none;
+  font-size: 32px;
+  cursor: pointer;
+  color: #000;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.modalClose:hover {
+  opacity: 0.7;
+}
+
+.modalForm {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.formGroup label {
+  font-size: 18px;
+  font-weight: 400;
+  color: #000;
+}
+
+.formGroup input,
+.formGroup select {
+  padding: 12px 16px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+  font-size: 18px;
+  font-weight: 400;
+  color: #000;
+  background: #fff;
+}
+
+.formGroup input:focus,
+.formGroup select:focus {
+  outline: none;
+  border-color: #a6e4fb;
+}
+
+.errorMessage {
+  padding: 12px;
+  background: rgba(255, 0, 0, 0.1);
+  border: 1px solid #ff6c6c;
+  border-radius: 10px;
+  font-size: 16px;
+}
+
+.modalActions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.modalActions button {
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-size: 18px;
+  font-weight: 400;
+  cursor: pointer;
+  border: none;
+  transition: opacity 0.2s;
+}
+
+.modalActions button[type="button"] {
+  background: #f1f5f9;
+  color: #000;
+}
+
+.modalActions button[type="submit"] {
+  background: #a6e4fb;
+  color: #000;
+}
+
+.modalActions button:hover:not(:disabled) {
+  opacity: 0.8;
+}
+
+.modalActions button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
