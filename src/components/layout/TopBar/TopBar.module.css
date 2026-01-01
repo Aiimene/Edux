@@ -1,7 +1,7 @@
 .topWrapper {
   position: fixed;
   top: 0;
-  left: 20px;
+  left: 0;
   right: 20px;
   min-height: 60px;
   height: 60px;
@@ -12,7 +12,7 @@
   align-items: center;
   justify-content: space-between;
   border: 1px solid #e1e7f0;
-  margin: 20px 0 0 0;
+  margin: 20px 0 0 20px;
   box-sizing: border-box;
   box-shadow: 0 4px 16px rgba(0,0,0,0.1), 0 2px 8px rgba(0,0,0,0.06);
   z-index: 999;
