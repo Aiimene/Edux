@@ -115,7 +115,25 @@ export default function AnalyticsPage() {
         console.log('Analytics API Response:', JSON.stringify(response, null, 2));
         console.log('Revenue Chart Data:', response?.revenue?.chart);
         console.log('Revenue Chart Datasets:', response?.revenue?.chart?.datasets);
+        console.log('Revenue Chart Data Array:', response?.revenue?.chart?.datasets?.[0]?.data);
+        console.log('Revenue Chart Previous Period:', response?.revenue?.chart?.datasets?.[1]?.data);
         console.log('Small Charts Data:', response?.smallCharts);
+        
+        // CRITICAL: Verify data is not dummy/test data
+        const revenueData = response?.revenue?.chart?.datasets?.[0]?.data;
+        if (revenueData && Array.isArray(revenueData)) {
+          // Check for dummy patterns (2,4,6,8 or 1,3,5,7 patterns)
+          const isDummyPattern = JSON.stringify(revenueData) === JSON.stringify([2, 4, 6, 8, 6]) ||
+                                 JSON.stringify(revenueData) === JSON.stringify([1, 3, 5, 7, 5]) ||
+                                 JSON.stringify(revenueData.slice(0, 4)) === JSON.stringify([2, 4, 6, 8]);
+          
+          if (isDummyPattern) {
+            console.error('❌ DUMMY DATA DETECTED! Backend is returning test data instead of real data!');
+            console.error('Revenue data:', revenueData);
+            setError('Backend is returning dummy/test data. Please check backend analytics service.');
+            return;
+          }
+        }
         
         // Validate and ensure we have valid data structure from backend
         if (response && response.revenue && response.revenue.chart) {
