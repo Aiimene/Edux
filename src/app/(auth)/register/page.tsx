@@ -516,8 +516,6 @@ export default function RegisterPage() {
           </div>
         </div>
 
-        <div className={`${styles.black} ${showPersonalInfo ? styles.moveLeft : ""}`}></div>
-
         {/* Step 3: Location Information (New Left) */}
         <div className={`${styles.newleft} ${hideNewLeft ? styles.none : ""}`}>
           <div className={styles.backButton} onClick={handleBackToPersonalInfo}>
