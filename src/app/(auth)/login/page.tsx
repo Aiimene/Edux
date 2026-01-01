@@ -248,7 +248,13 @@ export default function LoginPage() {
             </form>
           </div>
         </div>
-        <div className={styles.rightSide}></div>
+        <div className={styles.rightSide}>
+          <img 
+            src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&h=1200&fit=crop&q=80" 
+            alt="Education" 
+            className={styles.rightSideImage}
+          />
+        </div>
       </div>
     </GoogleOAuthProvider>
   );

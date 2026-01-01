@@ -262,6 +262,16 @@ display: none !important;
     position: relative;
     border-radius: 100px 0 0 100px ;
     transition: all 0.5s ease;
+    background: linear-gradient(135deg, rgba(166, 228, 251, 0.1) 0%, rgba(30, 125, 189, 0.2) 100%);
+    overflow: hidden;
+}
+
+.rightSideImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    opacity: 0.9;
 }
 
 
@@ -297,6 +307,10 @@ display: none !important;
     }
 
     .rightSide {
+        display: none;
+    }
+
+    .rightSideImage {
         display: none;
     }
 
@@ -480,6 +494,10 @@ display: none !important;
         align-items: center;
         justify-content: center;
         min-height: 100vh;
+    }
+
+    .rightSide.showOnMobile .rightSideImage {
+        display: none;
     }
 
     /* Hide rightSide when newleft is shown (hideNewLeft is true) */

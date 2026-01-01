@@ -426,6 +426,11 @@ export default function RegisterPage() {
 
         {/* Step 2: Personal Information (Right Side) */}
         <div className={`${styles.rightSide} ${showPersonalInfo ? styles.showOnMobile : ""} ${hideNewLeft ? styles.hideOnMobile : ""}`}>
+          <img 
+            src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&h=1200&fit=crop&q=80" 
+            alt="Education" 
+            className={styles.rightSideImage}
+          />
           <div className={styles.backButton} onClick={() => { setShowPersonalInfo(false); setHideNewLeft(false); }}>
             <img src="/icons/arrow-left.svg" alt="arrow-left" />
           </div>
