@@ -3,7 +3,7 @@
     "target": "ES2017",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
-    "skipLibCheck": true,
+    "skipLibCheck": true, // Skip type checking of declaration files (faster builds)
     "strict": true,
     "noEmit": true,
     "esModuleInterop": true,
@@ -12,7 +12,8 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "react-jsx",
-    "incremental": true,
+    "incremental": true, // Enable incremental compilation
+    "tsBuildInfoFile": ".next/cache/tsconfig.tsbuildinfo", // Cache build info
     "plugins": [
       {
         "name": "next"
