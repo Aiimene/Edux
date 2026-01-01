@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 import Image from "next/image";
 import enterpriseData from "../../../data/enterprise.json";
 import FilterBy from "../../../components/analytics/filters/FilterBy/FilterBy";
@@ -60,6 +60,34 @@ export default function AttendanceLayout({
   const handleDateRangeSelect = (startDate: string, endDate: string) => {
     setFilters((prev) => ({ ...prev, startDate, endDate, dateRange: 'Custom' }));
   };
+
+  // Convert date range filter to startDate/endDate if needed
+  useEffect(() => {
+    if (!filters.startDate || !filters.endDate) {
+      const now = new Date();
+      let startDate: string | undefined;
+      let endDate: string | undefined;
+
+      if (filters.dateRange === 'This Week') {
+        const start = new Date(now);
+        start.setDate(now.getDate() - now.getDay()); // Start of week (Sunday)
+        startDate = start.toISOString().split('T')[0];
+        endDate = now.toISOString().split('T')[0];
+      } else if (filters.dateRange === 'This Month') {
+        const start = new Date(now.getFullYear(), now.getMonth(), 1);
+        startDate = start.toISOString().split('T')[0];
+        endDate = now.toISOString().split('T')[0];
+      } else if (filters.dateRange === 'This Year') {
+        const start = new Date(now.getFullYear(), 0, 1);
+        startDate = start.toISOString().split('T')[0];
+        endDate = now.toISOString().split('T')[0];
+      }
+
+      if (startDate && endDate) {
+        setFilters((prev) => ({ ...prev, startDate, endDate }));
+      }
+    }
+  }, [filters.dateRange]);
 
   const getCurrentFilterText = () => {
     const parts = [];

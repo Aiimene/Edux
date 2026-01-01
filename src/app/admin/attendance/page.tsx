@@ -22,12 +22,34 @@ export default function AttendancePage() {
         setLoading(true);
         setError(null);
         
+        // Convert date range to startDate/endDate if needed
+        let startDate = filters.startDate;
+        let endDate = filters.endDate;
+        
+        if (!startDate || !endDate) {
+          const now = new Date();
+          if (filters.dateRange === 'This Week') {
+            const start = new Date(now);
+            start.setDate(now.getDate() - now.getDay());
+            startDate = start.toISOString().split('T')[0];
+            endDate = now.toISOString().split('T')[0];
+          } else if (filters.dateRange === 'This Month') {
+            const start = new Date(now.getFullYear(), now.getMonth(), 1);
+            startDate = start.toISOString().split('T')[0];
+            endDate = now.toISOString().split('T')[0];
+          } else if (filters.dateRange === 'This Year') {
+            const start = new Date(now.getFullYear(), 0, 1);
+            startDate = start.toISOString().split('T')[0];
+            endDate = now.toISOString().split('T')[0];
+          }
+        }
+
         const filterParams = {
           level: filters.level !== 'All Levels' ? filters.level : undefined,
           module: filters.module !== 'All Modules' ? filters.module : undefined,
           subject: filters.subject !== 'All Subjects' ? filters.subject : undefined,
-          startDate: filters.startDate,
-          endDate: filters.endDate,
+          startDate: startDate,
+          endDate: endDate,
         };
 
         const [summaryRes, teachersRes, studentsRes] = await Promise.all([
