@@ -1,51 +1,56 @@
-import { membersApi, handleApiError } from './apiConfig';
+import { membersApi as api } from './apiConfig';
 
 // Get all parents
 export const getParents = async () => {
   try {
-    const response = await membersApi.get('/parents/');
+    const response = await api.get('/parents/');
     return response.data;
   } catch (error) {
-    throw handleApiError(error, 'getParents');
+    console.error('Failed to fetch parents:', error);
+    throw error;
   }
 };
 
 // Get a single parent
 export const getParentById = async (id: string) => {
   try {
-    const response = await membersApi.get(`/parents/${id}/`);
+    const response = await api.get(`/parents/${id}/`);
     return response.data;
   } catch (error) {
-    throw handleApiError(error, 'getParentById');
+    console.error(`Failed to fetch parent ${id}:`, error);
+    throw error;
   }
 };
 
 // Create parent
 export const createParent = async (parentData: any) => {
   try {
-    const response = await membersApi.post('/parents/', parentData);
+    const response = await api.post('/parents/', parentData);
     return response.data;
   } catch (error) {
-    throw handleApiError(error, 'createParent');
+    console.error('Failed to create parent:', error);
+    throw error;
   }
 };
 
 // Update parent
 export const updateParent = async (id: string, parentData: any) => {
   try {
-    const response = await membersApi.patch(`/parents/${id}/`, parentData);
+    const response = await api.patch(`/parents/${id}/`, parentData);
     return response.data;
   } catch (error) {
-    throw handleApiError(error, 'updateParent');
+    console.error(`Failed to update parent ${id}:`, error);
+    throw error;
   }
 };
 
 // Delete parent
 export const deleteParent = async (id: string) => {
   try {
-    const response = await membersApi.delete(`/parents/${id}/`);
+    const response = await api.delete(`/parents/${id}/`);
     return response.data;
   } catch (error) {
-    throw handleApiError(error, 'deleteParent');
+    console.error(`Failed to delete parent ${id}:`, error);
+    throw error;
   }
 };

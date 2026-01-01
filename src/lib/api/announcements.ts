@@ -1,61 +1,65 @@
-import { academicApi, handleApiError } from './apiConfig';
+import { academicApi as api } from './apiConfig';
 
-// Get all announcements
 export const getAnnouncements = async () => {
   try {
-    const response = await academicApi.get('/announcements/');
+    const response = await api.get('/announcements/');
     return response.data;
   } catch (error) {
-    throw handleApiError(error, 'getAnnouncements');
+    console.error('Failed to fetch announcements:', error);
+    throw error;
   }
 };
 
-// Get a single announcement
-export const getAnnouncementById = async (id: string | number) => {
+export const deleteAnnouncement = async (id: string) => {
   try {
-    const response = await academicApi.get(`/announcements/${id}/`);
+    const response = await api.delete(`/announcements/${id}/`);
+    console.log('Announcement deleted:', id);
     return response.data;
-  } catch (error) {
-    throw handleApiError(error, 'getAnnouncementById');
+  } catch (error: any) {
+    console.error('Failed to delete announcement:', error);
+    throw error;
   }
 };
 
-// Create announcement
-export const createAnnouncement = async (announcementData: {
+export const createAnnouncement = async (payload: {
   title: string;
   message: string;
-  target_audience?: 'all' | 'teachers' | 'students' | 'parents';
+  name?: string;
+  sender?: string;
+  role?: string;
 }) => {
   try {
-    const response = await academicApi.post('/announcements/', announcementData);
+    // Send payload with both name and sender fields for compatibility
+    const finalPayload = {
+      title: payload.title,
+      message: payload.message,
+      ...(payload.name && { name: payload.name }),
+      ...(payload.sender && { sender: payload.sender }),
+      ...(payload.role && { role: payload.role }),
+    };
+    console.log('Creating announcement with payload:', finalPayload);
+    const response = await api.post('/announcements/', finalPayload);
+    console.log('Announcement created, response:', response.data);
     return response.data;
-  } catch (error) {
-    throw handleApiError(error, 'createAnnouncement');
+  } catch (error: any) {
+    const status = error?.response?.status;
+    const data = error?.response?.data;
+    let message = 'Failed to create announcement';
+    if (data?.error) {
+      message = data.error;
+    } else if (data && typeof data === 'object') {
+      const parts: string[] = [];
+      for (const key of Object.keys(data)) {
+        const val = Array.isArray(data[key]) ? data[key].join(', ') : String(data[key]);
+        parts.push(`${key}: ${val}`);
+      }
+      if (parts.length) message = parts.join(' | ');
+    } else if (error?.message) {
+      message = error.message;
+    }
+    const friendlyError = new Error(message);
+    // @ts-expect-error expose status
+    friendlyError.status = status;
+    throw friendlyError;
   }
 };
-
-// Update announcement
-export const updateAnnouncement = async (id: string | number, announcementData: {
-  title?: string;
-  message?: string;
-  target_audience?: 'all' | 'teachers' | 'students' | 'parents';
-}) => {
-  try {
-    const response = await academicApi.patch(`/announcements/${id}/`, announcementData);
-    return response.data;
-  } catch (error) {
-    throw handleApiError(error, 'updateAnnouncement');
-  }
-};
-
-// Delete announcement
-export const deleteAnnouncement = async (id: string | number) => {
-  try {
-    const response = await academicApi.delete(`/announcements/${id}/`);
-    return response.data;
-  } catch (error) {
-    throw handleApiError(error, 'deleteAnnouncement');
-  }
-};
-
-

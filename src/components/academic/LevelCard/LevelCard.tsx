@@ -54,6 +54,13 @@ export default function LevelCard({
     setShowAddModuleModal(false);
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      saveNewModule();
+    }
+  };
+
   const handleRemoveModule = (m: Module) => {
     setModuleToDelete(m);
     setShowDeleteConfirm(true);
@@ -91,12 +98,7 @@ export default function LevelCard({
           </div>
         </div>
 
-        {level.students !== undefined && (
-          <div className={styles.info}>
-            <Image src="/icons/students.svg" alt="Students" width={16} height={16} />
-            <span>{level.students} Students</span>
-          </div>
-        )}
+          {/* Student count removed as requested */}
 
         <div className={styles.modulesSection}>
           <div className={styles.modulesHeader}>
@@ -165,7 +167,9 @@ export default function LevelCard({
                 type="text"
                 value={newModuleName}
                 onChange={(e) => setNewModuleName(e.target.value)}
+                onKeyDown={handleKeyDown}
                 placeholder={unassignedModules[0] || 'e.g., Physics'}
+                autoFocus
               />
             </div>
             <div className={styles.modalActions}>

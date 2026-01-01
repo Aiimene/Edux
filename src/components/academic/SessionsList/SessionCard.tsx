@@ -5,6 +5,7 @@ import styles from './SessionCard.module.css';
 import Image from 'next/image';
 
 type Session = {
+  sessionName?: string;
   Module: string;
   teacher: string;
   students?: number;
@@ -26,8 +27,13 @@ const SessionCard: React.FC<{ session: Session; onRequestDelete?: () => void; on
       <div className={styles.cardLeft}>
         <Image src="/icons/sessions.svg" alt="session" width={20} height={20} />
         <div className={styles.cardText}>
-          <div className={styles.cardTitle}>{session.Module} - {session.teacher}</div>
-          <div className={styles.cardMeta}>{session.date} · {session.time}</div>
+          <div className={styles.cardTitle}>{session.sessionName || session.Module} - {session.teacher}</div>
+          <div className={styles.cardMeta}>
+            {(session?.dayOfWeek || session?.day || session?.date) ? (
+              <span className={styles.cardDay}>{session?.dayOfWeek || session?.day || session?.date}</span>
+            ) : null}
+            {session.time ? <span> · {session.time}</span> : null}
+          </div>
         </div>
       </div>
       <div className={styles.cardActions}>

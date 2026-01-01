@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from './TopBar.module.css';
 import Image from 'next/image';
 import enterpriseData from '../../../data/enterprise.json';
@@ -14,6 +14,16 @@ type TopBarProps = {
 };
 
 export default function TopBar({ title, icon, iconWidth = 24, iconHeight = 24, onMenuClick }: TopBarProps) {
+  const [schoolName, setSchoolName] = useState<string>('');
+
+  useEffect(() => {
+    // Get school name from localStorage
+    const storedSchoolName = localStorage.getItem('workspace_display_name') || 
+                             localStorage.getItem('school_name') || 
+                             enterpriseData.name;
+    setSchoolName(storedSchoolName);
+  }, []);
+
   return (
     <div className={styles.topWrapper}>
       <div className={styles.leftSection}>
@@ -41,7 +51,7 @@ export default function TopBar({ title, icon, iconWidth = 24, iconHeight = 24, o
         <div className={styles.profileBox}>
           <Image src="/icons/profile.svg" alt="Profile" width={35} height={35} className={styles.profileImg} />
           <div className={styles.profileText}>
-            <span className={styles.profileName}> {enterpriseData.name}</span>
+            <span className={styles.profileName}>{schoolName}</span>
             <span className={styles.profileRole}>{enterpriseData.role}</span>
           </div>
         </div>

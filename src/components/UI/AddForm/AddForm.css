@@ -129,6 +129,12 @@
   z-index: 3; /* ensure icon sits above the input background */
 }
 
+/* Smaller, grey tone for payment icons */
+.paymentIcon {
+  opacity: 0.6;
+  filter: grayscale(100%);
+}
+
 /* keep icon vertically centered regardless of error state */
 .inputWrapper .inputIcon {
   transform: translateY(-50%);
@@ -445,20 +451,20 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   flex: 1;
   max-width: 200px;
 }
 
 .stepNumber {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 600;
-  font-size: 14px;
+  font-size: 15px;
   background-color: #e5e7eb;
   color: #6b7280;
   transition: all 0.3s;
@@ -494,7 +500,6 @@
   flex: 1;
   height: 2px;
   background-color: #e5e7eb;
-  max-width: 100px;
   transition: background-color 0.3s;
 }
 

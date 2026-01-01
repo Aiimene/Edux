@@ -1,11 +1,16 @@
 .container {
-  padding: 32px 22px;
-  max-width: 100%;
+  padding: 32px;
+  max-width: 1400px;
   margin: 0 auto;
+  box-sizing: border-box;
 }
 
 .header {
-  margin-bottom: 32px;
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: center;
 }
 
 .titleWrap {
@@ -16,6 +21,13 @@
 }
 
 .titleRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.titleRowInner {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -28,10 +40,120 @@
   margin: 0;
 }
 
-.subtitle {
-  margin: 0;
+.primaryBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: #1B2B4D;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+.primaryBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px rgba(27, 43, 77, 0.15);
+  background: #15233b;
+}
+
+.secondaryBtn {
+  background: #f3f4f6;
+  color: #111827;
+  border: 1px solid #e5e7eb;
+  padding: 10px 16px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.secondaryBtn:hover {
+  background: #e5e7eb;
+  transform: translateY(-1px);
+}
+
+.errorBanner {
+  margin-top: 16px;
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.errorBanner button {
+  background: transparent;
+  border: none;
+  color: inherit;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.form {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.field label {
+  font-weight: 600;
+  color: #111827;
   font-size: 14px;
-  color: #6b7280;
+}
+
+.field input,
+.field select,
+.field textarea {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 14px;
+  outline: none;
+  transition: border 0.2s, box-shadow 0.2s;
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  border-color: #1B2B4D;
+  box-shadow: 0 0 0 3px rgba(27, 43, 77, 0.12);
+}
+
+.field textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
 }
 
 .announcementsWrapper {
@@ -97,9 +219,25 @@
 
 .cardFooter {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: center;
   gap: 8px;
+}
+
+.deleteBtn {
+  background: transparent;
+  border: none;
+  padding: 6px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.deleteBtn:hover {
+  background: #fee;
 }
 
 .dateLabel {
@@ -149,6 +287,15 @@
   transform: translateX(4px);
 }
 
+.emptyState {
+  background: #f9fafb;
+  border: 1px dashed #e5e7eb;
+  border-radius: 12px;
+  padding: 18px 16px;
+  color: #6b7280;
+  text-align: center;
+}
+
 @media (max-width: 768px) {
   .container {
     padding: 20px;
@@ -170,5 +317,16 @@
 
   .row {
     gap: 8px;
+  }
+
+  .titleRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .formActions {
+    flex-direction: column;
+    align-items: stretch;
   }
 }

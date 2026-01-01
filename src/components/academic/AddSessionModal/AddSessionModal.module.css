@@ -198,3 +198,13 @@
   border: 2px solid #1B2B4D;
   box-shadow: 0 0 0 3px rgba(27, 43, 77, 0.1);
 }
+
+.error {
+  border-color: #ef4444 !important;
+}
+
+.errorText {
+  color: #ef4444;
+  font-size: 12px;
+  margin-top: 2px;
+}
