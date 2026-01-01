@@ -30,6 +30,7 @@
     justify-content: flex-start;
     align-items: center;
     overflow-y: auto;
+    z-index: 2;
 }
 
 .logo{
@@ -37,7 +38,7 @@
     top: 3vw;
     right: 3vw;
     cursor: pointer;
-    z-index: 100;
+    z-index: 10;
 }
 .logo img{
     width: 7vw;
@@ -49,7 +50,7 @@
     top: 4vw;
     left: 4vw;
     cursor: pointer;
-    z-index: 100;
+    z-index: 10;
 }
 
 .backButton img {
