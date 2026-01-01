@@ -1,21 +1,41 @@
 'use client';
 
 import React, { useState } from 'react';
+import { sendSupportMessage } from '../../../lib/api/settings';
 import styles from './SupportTab.module.css';
 
 export default function SupportTab() {
   const [message, setMessage] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+    setSuccess(null);
+
     if (!message.trim()) {
-      alert('Please enter a message');
+      setError('Please enter a message');
       return;
     }
-    // TODO: Integrate with API
-    console.log('Message submitted:', message);
-    setMessage('');
-    alert('Message sent successfully!');
+
+    setIsSubmitting(true);
+
+    try {
+      await sendSupportMessage({ message: message.trim() });
+      setSuccess('Message sent successfully!');
+      setMessage('');
+      
+      // Clear success message after 5 seconds
+      setTimeout(() => {
+        setSuccess(null);
+      }, 5000);
+    } catch (err: any) {
+      setError(err.message || 'Failed to send message. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -34,11 +54,19 @@ export default function SupportTab() {
               placeholder="Type your message here..."
               rows={8}
               required
+              disabled={isSubmitting}
             />
           </div>
+
+          {error && <p style={{ color: 'red', marginBottom: '1rem' }}>{error}</p>}
+          {success && <p style={{ color: 'green', marginBottom: '1rem' }}>{success}</p>}
           
-          <button type="submit" className={styles.submitButton}>
-            Submit
+          <button 
+            type="submit" 
+            className={styles.submitButton}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? 'Sending...' : 'Submit'}
           </button>
         </form>
       </div>
@@ -60,8 +88,8 @@ export default function SupportTab() {
             </div>
             <h3 className={styles.cardTitle}>Email Support</h3>
             <p className={styles.cardDescription}>Send us an email anytime</p>
-            <a href="mailto:support@edux.edu" className={styles.emailLink}>
-              support@edux.edu
+            <a href="mailto:support@edux-manager.online" className={styles.emailLink}>
+              support@edux-manager.online
             </a>
             <div className={styles.responseTime}>
               <svg width="17" height="29" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" opacity="0.5">
@@ -79,9 +107,9 @@ export default function SupportTab() {
               </svg>
             </div>
             <h3 className={styles.cardTitle}>Phone Support</h3>
-            <p className={styles.cardDescription}>Send us an email anytime</p>
-            <a href="mailto:support@edux.edu" className={styles.emailLink}>
-              support@edux.edu
+            <p className={styles.cardDescription}>Call us anytime</p>
+            <a href="tel:+213541731397" className={styles.emailLink}>
+              0541731397
             </a>
             <div className={styles.responseTime}>
               <svg width="17" height="29" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" opacity="0.5">

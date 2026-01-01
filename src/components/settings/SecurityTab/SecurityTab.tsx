@@ -60,11 +60,6 @@ export default function SecurityTab() {
     }
   };
 
-  const handleForgotPassword = () => {
-    // Redirect to password reset page
-    window.location.href = '/reset-password';
-  };
-
   return (
     <div className={styles.container}>
       {/* Password and Authentication Section */}
@@ -127,9 +122,6 @@ export default function SecurityTab() {
                 <polyline points="7 3 7 8 15 8"></polyline>
               </svg>
               <span>{isSubmitting ? 'Updating...' : 'Update Password'}</span>
-            </button>
-            <button type="button" className={styles.forgotLink} onClick={handleForgotPassword}>
-              Forgot Password?
             </button>
           </div>
         </form>

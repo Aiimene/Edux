@@ -157,4 +157,15 @@ export const createPayment = async (paymentData: {
   }
 };
 
+// Support
+export const sendSupportMessage = async (data: {
+  message: string;
+}) => {
+  try {
+    const response = await settingsApi.post('/support/', { message: data.message });
+    return response.data;
+  } catch (error) {
+    throw handleApiError(error, 'sendSupportMessage');
+  }
+};
 
