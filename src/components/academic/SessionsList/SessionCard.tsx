@@ -29,8 +29,8 @@ const SessionCard: React.FC<{ session: Session; onRequestDelete?: () => void; on
         <div className={styles.cardText}>
           <div className={styles.cardTitle}>{session.sessionName || session.Module} - {session.teacher}</div>
           <div className={styles.cardMeta}>
-            {(session?.dayOfWeek || session?.day || session?.date) ? (
-              <span className={styles.cardDay}>{session?.dayOfWeek || session?.day || session?.date}</span>
+            {((session as any)?.dayOfWeek || (session as any)?.day || (session as any)?.date) ? (
+              <span className={styles.cardDay}>{(session as any)?.dayOfWeek || (session as any)?.day || (session as any)?.date}</span>
             ) : null}
             {session.time ? <span> · {session.time}</span> : null}
           </div>

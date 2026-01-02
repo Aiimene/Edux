@@ -50,7 +50,7 @@ export default function AnnouncementsPage() {
     const fetchAdminProfile = async () => {
       try {
         const profile = await authService.getProfile();
-        const username = profile?.user?.username || profile?.username || localStorage.getItem('username') || localStorage.getItem('display_name') || 'Admin';
+        const username = profile?.user?.username || localStorage.getItem('username') || localStorage.getItem('display_name') || 'Admin';
         setAdminUsername(username);
         localStorage.setItem('username', username);
       } catch (err) {

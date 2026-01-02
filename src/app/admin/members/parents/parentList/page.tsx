@@ -85,8 +85,8 @@ export default function ParentListPage() {
         return {
           ...base,
           ...(ov && Object.keys(ov).reduce((acc, key) => {
-            const v = ov[key];
-            if (v !== undefined && v !== null && v !== '') acc[key] = v;
+            const v = (ov as any)[key];
+            if (v !== undefined && v !== null && v !== '') (acc as any)[key] = v;
             return acc;
           }, {} as Partial<Parent>)),
         } as Parent;
@@ -497,7 +497,7 @@ export default function ParentListPage() {
         isOpen={isProfileModalOpen} 
         onClose={() => setIsProfileModalOpen(false)}
         parentData={selectedParentData}
-        onDelete={handleDeleteFromModal}
+        onDelete={selectedParentData?.id ? () => handleDeleteFromModal(String(selectedParentData.id)) : undefined}
       />
       <ConfirmModal
         open={isDeleteModalOpen}
