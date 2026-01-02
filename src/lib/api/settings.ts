@@ -134,9 +134,9 @@ export const getBillingPlan = async () => {
   }
 };
 
-export const getBillingPayments = async () => {
+export const getBillingPayments = async (params?: { page?: number; limit?: number }) => {
   try {
-    const response = await settingsApi.get('/billing/payments/');
+    const response = await settingsApi.get('/billing/payments/', { params });
     return response.data;
   } catch (error) {
     throw handleApiError(error, 'getBillingPayments');
@@ -144,16 +144,60 @@ export const getBillingPayments = async () => {
 };
 
 export const createPayment = async (paymentData: {
-  amount: number;
-  payment_method: string;
-  payment_date?: string;
-  notes?: string;
+  method: string;
+  date: string;
+  proof: string; // Base64 encoded file
 }) => {
   try {
     const response = await settingsApi.post('/billing/payments/', paymentData);
     return response.data;
   } catch (error) {
     throw handleApiError(error, 'createPayment');
+  }
+};
+
+export const approvePayment = async (paymentId: number, action: 'approve' | 'reject', notes?: string) => {
+  try {
+    const response = await settingsApi.post(`/billing/payments/${paymentId}/approve/`, {
+      action,
+      notes,
+    });
+    return response.data;
+  } catch (error) {
+    throw handleApiError(error, 'approvePayment');
+  }
+};
+
+// Admin Account Management
+export const getAllAccounts = async () => {
+  try {
+    const response = await settingsApi.get('/admin/accounts/');
+    return response.data;
+  } catch (error) {
+    throw handleApiError(error, 'getAllAccounts');
+  }
+};
+
+export const updateAccountPlan = async (workspaceId: number, planData: {
+  planName: string;
+  maxUsers: number;
+  price: number;
+  status: 'active' | 'inactive' | 'expired';
+}) => {
+  try {
+    const response = await settingsApi.put(`/admin/accounts/${workspaceId}/plan/`, planData);
+    return response.data;
+  } catch (error) {
+    throw handleApiError(error, 'updateAccountPlan');
+  }
+};
+
+export const getPendingPayments = async () => {
+  try {
+    const response = await settingsApi.get('/admin/payments/pending/');
+    return response.data;
+  } catch (error) {
+    throw handleApiError(error, 'getPendingPayments');
   }
 };
 
