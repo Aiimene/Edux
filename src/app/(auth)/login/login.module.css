@@ -281,6 +281,37 @@ display: none !important;
     opacity: 0.9;
     display: block;
     z-index: 1;
+    transition: transform 0.5s ease, opacity 0.5s ease;
+}
+
+.rightSide.showOnMobile .rightSideImage {
+    animation: slideInFromRight 0.5s ease forwards;
+}
+
+.rightSide.hideOnMobile .rightSideImage {
+    animation: slideOutToRight 0.5s ease forwards;
+}
+
+@keyframes slideInFromRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 0.9;
+    }
+}
+
+@keyframes slideOutToRight {
+    from {
+        transform: translateX(0);
+        opacity: 0.9;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
 }
 
 

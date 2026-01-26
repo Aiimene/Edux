@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { authService } from '@/lib/api/auth.service';
 
-export default function AccountManagementLayout({
+export default function AccountsLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -14,7 +14,6 @@ export default function AccountManagementLayout({
   const [isLoading, setIsLoading] = useState(true);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [schoolName, setSchoolName] = useState('');
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -45,16 +44,15 @@ export default function AccountManagementLayout({
     setIsLoading(true);
 
     try {
-      // Login through backend API
-      // For superuser admin, school_name might not be required
+      // For admin login, we need to try with a default workspace or find the user's workspace
+      // Since the backend requires school_name, we'll use the username as a fallback
       const response = await authService.login({
-        school_name: schoolName || username, // Use username as fallback for admin
+        school_name: username, // Use username as school_name for admin login
         identifier: username,
         password: password,
       });
 
-      // Login uses HTTP-only cookies, but we might get tokens in response
-      // The important thing is that cookies are set
+      // Store tokens if provided
       if ((response as any).access_token) {
         localStorage.setItem('access_token', (response as any).access_token);
       }
@@ -68,7 +66,7 @@ export default function AccountManagementLayout({
       if (profile && profile.user) {
         setIsAuthenticated(true);
       } else {
-        setError('Authentication failed. Please try again.');
+        setError('Authentication failed. Please check your credentials.');
         // Clear tokens
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
@@ -97,8 +95,7 @@ export default function AccountManagementLayout({
     setIsAuthenticated(false);
     setUsername('');
     setPassword('');
-    setSchoolName('');
-    router.push('/login');
+    router.push('/accounts');
   };
 
   if (isLoading) {
@@ -130,25 +127,6 @@ export default function AccountManagementLayout({
             Admin Login
           </h1>
           <form onSubmit={handleLogin}>
-            <div style={{ marginBottom: '1rem' }}>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>
-                School Name
-              </label>
-              <input
-                type="text"
-                value={schoolName}
-                onChange={(e) => setSchoolName(e.target.value)}
-                placeholder="Enter your school name"
-                required
-                style={{
-                  width: '100%',
-                  padding: '0.75rem',
-                  border: '1px solid #ddd',
-                  borderRadius: '8px',
-                  fontSize: '1rem',
-                }}
-              />
-            </div>
             <div style={{ marginBottom: '1rem' }}>
               <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>
                 Username
@@ -212,10 +190,6 @@ export default function AccountManagementLayout({
               {isLoading ? 'Logging in...' : 'Login'}
             </button>
           </form>
-          <div style={{ marginTop: '1rem', padding: '1rem', background: '#f8f9fa', borderRadius: '8px', fontSize: '0.875rem', color: '#666' }}>
-            <strong>Login Instructions:</strong><br />
-            Use your existing admin account credentials to access the account management dashboard. If you're already logged in elsewhere, you can use the same credentials here.
-          </div>
         </div>
       </div>
     );
@@ -252,4 +226,5 @@ export default function AccountManagementLayout({
     </div>
   );
 }
+
 
